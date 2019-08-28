@@ -31,7 +31,7 @@ export type DispatchEvents = "PRESENCE_UPDATE" | "VOICE_STATE_UPDATE" | "TYPING_
   | "USER_NOTE_UPDATE" | "USER_GUILD_SETTINGS_UPDATE" | "MESSAGE_ACK"
   | "GUILD_INTEGRATIONS_UPDATE" | "USER_SETTINGS_UPDATE" | "CHANNEL_PINS_ACK";
 
-export interface WebsocketPacket {
+export interface GatewayPacket {
   // The event dispatched when the op code is 0 (the dispatch operation).
   t: DispatchEvents | null,
 
@@ -47,4 +47,4 @@ export interface WebsocketPacket {
 
 export interface UnavailableGuild { }
 
-export interface Guild {}
+export interface Guild { }

@@ -2,7 +2,7 @@ const { platform, env } = Deno;
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
 import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import { GATEWAY_URI } from "../constants.ts";
-import { GatewayStatus, WebsocketPacket, OP_CODES } from "./gatewayTypes.ts";
+import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
 
 const debug = createDebug("dencord:WebsocketShard");
 
@@ -13,10 +13,9 @@ class WebsocketShard {
   public status: GatewayStatus = "connecting";
   private heartbeat?: number;
   private heartbeatAck = false;
-  //private unavailableGuilds = new Set();
   private seq: number | null = null;
 
-  public async connect() {
+  public async *connect(): AsyncIterableIterator<GatewayPacket> {
     try {
       this.socket = await connectWebSocket(GATEWAY_URI);
       await this.onOpen();
@@ -24,7 +23,11 @@ class WebsocketShard {
         if (typeof payload === "string") {
           const packet = JSON.parse(payload);
           await this.handlePacket(packet);
-        } else if (isWebSocketCloseEvent(payload)) this.onClose(payload);
+          if (packet.op === OP_CODES.DISPATCH) yield packet;
+        } else if (isWebSocketCloseEvent(payload)) {
+          this.onClose(payload);
+          break;
+        }
       }
     } catch (err) {
       if (this.socket) this.close(1011);
@@ -32,19 +35,19 @@ class WebsocketShard {
     }
   }
 
-  private async onOpen() {
+  private async onOpen(): Promise<void> {
     this.status = "handshaking";
     debug("Started handshaking.");
     await this.sendHeartbeat();
     await this.identifyClient();
   }
 
-  private onClose(closeData: WebSocketCloseEvent) {
+  private onClose(closeData: WebSocketCloseEvent): void {
     debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
     this.status = "disconnected";
   }
 
-  private async handlePacket(packet: WebsocketPacket) {
+  private async handlePacket(packet: GatewayPacket): Promise<void> {
     this.seq = packet.s;
     if (packet.op === OP_CODES.HELLO) {
       this.setHeartbeat(packet.d.heartbeat_interval);
@@ -59,7 +62,7 @@ class WebsocketShard {
     }
   }
 
-  private setHeartbeat(interval: number) {
+  private setHeartbeat(interval: number): void {
     if (this.heartbeat) clearInterval(this.heartbeat);
     debug(`Heartbeat interval was set to ${interval}ms.`);
     this.heartbeat = setInterval(this.sendHeartbeat.bind(this), interval);
@@ -86,7 +89,7 @@ class WebsocketShard {
     return this.socket.close(code);
   }
 
-  private identifyClient() {
+  private identifyClient(): Promise<void> {
     debug("Identifying client.");
     return this.send(OP_CODES.IDENTIFY, {
       token: TOKEN,
