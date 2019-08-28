@@ -1,4 +1,4 @@
-import { DispatchEvents } from "./Gateway/types.ts";
+import { DispatchEvents } from "./gateway/types";
 
 export const GATEWAY_URI = "ws://localhost:8014";
 

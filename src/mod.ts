@@ -1,3 +1,3 @@
-export { default as WebsocketShard } from "./Gateway/WebsocketShard";
-export { default as Client } from "./Client";
-export * from "./Gateway/types";
+export { default as WebsocketShard } from "./gateway/WebsocketShard.ts";
+export { default as Client } from "./Client.ts";
+export * from "./gateway/types.ts";
