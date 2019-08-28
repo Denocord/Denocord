@@ -1,12 +1,12 @@
-const { platform } = Deno;
+const { platform, env } = Deno;
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket } from "https://deno.land/std@v0.16.0/ws/mod.ts";
+import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import { GATEWAY_URI } from "../constants.ts";
 import { GatewayStatus, WebsocketPacket, OP_CODES } from "./gatewayTypes.ts";
 
 const debug = createDebug("socus:WebsocketShard");
 
-const TOKEN = "NDk1MTkxMTY2NTY4ODkwMzcw.XWUFEg.NBi0qSB4N6TtgglY47N7K2t1iso";
+const { TOKEN } = env();
 
 class WebsocketShard {
   public socket!: WebSocket;
@@ -16,21 +16,15 @@ class WebsocketShard {
   //private unavailableGuilds = new Set();
   private seq: number | null = null;
 
-  constructor() {
-    //this.socket = new WebSocket(`${GATEWAY_URI}&encoding=json`);
-    //this.configureWebsocket();
-  }
-
   public async connect() {
     try {
       this.socket = await connectWebSocket(GATEWAY_URI);
       await this.onOpen();
-      for await (const msg of this.socket.receive()) {
-        if (typeof msg === "string") {
-          await this.handlePacket(JSON.parse(msg));
-        } else if (isWebSocketCloseEvent(msg)) {
-          console.error(`closed: code=${msg.code}, reason=${msg.reason}`);
-        }
+      for await (const payload of this.socket.receive()) {
+        if (typeof payload === "string") {
+          const packet = JSON.parse(payload);
+          await this.handlePacket(packet);
+        } else if (isWebSocketCloseEvent(payload)) this.onClose(payload);
       }
     } catch (err) {
       if (this.socket) this.close(1011);
@@ -45,8 +39,8 @@ class WebsocketShard {
     await this.identifyClient();
   }
 
-  private onClose(closeData: any) {
-    debug(`Disconnected ${!closeData.wasClean ? "un" : ""}cleanly with code ${closeData.code} for reason:\n${closeData.reason}.`);
+  private onClose(closeData: WebSocketCloseEvent) {
+    debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
     this.status = "disconnected";
   }
 

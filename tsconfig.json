@@ -36,6 +36,7 @@
   "include": [
     //"configs/**/*",
     //"src/**/*",
+    "bin/test.ts",
     "src/**/*",
     "src/@types/**/*"
   ]
