@@ -4,7 +4,7 @@ import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent
 import { GATEWAY_URI } from "../constants.ts";
 import { GatewayStatus, WebsocketPacket, OP_CODES } from "./gatewayTypes.ts";
 
-const debug = createDebug("socus:WebsocketShard");
+const debug = createDebug("dencord:WebsocketShard");
 
 const { TOKEN } = env();
 

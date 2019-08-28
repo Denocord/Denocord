@@ -1,7 +1,7 @@
 {
-  "name": "socus",
+  "name": "dencord",
   "version": "0.0.1",
-  "description": "A Discord API lib",
+  "description": "A Discord API lib for deno.",
   "main": "./src/index.ts",
   "devDependencies": {
     "typescript": "^3.5.3",
