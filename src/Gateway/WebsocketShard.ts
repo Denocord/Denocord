@@ -1,12 +1,15 @@
-const { platform, env } = Deno;
+import {
+  connectWebSocket,
+  isWebSocketCloseEvent,
+  WebSocket,
+  WebSocketCloseEvent
+} from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
-import { GATEWAY_URI } from "../constants.ts";
-import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
+import { GATEWAY_URI } from "../lib/constants.ts";
+import { GatewayStatus, OP_CODES, GatewayPacket } from "../types.ts";
+import Client from "../Client.ts";
 
 const debug = createDebug("dencord:WebsocketShard");
-
-const { TOKEN } = env();
 
 class WebsocketShard {
   public socket!: WebSocket;
@@ -15,15 +18,16 @@ class WebsocketShard {
   private heartbeatAck = false;
   private seq: number | null = null;
 
-  public async *connect(): AsyncIterableIterator<GatewayPacket> {
+  public constructor(private token: string, private client: Client) { }
+
+  public async connect(): Promise<void> {
     try {
-      this.socket = await connectWebSocket(GATEWAY_URI);
-      await this.onOpen();
+      await this.connectWs();
       for await (const payload of this.socket.receive()) {
         if (typeof payload === "string") {
           const packet = JSON.parse(payload);
           await this.handlePacket(packet);
-          if (packet.op === OP_CODES.DISPATCH) yield packet;
+          if (packet.op === OP_CODES.DISPATCH) this.client.emit(packet.t, packet.d);
         } else if (isWebSocketCloseEvent(payload)) {
           this.onClose(payload);
           break;
@@ -33,6 +37,11 @@ class WebsocketShard {
       if (this.socket) this.close(1011);
       throw err;
     }
+  }
+
+  private async connectWs(): Promise<void> {
+    this.socket = await connectWebSocket(GATEWAY_URI);
+    await this.onOpen();
   }
 
   private async onOpen(): Promise<void> {
@@ -92,9 +101,9 @@ class WebsocketShard {
   private identifyClient(): Promise<void> {
     debug("Identifying client.");
     return this.send(OP_CODES.IDENTIFY, {
-      token: TOKEN,
+      token: this.token,
       properties: {
-        $os: platform.os,
+        $os: Deno.platform.os,
         $browser: "socus",
         $device: "socus",
       },
