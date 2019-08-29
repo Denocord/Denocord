@@ -1,7 +1,9 @@
 const { createServer } = require("http-proxy");
 
+const target = "wss://gateway.discord.gg/?v=6&encoding=json&compress=zlib-stream";
+console.log(target);
 createServer({
-  target: "wss://gateway.discord.gg/?v=6&encoding=json",
+  target,
   ws: true,
   changeOrigin: true,
 })

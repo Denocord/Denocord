@@ -1,9 +1,13 @@
 const { platform } = Deno;
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
+import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent, append } from "https://deno.land/std@v0.16.0/ws/mod.ts";
+//import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
 import { GATEWAY_URI } from "../constants.ts";
 import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
 import Client from "../Client.ts";
+import UZIP from "../../vendor/UZIP.js/UZIP.js";
+
+const {writeFile} = Deno;
 
 const debug = createDebug("dencord:WebsocketShard");
 
@@ -13,33 +17,60 @@ class WebsocketShard {
   private heartbeat?: number;
   private heartbeatAck = false;
   private seq: number | null = null;
-  private token: string = "";
-  private client: Client;
+  private textDecoder = new TextDecoder("utf-8");
 
-  public constructor(token: string, client: Client) {
-    this.token = token;
-    this.client = client;
-  }
+  public constructor(private token = "", private client: Client) {}
 
   public async connect() {
     try {
       this.socket = await connectWebSocket(GATEWAY_URI);
       await this.onOpen();
       for await (const payload of this.socket.receive()) {
-        if (typeof payload === "string") {
-          const packet = JSON.parse(payload);
-          await this.handlePacket(packet);
-          if (packet.op === OP_CODES.DISPATCH)
-            this.client.emit(packet.t, packet.d);
+        if (payload instanceof Uint8Array) {
+          if (this.client.options.compress) {
+            try {
+              const json = this.textDecoder.decode(UZIP.inflate(payload));
+              await this.handleJSON(json);
+            } catch(err) {
+              console.error(err);
+            }
+          }
+          // WTF? either the proxy cannot do anything or discord doesnt want us to send zlib streams
+          /*else if (this.client.options.compressStream) {
+            pl = append(pl, payload);
+            
+            writeFile("./compressed.bin", pl, {
+              append: true
+            })
+            if (payload.length >= 4 && equal(payload.slice(payload.length - 4), new Uint8Array([0x00, 0x00, 0xff, 0xff]))) {
+              append(pl, new Uint8Array([2])); // Z_SYNC_FLUSH
+              try {
+                console.log(new TextDecoder("utf-8").decode(UZIP.inflate(pl)));
+              } catch(err) {
+                console.error(err);
+              }
+            }
+          }*/
+          
+
         } else if (isWebSocketCloseEvent(payload)) {
           this.onClose(payload);
           break;
-        }
+        } else if (typeof payload === "string") {
+          console.log("JSON PAYLOAD", payload);
+          this.handleJSON(payload)
+        } 
       }
     } catch (err) {
       if (this.socket) this.close(1011);
       throw err;
     }
+  }
+
+  private async handleJSON(payload: string): Promise<void> {
+    const packet = JSON.parse(payload);
+    await this.handlePacket(packet);
+    if (packet.op === OP_CODES.DISPATCH) this.client.emit(packet.t, packet.d);
   }
 
   private async onOpen(): Promise<void> {
@@ -100,6 +131,7 @@ class WebsocketShard {
     debug("Identifying client.");
     return this.send(OP_CODES.IDENTIFY, {
       token: this.token,
+      compress: !!this.client.options.compress,
       properties: {
         $os: platform.os,
         $browser: "socus",

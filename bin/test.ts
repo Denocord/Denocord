@@ -1,7 +1,9 @@
 import "https://deno.land/x/dotenv/load.ts";
 import Client from "../src/Client.ts";
 
-const cl = new Client();
+const cl = new Client(undefined, {
+  compress: true
+});
 
 cl.on("READY", () => {
   console.log("Ready.");
