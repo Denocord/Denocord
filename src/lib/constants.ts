@@ -1,6 +1,8 @@
-import { DispatchEvents } from "./gateway/types.ts";
+import { DispatchEvents } from "../types.ts";
 
 export const GATEWAY_URI = "ws://localhost:8014";
+
+export const DISCORD_EPOCH = 14200704e+5;
 
 export const DISPATCH_EVENTS: DispatchEvents[] = [
   "PRESENCE_UPDATE", "VOICE_STATE_UPDATE", "TYPING_START",

@@ -48,3 +48,7 @@ export interface GatewayPacket {
 export interface UnavailableGuild { }
 
 export interface Guild { }
+
+export type ClientEvent<D = null> = D extends null ? event.Event : customEvent.CustomEvent & D;
+export type createEvent<D> = (data: D) => ClientEvent<D>;
+

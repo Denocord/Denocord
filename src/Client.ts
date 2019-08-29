@@ -1,3 +1,3 @@
-class Client extends EventTarget { }
+class Client { }
 
 export default Client;

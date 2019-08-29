@@ -1,8 +1,8 @@
 const { platform, env } = Deno;
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
-import { GATEWAY_URI } from "../constants.ts";
-import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
+import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent, WebSocketEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
+import { GATEWAY_URI } from "../lib/constants.ts";
+import { GatewayStatus, OP_CODES, GatewayPacket } from "../types.ts";
 
 const debug = createDebug("dencord:WebsocketShard");
 
@@ -14,12 +14,12 @@ class WebsocketShard {
   private heartbeat?: number;
   private heartbeatAck = false;
   private seq: number | null = null;
+  private socketIterable?: AsyncIterableIterator<WebSocketEvent>
 
   public async *connect(): AsyncIterableIterator<GatewayPacket> {
     try {
-      this.socket = await connectWebSocket(GATEWAY_URI);
-      await this.onOpen();
-      for await (const payload of this.socket.receive()) {
+      await this.connectWs();
+      for await (const payload of this.socketIterable!) {
         if (typeof payload === "string") {
           const packet = JSON.parse(payload);
           await this.handlePacket(packet);
@@ -35,6 +35,12 @@ class WebsocketShard {
     }
   }
 
+  private async connectWs(): Promise<void> {
+    this.socket = await connectWebSocket(GATEWAY_URI);
+    await this.onOpen();
+    this.socketIterable = this.socket.receive();
+  }
+
   private async onOpen(): Promise<void> {
     this.status = "handshaking";
     debug("Started handshaking.");
@@ -43,6 +49,7 @@ class WebsocketShard {
   }
 
   private onClose(closeData: WebSocketCloseEvent): void {
+    this.socketIterable!.return!();
     debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
     this.status = "disconnected";
   }
