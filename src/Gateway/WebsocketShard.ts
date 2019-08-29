@@ -1,6 +1,10 @@
-const { platform } = Deno;
+import {
+  connectWebSocket,
+  isWebSocketCloseEvent,
+  WebSocket,
+  WebSocketCloseEvent
+} from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent } from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import { GATEWAY_URI } from "../constants.ts";
 import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
 import Client from "../Client.ts";
@@ -13,24 +17,17 @@ class WebsocketShard {
   private heartbeat?: number;
   private heartbeatAck = false;
   private seq: number | null = null;
-  private token: string = "";
-  private client: Client;
 
-  public constructor(token: string, client: Client) {
-    this.token = token;
-    this.client = client;
-  }
+  public constructor(private token: string, private client: Client) { }
 
-  public async connect() {
+  public async connect(): Promise<void> {
     try {
-      this.socket = await connectWebSocket(GATEWAY_URI);
-      await this.onOpen();
-      for await (const payload of this.socket.receive()) {
+      await this.connectWs();
+      for await (const payload of this.socketIterable!) {
         if (typeof payload === "string") {
           const packet = JSON.parse(payload);
           await this.handlePacket(packet);
-          if (packet.op === OP_CODES.DISPATCH)
-            this.client.emit(packet.t, packet.d);
+          if (packet.op === OP_CODES.DISPATCH) this.client.emit(packet.t, packet.d);
         } else if (isWebSocketCloseEvent(payload)) {
           this.onClose(payload);
           break;
@@ -42,6 +39,12 @@ class WebsocketShard {
     }
   }
 
+  private async connectWs(): Promise<void> {
+    this.socket = await connectWebSocket(GATEWAY_URI);
+    await this.onOpen();
+    this.socketIterable = this.socket.receive();
+  }
+
   private async onOpen(): Promise<void> {
     this.status = "handshaking";
     debug("Started handshaking.");
@@ -50,6 +53,7 @@ class WebsocketShard {
   }
 
   private onClose(closeData: WebSocketCloseEvent): void {
+    this.socketIterable!.return!();
     debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
     this.status = "disconnected";
   }
@@ -101,7 +105,7 @@ class WebsocketShard {
     return this.send(OP_CODES.IDENTIFY, {
       token: this.token,
       properties: {
-        $os: platform.os,
+        $os: Deno.platform.os,
         $browser: "socus",
         $device: "socus",
       },

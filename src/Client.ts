@@ -1,23 +1,21 @@
-import WSShard from "./gateway/WebsocketShard.ts";
+import EventEmitter from "https://deno.land/x/event_emitter/mod.ts";
 import { DispatchEvents } from "./gateway/types.ts";
-import EE from "https://deno.land/x/event_emitter/mod.ts";
-class Client extends EE implements ClientEventTarget {
-  private token: string;
-  private ws: WSShard;
+import WebsocketShard from "./gateway/WebsocketShard.ts";
 
-  public constructor(token?: string) {
-    super();
-    this.token = token || Deno.env().TOKEN;
-    this.ws = new WSShard(this.token, this);
-  }
-
-  public async connect() {
-    await this.ws.connect();
-  }
-}
-export default Client;
-
-interface ClientEventTarget {
+interface Client {
   on(name: DispatchEvents, handler: (data: any) => any): ClientEventTarget;
   addListener(name: DispatchEvents, handler: (data: any) => any): ClientEventTarget;
 }
+
+class Client extends EventEmitter {
+  private token: string;
+  private ws = new WebsocketShard(this.token, this);
+
+  public constructor(private token = Deno.env().TOKEN || "") { }
+
+  public connect(): Promise<void> {
+    return this.ws.connect();
+  }
+}
+
+export default Client;
