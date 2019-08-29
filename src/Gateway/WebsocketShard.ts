@@ -5,8 +5,8 @@ import {
   WebSocketCloseEvent
 } from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { GATEWAY_URI } from "../constants.ts";
-import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
+import { GATEWAY_URI } from "../lib/constants.ts";
+import { GatewayStatus, OP_CODES, GatewayPacket } from "../types.ts";
 import Client from "../Client.ts";
 
 const debug = createDebug("dencord:WebsocketShard");
@@ -23,7 +23,7 @@ class WebsocketShard {
   public async connect(): Promise<void> {
     try {
       await this.connectWs();
-      for await (const payload of this.socketIterable!) {
+      for await (const payload of this.socket.receive()) {
         if (typeof payload === "string") {
           const packet = JSON.parse(payload);
           await this.handlePacket(packet);
@@ -42,7 +42,6 @@ class WebsocketShard {
   private async connectWs(): Promise<void> {
     this.socket = await connectWebSocket(GATEWAY_URI);
     await this.onOpen();
-    this.socketIterable = this.socket.receive();
   }
 
   private async onOpen(): Promise<void> {
@@ -53,7 +52,6 @@ class WebsocketShard {
   }
 
   private onClose(closeData: WebSocketCloseEvent): void {
-    this.socketIterable!.return!();
     debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
     this.status = "disconnected";
   }
