@@ -1,9 +1,13 @@
-const { platform } = Deno;
+import {
+  connectWebSocket,
+  isWebSocketCloseEvent,
+  WebSocket,
+  WebSocketCloseEvent
+} from "https://deno.land/std@v0.16.0/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { connectWebSocket, isWebSocketCloseEvent, WebSocket, WebSocketCloseEvent, append } from "https://deno.land/std@v0.16.0/ws/mod.ts";
 //import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
-import { GATEWAY_URI } from "../constants.ts";
-import { GatewayStatus, OP_CODES, GatewayPacket } from "./types.ts";
+import { GATEWAY_URI } from "../lib/constants.ts";
+import { GatewayStatus, OP_CODES, GatewayPacket } from "../types.ts";
 import Client from "../Client.ts";
 import UZIP from "../../vendor/UZIP.js/UZIP.js";
 
@@ -19,12 +23,11 @@ class WebsocketShard {
   private seq: number | null = null;
   private textDecoder = new TextDecoder("utf-8");
 
-  public constructor(private token = "", private client: Client) {}
+  public constructor(private token: string, private client: Client) {}
 
-  public async connect() {
+  public async connect(): Promise<void> {
     try {
-      this.socket = await connectWebSocket(GATEWAY_URI);
-      await this.onOpen();
+      await this.connectWs();
       for await (const payload of this.socket.receive()) {
         if (payload instanceof Uint8Array) {
           if (this.client.options.compress) {
@@ -57,14 +60,18 @@ class WebsocketShard {
           this.onClose(payload);
           break;
         } else if (typeof payload === "string") {
-          console.log("JSON PAYLOAD", payload);
-          this.handleJSON(payload)
+          this.handleJSON(payload);
         } 
       }
     } catch (err) {
       if (this.socket) this.close(1011);
       throw err;
     }
+  }
+
+  private async connectWs(): Promise<void> {
+    this.socket = await connectWebSocket(GATEWAY_URI);
+    await this.onOpen();
   }
 
   private async handleJSON(payload: string): Promise<void> {
@@ -133,7 +140,7 @@ class WebsocketShard {
       token: this.token,
       compress: !!this.client.options.compress,
       properties: {
-        $os: platform.os,
+        $os: Deno.platform.os,
         $browser: "socus",
         $device: "socus",
       },
