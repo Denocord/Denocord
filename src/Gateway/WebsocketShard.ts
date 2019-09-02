@@ -8,7 +8,6 @@ import createDebug from "https://deno.land/x/debuglog/debug.ts";
 import { GATEWAY_URI } from "../lib/constants.ts";
 import { Gateway } from "../@types/dencord.ts";
 import Client from "../Client.ts";
-import { UnexpectedEOFError } from "../../../../../Library/Caches/deno/deps/https/deno.land/std@v0.16.0/io/bufio.ts";
 
 const debug = createDebug("dencord:WebsocketShard");
 
@@ -39,12 +38,7 @@ class WebsocketShard {
       }
     } catch (err) {
       if (this.socket) this.close(1011);
-      // Likely lost internet connection.
-      if (err instanceof UnexpectedEOFError) {
-        this.status = "resuming";
-        await this.connect();
-        return;
-      } else throw err;
+      throw err;
     }
   }
 
