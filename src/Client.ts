@@ -4,7 +4,10 @@ import WebsocketShard from "./gateway/WebsocketShard.ts";
 
 interface Client {
   on(name: Gateway.DispatchEvents, handler: (...data: any[]) => void): this;
-  addListener(name: Gateway.DispatchEvents, handler: (...data: any[]) => void): this;
+  addListener(
+    name: Gateway.DispatchEvents,
+    handler: (...data: any[]) => void
+  ): this;
 }
 
 class Client extends EventEmitter {

@@ -21,7 +21,7 @@ class WebsocketShard {
   private seq: number | null = null;
   private sessionID?: string;
 
-  public constructor(private token: string, private client: Client) { }
+  public constructor(private token: string, private client: Client) {}
 
   public async connect(): Promise<void> {
     try {
@@ -58,14 +58,18 @@ class WebsocketShard {
       await this.send(Gateway.OP_CODES.RESUME, {
         token: this.token,
         session_id: this.sessionID,
-        seq: this.seq,
+        seq: this.seq
       });
     }
   }
 
   private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
     await this.close();
-    debug(`Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`);
+    debug(
+      `Disconnected with code ${closeData.code} for reason:\n${
+        closeData.reason
+      }.`
+    );
     this.status = "disconnected";
     const {
       UNKNOWN_ERROR,
@@ -74,18 +78,19 @@ class WebsocketShard {
       SESSION_TIMEOUT
     } = Gateway.CLOSE_CODES;
     if (
-      this.sessionID
-      && closeData.code === UNKNOWN_ERROR
-      || closeData.code === INVALID_SEQ
-      || closeData.code === RATE_LIMITED
-      || closeData.code === SESSION_TIMEOUT
+      (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
+      closeData.code === INVALID_SEQ ||
+      closeData.code === RATE_LIMITED ||
+      closeData.code === SESSION_TIMEOUT
     ) {
       this.status = "resuming";
       await this.connect();
     }
   }
 
-  private async handlePacket(packet: Gateway.GatewayPacket): Promise<void | never> {
+  private async handlePacket(
+    packet: Gateway.GatewayPacket
+  ): Promise<void | never> {
     this.seq = packet.s;
     if (packet.op === Gateway.OP_CODES.HELLO) {
       this.setHeartbeat(packet.d.heartbeat_interval);
@@ -96,7 +101,7 @@ class WebsocketShard {
       await this.close();
       await this.connect();
     }
-  
+
     if (packet.op === Gateway.OP_CODES.DISPATCH) {
       if (packet.t === "READY") {
         this.status = "ready";
@@ -114,10 +119,12 @@ class WebsocketShard {
   }
 
   private send(op: Gateway.OP_CODES, data: any): Promise<void> {
-    return this.socket.send(JSON.stringify({
-      op,
-      d: data,
-    }));
+    return this.socket.send(
+      JSON.stringify({
+        op,
+        d: data
+      })
+    );
   }
 
   private async sendHeartbeat(): Promise<void> {
@@ -132,7 +139,7 @@ class WebsocketShard {
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {
         await this.close(1014);
         this.client.removeAllListeners();
-        throw new Error("Failed to receive heartbeat after 3 attempts!")
+        throw new Error("Failed to receive heartbeat after 3 attempts!");
       }
     }
 
@@ -153,8 +160,8 @@ class WebsocketShard {
       properties: {
         $os: Deno.platform.os,
         $browser: "socus",
-        $device: "socus",
-      },
+        $device: "socus"
+      }
     });
   }
 }

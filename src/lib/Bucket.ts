@@ -1,3 +1,3 @@
-class Bucket { }
+class Bucket {}
 
 export default Bucket;
