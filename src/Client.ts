@@ -3,6 +3,7 @@ import EventEmitter from "https://deno.land/x/event_emitter/mod.ts";
 import { DispatchEvents } from "./types.ts";
 import WebsocketShard from "./gateway/WebsocketShard.ts";
 import { ClientOptions } from "./ClientOptions.ts";
+import { API_BASE } from "./lib/constants.ts";
 
 interface ClientEvents {
   on(name: DispatchEvents, handler: (...data: any[]) => any): Client;
@@ -11,6 +12,7 @@ interface ClientEvents {
 
 class Client extends EventEmitter implements ClientEvents {
   private ws = new WebsocketShard(this.token, this);
+  public gatewayURL: string = "";
   public options: ClientOptions;
 
   public constructor(private token = Deno.env().TOKEN || "", options?: ClientOptions) {
@@ -22,7 +24,15 @@ class Client extends EventEmitter implements ClientEvents {
   }
 
   public connect(): Promise<void> {
-    return this.ws.connect();
+    // TODO: implement proper ratelimiting support
+    const promise = this.gatewayURL ? 
+      Promise.resolve(this.gatewayURL) : fetch(`${API_BASE}/gateway`)
+      .then(r => r.json())
+      .then(r => this.gatewayURL = r.url);
+    return promise.then(() => {
+      this.ws.connect();
+      console.log(this.gatewayURL);
+    });
   }
 }
 

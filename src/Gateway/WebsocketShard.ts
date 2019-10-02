@@ -3,7 +3,7 @@ import {
   isWebSocketCloseEvent,
   WebSocket,
   WebSocketCloseEvent
-} from "https://deno.land/std@v0.16.0/ws/mod.ts";
+} from "https://deno.land/std/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
 //import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
 import { GATEWAY_URI } from "../lib/constants.ts";
@@ -70,7 +70,7 @@ class WebsocketShard {
   }
 
   private async connectWs(): Promise<void> {
-    this.socket = await connectWebSocket(GATEWAY_URI);
+    this.socket = await connectWebSocket(this.client.gatewayURL);
     await this.onOpen();
   }
 
@@ -140,7 +140,7 @@ class WebsocketShard {
       token: this.token,
       compress: !!this.client.options.compress,
       properties: {
-        $os: Deno.platform.os,
+        $os: (Deno["platform"] || Deno.build).os,
         $browser: "socus",
         $device: "socus",
       },

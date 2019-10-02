@@ -1,3 +1,8 @@
+/**
+ * Deprecate in favor of Deno.dialTLS
+ * @deprecated
+ */
+
 const { createServer } = require("http-proxy");
 
 const target = "wss://gateway.discord.gg/?v=6&encoding=json&compress=zlib-stream";

@@ -1,6 +1,12 @@
 import { DispatchEvents } from "../types.ts";
 
+/**
+ * Deprecated in favor of auto-discovery
+ * @deprecated
+ */
 export const GATEWAY_URI = "ws://localhost:8014";
+
+export const API_BASE = "https://discordapp.com/api/v7"
 
 export const DISCORD_EPOCH = 14200704e+5;
 
