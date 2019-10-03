@@ -140,7 +140,7 @@ class WebsocketShard {
       token: this.token,
       compress: !!this.client.options.compress,
       properties: {
-        $os: (Deno["platform"] || Deno.build).os,
+        $os: Deno.build.os,
         $browser: "socus",
         $device: "socus",
       },
