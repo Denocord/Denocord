@@ -15,6 +15,7 @@ class Client extends EventEmitter implements ClientEvents {
   public gatewayURL: string = "";
   public options: ClientOptions;
 
+  // TODO(Z): This may have implications on boot times.
   public constructor(private token = Deno.env().TOKEN || "", options?: ClientOptions) {
     super();
     this.options = {

@@ -11,7 +11,7 @@ import { GatewayStatus, OP_CODES, GatewayPacket } from "../types.ts";
 import Client from "../Client.ts";
 import UZIP from "../../vendor/UZIP.js/UZIP.js";
 
-const {writeFile} = Deno;
+const { writeFile } = Deno;
 
 const debug = createDebug("dencord:WebsocketShard");
 
@@ -22,64 +22,38 @@ class WebsocketShard {
   private heartbeatAck = false;
   private seq: number | null = null;
   private textDecoder = new TextDecoder("utf-8");
+  private sessionID?: string;
 
-  public constructor(private token: string, private client: Client) {}
+  public constructor(private token: string, private client: Client) { }
 
   public async connect(): Promise<void> {
     try {
-      await this.connectWs();
+      await connectWebSocket(this.client.gatewayURL);
+      await this.onOpen();
       for await (const payload of this.socket.receive()) {
         if (payload instanceof Uint8Array) {
           if (this.client.options.compress) {
             try {
               const json = this.textDecoder.decode(UZIP.inflate(payload));
-              await this.handleJSON(json);
-            } catch(err) {
+              const packet = JSON.parse(json);
+              await this.handlePacket(packet);
+            } catch (err) {
               console.error(err);
             }
           }
-          // WTF? either the proxy cannot do anything or discord doesnt want us to send zlib streams
-          /*else if (this.client.options.compressStream) {
-            pl = append(pl, payload);
-            
-            writeFile("./compressed.bin", pl, {
-              append: true
-            })
-            if (payload.length >= 4 && equal(payload.slice(payload.length - 4), new Uint8Array([0x00, 0x00, 0xff, 0xff]))) {
-              append(pl, new Uint8Array([2])); // Z_SYNC_FLUSH
-              try {
-                console.log(new TextDecoder("utf-8").decode(UZIP.inflate(pl)));
-              } catch(err) {
-                console.error(err);
-              }
-            }
-          }*/
-          
-
         } else if (isWebSocketCloseEvent(payload)) {
           this.onClose(payload);
           break;
         } else if (typeof payload === "string") {
-          this.handleJSON(payload);
-        } 
+          const packet = JSON.parse(payload);
+          await this.handlePacket(packet);
+        }
       }
     } catch (err) {
       if (this.socket) this.close(1011);
       throw err;
     }
   }
-
-  private async connectWs(): Promise<void> {
-    this.socket = await connectWebSocket(this.client.gatewayURL);
-    await this.onOpen();
-  }
-
-  private async handleJSON(payload: string): Promise<void> {
-    const packet = JSON.parse(payload);
-    await this.handlePacket(packet);
-    if (packet.op === OP_CODES.DISPATCH) this.client.emit(packet.t, packet.d);
-  }
-
   private async onOpen(): Promise<void> {
     this.status = "handshaking";
     debug("Started handshaking.");
@@ -100,7 +74,7 @@ class WebsocketShard {
       this.heartbeatAck = true;
       debug("Received heartbeat ack.");
     }
-    
+
     if (packet.op === OP_CODES.DISPATCH) {
       if (packet.t === "READY") this.status = "ready";
       debug(`Received dispatch event: ${packet.t}.`);
