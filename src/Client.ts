@@ -13,6 +13,7 @@ interface Client {
 class Client extends EventEmitter {
   private ws = new WebsocketShard(this.token, this);
 
+  // TODO(Z): This may have implications on boot times.
   public constructor(private token = Deno.env().TOKEN || "") {
     super();
   }

@@ -1,10 +1,10 @@
-import { DispatchEvents } from "../types.ts";
+import { Gateway } from "../@types/dencord.ts";
 
 export const GATEWAY_URI = "ws://localhost:8014";
 
 export const DISCORD_EPOCH = 14200704e5;
 
-export const DISPATCH_EVENTS: DispatchEvents[] = [
+export const DISPATCH_EVENTS: Gateway.DispatchEvents[] = [
   "PRESENCE_UPDATE",
   "VOICE_STATE_UPDATE",
   "TYPING_START",

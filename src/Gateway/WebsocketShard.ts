@@ -37,7 +37,7 @@ class WebsocketShard {
         }
       }
     } catch (err) {
-      if (this.socket) this.close(1011);
+      if (this.socket) await this.close(1011);
       throw err;
     }
   }
