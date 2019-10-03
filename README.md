@@ -21,7 +21,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/zorbyte/Denocord">
-    <img src="assets/Denocord_circle.png" alt="Logo" width="90" height="90">
+    <img src="assets/Denocord_Circle.png" alt="Logo" width="90" height="90">
   </a>
 
   <h3 align="center">Denocord</h3>
