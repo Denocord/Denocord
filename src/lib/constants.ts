@@ -6,9 +6,9 @@ import { DispatchEvents } from "../types.ts";
  */
 export const GATEWAY_URI = "ws://localhost:8014";
 
-export const API_BASE = "https://discordapp.com/api/v7"
+export const API_BASE = "https://discordapp.com/api/v7";
 
-export const DISCORD_EPOCH = 14200704e+5;
+export const DISCORD_EPOCH = 14200704e5;
 
 export const DISPATCH_EVENTS: DispatchEvents[] = [
   "PRESENCE_UPDATE", "VOICE_STATE_UPDATE", "TYPING_START",
