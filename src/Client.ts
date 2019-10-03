@@ -1,13 +1,16 @@
 import EventEmitter from "https://deno.land/x/event_emitter/mod.ts";
-import { DispatchEvents } from "./types.ts";
+import { Gateway } from "./@types/dencord.ts";
 import WebsocketShard from "./gateway/WebsocketShard.ts";
 
-interface ClientEvents {
-  on(name: DispatchEvents, handler: (...data: any[]) => any): Client;
-  addListener(name: DispatchEvents, handler: (...data: any[]) => any): Client;
+interface Client {
+  on(name: Gateway.DispatchEvents, handler: (...data: any[]) => void): this;
+  addListener(
+    name: Gateway.DispatchEvents,
+    handler: (...data: any[]) => void
+  ): this;
 }
 
-class Client extends EventEmitter implements ClientEvents {
+class Client extends EventEmitter {
   private ws = new WebsocketShard(this.token, this);
 
   public constructor(private token = Deno.env().TOKEN || "") {

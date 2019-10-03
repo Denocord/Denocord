@@ -7,7 +7,7 @@ cl.on("READY", () => {
   console.log("Ready.");
 })
 
-cl.on("MESSAGE_CREATE", (e: any) => {
+cl.on("MESSAGE_CREATE", e => {
   console.log(e);
   console.log(e.content);
 })

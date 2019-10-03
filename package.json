@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "devDependencies": {
     "typescript": "^3.5.3",
+    "typescript-deno": "^3.6.3",
     "typescript-deno-plugin": "^1.2.6"
   },
   "scripts": {
