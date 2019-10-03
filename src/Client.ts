@@ -23,16 +23,16 @@ class Client extends EventEmitter implements ClientEvents {
     }
   }
 
-  public connect(): Promise<void> {
+  public async connect(): Promise<void> {
     // TODO: implement proper ratelimiting support
-    const promise = this.gatewayURL ? 
-      Promise.resolve(this.gatewayURL) : fetch(`${API_BASE}/gateway`)
-      .then(r => r.json())
-      .then(r => this.gatewayURL = r.url);
-    return promise.then(() => {
-      this.ws.connect();
-      console.log(this.gatewayURL);
-    });
+
+    if (!this.gatewayURL) {
+      const { url } = await fetch(`${API_BASE}/gateway`)
+      .then(r => r.json());
+
+      this.gatewayURL = url;
+    }
+    return this.ws.connect();
   }
 }
 
