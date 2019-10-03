@@ -28,7 +28,7 @@ class WebsocketShard {
 
   public async connect(): Promise<void> {
     try {
-      await connectWebSocket(this.client.gatewayURL);
+      this.socket = await connectWebSocket(this.client.gatewayURL);
       await this.onOpen();
       for await (const payload of this.socket.receive()) {
         if (payload instanceof Uint8Array) {
