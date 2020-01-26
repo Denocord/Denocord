@@ -1,4 +1,4 @@
 export interface ClientOptions {
-    compress?: boolean
-    //compressStream?: boolean
+  compress?: boolean;
+  compressStream?: boolean
 }

@@ -5,10 +5,14 @@ import {
   WebSocketCloseEvent
 } from "https://deno.land/std/ws/mod.ts";
 import createDebug from "https://deno.land/x/debuglog/debug.ts";
-//import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
+import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
 import { Gateway } from "../@types/dencord.ts";
+import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
-import UZIP from "../../vendor/UZIP.js/UZIP.js";
+import { createRequire } from "https://deno.land/std/node/module.ts";
+const require_ = createRequire(import.meta.url);
+
+const pako = require_("../../vendor/pako/index.js");
 
 const { writeFile } = Deno;
 
@@ -18,11 +22,14 @@ class WebsocketShard {
   public socket!: WebSocket;
   public status: Gateway.GatewayStatus = "connecting";
   private heartbeat?: number;
-  private heartbeatAck = false;
+  private heartbeatAck = true;
   private failedHeartbeatAck = 0;
   private seq: number | null = null;
   private textDecoder = new TextDecoder("utf-8");
   private sessionID?: string;
+  private deflator: any = new pako.Inflate({
+    chunkSize: 128 * 1024
+  });
 
   public constructor(private token: string, private client: Client) {}
 
@@ -30,16 +37,51 @@ class WebsocketShard {
     try {
       this.socket = await connectWebSocket(this.client.gatewayURL);
       await this.onOpen();
-      for await (const payload of this.socket.receive()) {
+      const iter = this.socket.receive();
+      while (true) {
+        const { done, value: payload } = await iter.next();
+        if (done) {
+          console.warn("WTF: iterator done");
+          break;
+        }
         if (payload instanceof Uint8Array) {
+          let data: Uint8Array;
           if (this.client.options.compress) {
+            data = pako.inflate(payload);
+
             try {
-              const json = this.textDecoder.decode(UZIP.inflate(payload));
+              const json = this.textDecoder.decode(data);
               const packet = JSON.parse(json);
               await this.handlePacket(packet);
             } catch (err) {
               console.error(err);
             }
+          } else if (this.client.options.compressStream) {
+            if (
+              payload.length >= 4 &&
+              equal(payload.slice(payload.length - 4), Z_SYNC_FLUSH)
+            ) {
+              this.deflator.push(payload, pako.Z_SYNC_FLUSH);
+              if (this.deflator.err) {
+                console.warn("DEFLATE ERROR", this.deflator.err);
+                continue;
+              }
+              data = this.deflator.result;
+
+              try {
+                const json = this.textDecoder.decode(data);
+                const packet = JSON.parse(json);
+                await this.handlePacket(packet);
+              } catch (err) {
+                console.error(err);
+              }
+            } else {
+              this.deflator.push(payload, false);
+              continue;
+            }
+          } else {
+            console.warn("WTF: Got binary data without compression enabled");
+            continue;
           }
         } else if (isWebSocketCloseEvent(payload)) {
           this.client.removeAllListeners();
@@ -51,6 +93,7 @@ class WebsocketShard {
         }
       }
     } catch (err) {
+      console.error(err.stack);
       if (this.socket) this.close(1011);
       throw err;
     }
@@ -74,9 +117,7 @@ class WebsocketShard {
   private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
     await this.close();
     debug(
-      `Disconnected with code ${closeData.code} for reason:\n${
-        closeData.reason
-      }.`
+      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`
     );
     this.status = "disconnected";
     const {
@@ -143,6 +184,7 @@ class WebsocketShard {
         this.status = "resuming";
         await this.close();
         await this.connect();
+        return;
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {
         await this.close(1014);
         this.client.removeAllListeners();
@@ -152,10 +194,12 @@ class WebsocketShard {
 
     this.heartbeatAck = false;
     await this.send(Gateway.OP_CODES.HEARTBEAT, this.seq);
+    debug("Heartbeat sent.");
   }
 
   public async close(code = 1000): Promise<void> {
     this.failedHeartbeatAck = 0;
+    this.heartbeatAck = true;
     if (this.heartbeat) clearInterval(this.heartbeat);
     if (!this.socket.isClosed) this.socket.close(code);
   }

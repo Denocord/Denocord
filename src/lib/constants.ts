@@ -60,3 +60,5 @@ export const DISPATCH_EVENTS: DispatchEvents[] = [
   "USER_SETTINGS_UPDATE",
   "CHANNEL_PINS_ACK"
 ];
+
+export const Z_SYNC_FLUSH = new Uint8Array([0,0,255,255]);
