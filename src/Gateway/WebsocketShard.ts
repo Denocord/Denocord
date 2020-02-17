@@ -34,13 +34,7 @@ class WebsocketShard {
     try {
       this.socket = await connectWebSocket(this.client.gatewayURL);
       await this.onOpen();
-      const iter = this.socket.receive();
-      while (true) {
-        const { done, value: payload } = await iter.next();
-        if (done) {
-          console.warn("WTF: iterator done");
-          break;
-        }
+      for await (const payload of this.socket.receive()){
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.client.options.compress) {
