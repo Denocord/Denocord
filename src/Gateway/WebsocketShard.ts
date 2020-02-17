@@ -11,10 +11,7 @@ import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
 import { createRequire } from "https://deno.land/std/node/module.ts";
 const require_ = createRequire(import.meta.url);
-
 const pako = require_("../../vendor/pako/index.js");
-
-const { writeFile } = Deno;
 
 const debug = createDebug("dencord:WebsocketShard");
 
