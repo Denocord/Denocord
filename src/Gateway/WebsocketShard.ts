@@ -115,8 +115,14 @@ class WebsocketShard {
       UNKNOWN_ERROR,
       INVALID_SEQ,
       RATE_LIMITED,
-      SESSION_TIMEOUT
+      SESSION_TIMEOUT,
+      INVALID_INTENTS,
+      DISALLOWED_INTENTS
     } = Gateway.CLOSE_CODES;
+    if (closeData.code === INVALID_INTENTS 
+      || closeData.code === DISALLOWED_INTENTS) {
+        throw new Error("Invalid and/or disallowed gateway intents were provided")
+      }
     if (
       (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
       closeData.code === INVALID_SEQ ||
@@ -138,6 +144,8 @@ class WebsocketShard {
       this.heartbeatAck = true;
       debug("Received heartbeat ack.");
     } else if (packet.op === Gateway.OP_CODES.RECONNECT) {
+      // Discord is sending reconnect packets every n
+      this.status = "resuming";
       await this.close();
       await this.connect();
     }
@@ -204,7 +212,8 @@ class WebsocketShard {
         $os: Deno.build.os,
         $browser: "socus",
         $device: "socus"
-      }
+      },
+      intents: this.client.options.intents
     });
   }
 }
