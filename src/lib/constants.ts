@@ -1,6 +1,12 @@
 import { Gateway } from "../@types/dencord.ts";
 
+/**
+ * Deprecated in favor of auto-discovery
+ * @deprecated
+ */
 export const GATEWAY_URI = "ws://localhost:8014";
+
+export const API_BASE = "https://discordapp.com/api/v7";
 
 export const DISCORD_EPOCH = 14200704e5;
 
@@ -54,3 +60,5 @@ export const DISPATCH_EVENTS: Gateway.DispatchEvents[] = [
   "USER_SETTINGS_UPDATE",
   "CHANNEL_PINS_ACK"
 ];
+
+export const Z_SYNC_FLUSH = new Uint8Array([0,0,255,255]);
