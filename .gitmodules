@@ -1,0 +1,3 @@
+[submodule "vendor/pako"]
+	path = vendor/pako
+	url = https://github.com/nodeca/pako
