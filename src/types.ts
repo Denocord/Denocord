@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use @types/dencord.ts
+ */
+
 export enum OP_CODES {
   DISPATCH,
   HEARTBEAT,

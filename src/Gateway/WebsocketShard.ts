@@ -121,7 +121,7 @@ class WebsocketShard {
     } = Gateway.CLOSE_CODES;
     if (closeData.code === INVALID_INTENTS 
       || closeData.code === DISALLOWED_INTENTS) {
-        throw new Error("Invalid and/or disallowed gateway intents were provided")
+        throw new Error("Invalid and/or disallowed gateway intents were provided");
       }
     if (
       (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
