@@ -3,17 +3,15 @@ import {
   isWebSocketCloseEvent,
   WebSocket,
   WebSocketCloseEvent
-} from "https://deno.land/std/ws/mod.ts";
-import createDebug from "https://deno.land/x/debuglog/debug.ts";
-import { equal } from "https://deno.land/std@v0.16.0/bytes/mod.ts";
-import { Gateway } from "../@types/dencord.ts";
+} from "https://deno.land/std@v0.41.0/ws/mod.ts";
+//import createDebug from "https://deno.land/x/debuglog/debug.ts";
+import { equal } from "https://deno.land/std@v0.41.0/bytes/mod.ts";
+import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
-import { createRequire } from "https://deno.land/std/node/module.ts";
-const require_ = createRequire(import.meta.url);
-const pako = require_("../../vendor/pako/index.js");
-
-const debug = createDebug("dencord:WebsocketShard");
+import pako from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
+//const debug = createDebug("denocord:WebsocketShard");
+const debug = (...args: unknown[]) => Deno.env().DENOCORD_DEBUG ? console.log(...args) : "";
 
 class WebsocketShard {
   public socket!: WebSocket;
@@ -58,7 +56,6 @@ class WebsocketShard {
                 continue;
               }
               data = this.deflator.result;
-
               try {
                 const json = this.textDecoder.decode(data);
                 const packet = JSON.parse(json);
@@ -108,7 +105,7 @@ class WebsocketShard {
   private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
     await this.close();
     debug(
-      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}.`
+      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`
     );
     this.status = "disconnected";
     const {
@@ -117,12 +114,16 @@ class WebsocketShard {
       RATE_LIMITED,
       SESSION_TIMEOUT,
       INVALID_INTENTS,
-      DISALLOWED_INTENTS
+      DISALLOWED_INTENTS,
+      AUTHENTICATION_FAILED
     } = Gateway.CLOSE_CODES;
     if (closeData.code === INVALID_INTENTS 
       || closeData.code === DISALLOWED_INTENTS) {
         throw new Error("Invalid and/or disallowed gateway intents were provided");
       }
+    if (closeData.code === AUTHENTICATION_FAILED) {
+      throw new Error("Invalid token");
+    }
     if (
       (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
       closeData.code === INVALID_SEQ ||

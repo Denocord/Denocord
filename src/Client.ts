@@ -1,5 +1,5 @@
-import EventEmitter from "https://deno.land/x/event_emitter/mod.ts";
-import { Gateway } from "./@types/dencord.ts";
+import EventEmitter from "https://deno.land/std@v0.41.0/node/events.ts";
+import { Gateway } from "./@types/denocord.ts";
 import WebsocketShard from "./gateway/WebsocketShard.ts";
 import { ClientOptions } from "./ClientOptions.ts";
 import { API_BASE } from "./lib/constants.ts";

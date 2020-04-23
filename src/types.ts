@@ -1,5 +1,5 @@
 /**
- * @deprecated Use @types/dencord.ts
+ * @deprecated Use @types/denocord.ts
  */
 
 export enum OP_CODES {
