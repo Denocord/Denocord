@@ -10,6 +10,8 @@ interface Client {
     name: Gateway.DispatchEvents,
     handler: (...data: any[]) => void
   ): this;
+  emit(name: Gateway.DispatchEvents, ...data: any[]): boolean;
+  
 }
 
 class Client extends EventEmitter {
