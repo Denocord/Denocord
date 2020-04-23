@@ -1,7 +1,7 @@
 {
-  "name": "dencord",
+          "name": "denocord",
   "version": "0.0.1",
-  "description": "A Discord API lib for deno.",
+  "description": "A Discord API lib for Deno.",
   "main": "./src/index.ts",
   "devDependencies": {
     "typescript": "^3.5.3",
@@ -13,15 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zorbyte/socus.git"
+    "url": "git+https://github.com/Denocord/Denocord.git"
   },
   "author": "zorbyte",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zorbyte/socus/issues"
+    "url": "https://github.com/Denocord/Denocord/issues"
   },
-  "homepage": "https://github.com/zorbyte/socus#readme",
-  "dependencies": {
-    "http-proxy": "^1.17.0"
-  }
+  "homepage": "https://github.com/Denocord/Denocord#readme"
 }
