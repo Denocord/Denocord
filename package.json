@@ -1,5 +1,5 @@
 {
-          "name": "denocord",
+  "name": "denocord",
   "version": "0.0.1",
   "description": "A Discord API lib for Deno.",
   "main": "./src/index.ts",

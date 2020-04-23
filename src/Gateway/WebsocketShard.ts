@@ -10,6 +10,7 @@ import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
 import pako from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
+import Bucket from "../lib/Bucket.ts";
 //const debug = createDebug("denocord:WebsocketShard");
 const debug = (...args: unknown[]) => Deno.env().DENOCORD_DEBUG ? console.log(...args) : "";
 
@@ -25,6 +26,8 @@ class WebsocketShard {
   private deflator: any = new pako.Inflate({
     chunkSize: 128 * 1024
   });
+  private globalBucket: Bucket = new Bucket(120, 60000);
+  private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
 
   public constructor(private token: string, private client: Client) {}
 
@@ -166,13 +169,25 @@ class WebsocketShard {
     this.heartbeat = setInterval(this.sendHeartbeat.bind(this), interval);
   }
 
-  private send(op: Gateway.OP_CODES, data: any): Promise<void> {
-    return this.socket.send(
-      JSON.stringify({
-        op,
-        d: data
-      })
-    );
+  private send(op: Gateway.OP_CODES, data: any, priority: boolean = false): Promise<void> {
+    return new Promise((rs, rj) => {
+      let i = 0;
+      let wait = 0;
+      const func = () => {
+        if (++i >= wait) this.socket.send(
+          JSON.stringify({
+            op,
+            d: data
+          })
+        ).then(rs, rj);
+      };
+  
+      if (op === Gateway.OP_CODES.STATUS_UPDATE) {
+        wait++;
+        this.presenceUpdateBucket.add(func, priority);
+      } 
+      this.globalBucket.add(func, priority);
+    });
   }
 
   private async sendHeartbeat(): Promise<void> {
