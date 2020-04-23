@@ -208,7 +208,7 @@ class WebsocketShard {
     }
 
     this.heartbeatAck = false;
-    await this.send(Gateway.OP_CODES.HEARTBEAT, this.seq);
+    await this.send(Gateway.OP_CODES.HEARTBEAT, this.seq, true);
     debug("Heartbeat sent.");
   }
 
