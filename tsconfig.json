@@ -5,6 +5,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "skipLibCheck": true,
+    "moduleResolution": "classic",
     "lib": [
       "esnext"
     ],
@@ -31,13 +32,11 @@
     ]
   },
   "exclude": [
-    "node_modules",
-    "vendor"
+    "node_modules"
   ],
   "include": [
     //"configs/**/*",
     //"src/**/*",
-    "bin/test.ts",
     "src/**/*",
     "src/@types/**/*"
   ]

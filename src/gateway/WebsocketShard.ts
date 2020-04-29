@@ -4,15 +4,29 @@ import {
   WebSocket,
   WebSocketCloseEvent
 } from "https://deno.land/std@v0.41.0/ws/mod.ts";
-//import createDebug from "https://deno.land/x/debuglog/debug.ts";
+import * as log from "https://deno.land/std@v0.41.0/log/mod.ts";
 import { equal } from "https://deno.land/std@v0.41.0/bytes/mod.ts";
 import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
 import pako from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
 import Bucket from "../lib/Bucket.ts";
+await log.setup({
+  handlers: {
+    console: new log.handlers.ConsoleHandler("DEBUG")
+  },
+  loggers: {
+    denocord: {
+      level: "DEBUG",
+      handlers: ["console"]
+    }
+  }
+});
+
+const logger = log.getLogger("denocord");
+const debug = logger.debug.bind(logger);
 //const debug = createDebug("denocord:WebsocketShard");
-const debug = (...args: unknown[]) => Deno.env().DENOCORD_DEBUG ? console.log(...args) : "";
+//const debug = (...args: unknown[]) => Deno.env().DENOCORD_DEBUG ? console.log(...args) : "";
 
 class WebsocketShard {
   public socket!: WebSocket;
@@ -23,6 +37,7 @@ class WebsocketShard {
   private seq: number | null = null;
   private textDecoder = new TextDecoder("utf-8");
   private sessionID?: string;
+  // @ts-ignore
   private deflator: any = new pako.Inflate({
     chunkSize: 128 * 1024
   });
@@ -39,6 +54,7 @@ class WebsocketShard {
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.client.options.compress) {
+            // @ts-ignore
             data = pako.inflate(payload);
 
             try {
@@ -53,6 +69,7 @@ class WebsocketShard {
               payload.length >= 4 &&
               equal(payload.slice(payload.length - 4), Z_SYNC_FLUSH)
             ) {
+              // @ts-ignore
               this.deflator.push(payload, pako.Z_SYNC_FLUSH);
               if (this.deflator.err) {
                 console.warn("DEFLATE ERROR", this.deflator.err);
@@ -118,7 +135,8 @@ class WebsocketShard {
       SESSION_TIMEOUT,
       INVALID_INTENTS,
       DISALLOWED_INTENTS,
-      AUTHENTICATION_FAILED
+      AUTHENTICATION_FAILED,
+      UNKNOWN_OP_CODE
     } = Gateway.CLOSE_CODES;
     if (closeData.code === INVALID_INTENTS 
       || closeData.code === DISALLOWED_INTENTS) {
@@ -126,6 +144,9 @@ class WebsocketShard {
       }
     if (closeData.code === AUTHENTICATION_FAILED) {
       throw new Error("Invalid token");
+    }
+    if (closeData.code === UNKNOWN_OP_CODE) {
+      throw new Error("An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord.")
     }
     if (
       (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
@@ -172,14 +193,15 @@ class WebsocketShard {
   private send(op: Gateway.OP_CODES, data: any, priority: boolean = false): Promise<void> {
     return new Promise((rs, rj) => {
       let i = 0;
-      let wait = 0;
+      let wait = 1;
       const func = () => {
-        if (++i >= wait) this.socket.send(
-          JSON.stringify({
-            op,
-            d: data
-          })
-        ).then(rs, rj);
+        const d = JSON.stringify({
+          op,
+          d: data
+        });
+        if (++i >= wait) {
+          this.socket.send(d).then(rs, rj);
+        }
       };
   
       if (op === Gateway.OP_CODES.STATUS_UPDATE) {
@@ -231,6 +253,10 @@ class WebsocketShard {
       },
       intents: this.client.options.intents
     });
+  }
+
+  public async sendActivity(activity: object): Promise<void> {
+    await this.send(Gateway.OP_CODES.STATUS_UPDATE, activity);
   }
 }
 
