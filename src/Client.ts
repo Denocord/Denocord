@@ -40,6 +40,12 @@ class Client extends EventEmitter {
     }
     return this.ws.connect();
   }
+
+  public async setActivity(activity: object): Promise<void> {
+    if (this.ws.status === "ready") {
+      await this.ws.sendActivity(activity);
+    }
+  }
 }
 
 export default Client;

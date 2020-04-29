@@ -20,5 +20,6 @@
   "bugs": {
     "url": "https://github.com/Denocord/Denocord/issues"
   },
-  "homepage": "https://github.com/Denocord/Denocord#readme"
+  "homepage": "https://github.com/Denocord/Denocord#readme",
+  "dependencies": {}
 }

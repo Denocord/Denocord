@@ -2,7 +2,6 @@ const wait = (time: number) => new Promise(rs => setTimeout(rs, time));
 class Bucket {
     #queue: Function[] = [];
     private remaining: number = this.tokenLimit;
-    private latency: number = 0;
     private lastReset: number = 0;
     private timeout: number = 0;
 
@@ -21,7 +20,7 @@ class Bucket {
     private async check() {
         if (this.timeout || !this.#queue.length) return;
         if (this.lastReset + this.resetIn + 
-            this.tokenLimit * this.latency < Date.now()) {
+            this.tokenLimit < Date.now()) {
                 this.lastReset = Date.now();
                 this.remaining = this.tokenLimit;
             }
@@ -30,9 +29,7 @@ class Bucket {
                 break;
             }
             const item = this.#queue.shift()!;
-            const latency = Date.now();
             item();
-            this.latency = Date.now() - latency;
             this.remaining--;
         } 
         if (this.#queue.length && !this.timeout)
@@ -41,7 +38,7 @@ class Bucket {
                 this.remaining = this.tokenLimit;
                 this.check().catch(() => void 0);
             }, Math.max(0, this.lastReset + this.resetIn + 
-                this.tokenLimit * this.latency - Date.now()));
+                this.tokenLimit - Date.now()));
     }
 }
 
