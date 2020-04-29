@@ -226,8 +226,8 @@ class WebsocketShard {
       compress: !!this.client.options.compress,
       properties: {
         $os: Deno.build.os,
-        $browser: "socus",
-        $device: "socus"
+        $browser: "Denocord",
+        $device: "Denocord"
       },
       intents: this.client.options.intents
     });
