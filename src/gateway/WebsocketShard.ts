@@ -6,7 +6,7 @@ import {
 
   log,
   equal,
-  pako
+  pako,
 } from "../deps.ts";
 import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
