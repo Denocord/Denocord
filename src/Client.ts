@@ -8,10 +8,9 @@ interface Client {
   on(name: Gateway.DispatchEvents, handler: (...data: any[]) => void): this;
   addListener(
     name: Gateway.DispatchEvents,
-    handler: (...data: any[]) => void
+    handler: (...data: any[]) => void,
   ): this;
   emit(name: Gateway.DispatchEvents, ...data: any[]): boolean;
-  
 }
 
 class Client extends EventEmitter {
@@ -22,12 +21,12 @@ class Client extends EventEmitter {
   // TODO(Z): This may have implications on boot times.
   public constructor(
     private token = Deno.env().TOKEN || "",
-    options?: ClientOptions
+    options?: ClientOptions,
   ) {
     super();
     this.options = {
       compress: false,
-      ...(options || {})
+      ...(options || {}),
     };
   }
 
@@ -35,8 +34,10 @@ class Client extends EventEmitter {
     // TODO: implement proper ratelimiting support
 
     if (!this.gatewayURL) {
-      const { url } = await fetch(`${API_BASE}/gateway`).then(r => r.json());
-      this.gatewayURL = `${url}?v=6&encoding=json${this.options.compressStream ? `&compress=zlib-stream` : ""}`;
+      const { url } = await fetch(`${API_BASE}/gateway`).then((r) => r.json());
+      this.gatewayURL = `${url}?v=6&encoding=json${
+        this.options.compressStream ? `&compress=zlib-stream` : ""
+      }`;
     }
     return this.ws.connect();
   }
