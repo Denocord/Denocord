@@ -1,4 +1,3 @@
-const wait = (time: number) => new Promise((rs) => setTimeout(rs, time));
 class Bucket {
   #queue: Function[] = [];
   private remaining: number = this.tokenLimit;

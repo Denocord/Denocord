@@ -1,8 +1,9 @@
-import "https://deno.land/x/dotenv/load.ts";
+//import "https://deno.land/x/dotenv/load.ts"; //broken in 1.0.0-rc3
 import Client from "../src/Client.ts";
 import { Gateway } from "../src/@types/denocord.ts";
+import config from "./testConfig.ts";
 
-const cl = new Client(undefined, {
+const cl = new Client(config.token, {
   compressStream: true,
   intents: Gateway.GatewayIntents.GUILDS |
     Gateway.GatewayIntents.GUILD_MESSAGES

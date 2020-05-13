@@ -1,4 +1,4 @@
-import EventEmitter from "https://deno.land/std@v0.41.0/node/events.ts";
+import { EventEmitter } from "./deps.ts";
 import { Gateway } from "./@types/denocord.ts";
 import WebsocketShard from "./gateway/WebsocketShard.ts";
 import { ClientOptions } from "./ClientOptions.ts";
@@ -20,7 +20,7 @@ class Client extends EventEmitter {
 
   // TODO(Z): This may have implications on boot times.
   public constructor(
-    private token = Deno.env().TOKEN || "",
+    private token = Deno.env.get("TOKEN") || "",
     options?: ClientOptions,
   ) {
     super();

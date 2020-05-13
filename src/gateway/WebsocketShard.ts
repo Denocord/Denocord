@@ -3,13 +3,14 @@ import {
   isWebSocketCloseEvent,
   WebSocket,
   WebSocketCloseEvent,
-} from "https://deno.land/std@v0.41.0/ws/mod.ts";
-import * as log from "https://deno.land/std@v0.41.0/log/mod.ts";
-import { equal } from "https://deno.land/std@v0.41.0/bytes/mod.ts";
+
+  log,
+  equal,
+  pako
+} from "../deps.ts";
 import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
-import pako from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
 import Bucket from "../lib/Bucket.ts";
 await log.setup({
   handlers: {
@@ -50,7 +51,7 @@ class WebsocketShard {
     try {
       this.socket = await connectWebSocket(this.client.gatewayURL);
       await this.onOpen();
-      for await (const payload of this.socket.receive()) {
+      for await (const payload of this.socket) {
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.client.options.compress) {
