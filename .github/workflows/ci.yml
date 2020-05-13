@@ -8,8 +8,10 @@ jobs:
             - uses: actions/checkout@v2
             - uses: Denocord/deno-action@master
               with:
-                args: '["fmt", "src/", "--check"]'
-              continue-on-error: true
+                args: '["fmt", "src/"]'
+            - run: git diff
+              name: "Show changes"
+            - run: git reset HEAD --hard
             - uses: Denocord/deno-action@master
               with:
-                args: '["fmt", "src/"]'
+                args: '["fmt", "src/", "--check"]'
