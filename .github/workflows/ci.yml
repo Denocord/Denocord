@@ -8,4 +8,7 @@ jobs:
             - uses: actions/checkout@v2
             - uses: Denocord/deno-action@master
               with:
+                args: '["fmt", "src/"]'
+            - uses: Denocord/deno-action@master
+              with:
                 args: '["fmt", "src/", "--check"]'
