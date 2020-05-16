@@ -109,17 +109,18 @@ class WebsocketShard {
   }
 
   private async onOpen(): Promise<void> {
-    let isResuming = this.status === "resuming";
+    const isResuming = this.status === "resuming";
     this.status = "handshaking";
     debug("Started handshaking.");
-    await this.sendHeartbeat();
-    await this.identifyClient();
     if (isResuming) {
       await this.send(Gateway.OP_CODES.RESUME, {
         token: this.token,
         session_id: this.sessionID,
         seq: this.seq,
       });
+    } else {
+      await this.sendHeartbeat();
+      await this.identifyClient();
     }
   }
 
