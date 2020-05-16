@@ -19,7 +19,7 @@ class Bucket {
     if (this.timeout || !this.#queue.length) return;
     if (
       this.lastReset + this.resetIn +
-      this.tokenLimit < Date.now()
+          this.tokenLimit < Date.now()
     ) {
       this.lastReset = Date.now();
       this.remaining = this.tokenLimit;
