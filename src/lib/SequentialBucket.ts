@@ -9,6 +9,7 @@ class SequentialBucket {
   public limit: number = 1;
   private timeout: number = 0;
   public lastTime: number = 0;
+  public lastLocalTime: number = 0;
   public resetOn: number = 0;
 
   #processing: boolean = false;
@@ -41,7 +42,7 @@ class SequentialBucket {
         this.#processing = false;
         this.remaining = this.limit;
         this.check().catch(() => void 0);
-      }, (this.resetOn - (Date.now() - this.lastTime))); // compensate for latency issues if any
+      }, (this.resetOn - Date.now() + (this.lastLocalTime - this.lastTime))); // compensate for latency issues if any
     } else {
       this.#processing = false;
     }

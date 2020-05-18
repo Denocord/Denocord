@@ -2,7 +2,6 @@ import { EventEmitter } from "./deps.ts";
 import { Gateway } from "./@types/denocord.ts";
 import WebsocketShard from "./gateway/WebsocketShard.ts";
 import { ClientOptions } from "./ClientOptions.ts";
-import { API_BASE } from "./lib/constants.ts";
 import RequestHandler from "./rest/RequestHandler.ts";
 
 interface Client {
@@ -34,10 +33,14 @@ class Client extends EventEmitter {
   }
 
   public async connect(): Promise<void> {
-    // TODO: implement proper ratelimiting support
-
     if (!this.gatewayURL) {
-      const { url } = await this.requestHandler.request("GET", `/gateway`);
+      const { url, session_start_limit: ssl } = await this.requestHandler
+        .request("GET", `/gateway/bot`);
+      if (!ssl.remaining) {
+        throw new Error(
+          `Starting the bot would reset the token. Please restart the bot after ${ssl.reset_after}ms`,
+        );
+      }
       this.gatewayURL = `${url}?v=6&encoding=json${
         this.options.compressStream ? `&compress=zlib-stream` : ""
       }`;
