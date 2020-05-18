@@ -6,7 +6,7 @@ import { Gateway } from "../@types/denocord.ts";
  */
 export const GATEWAY_URI = "ws://localhost:8014";
 
-export const API_BASE = "https://discordapp.com/api/v7";
+export const API_BASE = "https://discord.com/api/v7";
 
 export const DISCORD_EPOCH = 14200704e5;
 
@@ -58,7 +58,7 @@ export const DISPATCH_EVENTS: Gateway.DispatchEvents[] = [
   "MESSAGE_ACK",
   "GUILD_INTEGRATIONS_UPDATE",
   "USER_SETTINGS_UPDATE",
-  "CHANNEL_PINS_ACK"
+  "CHANNEL_PINS_ACK",
 ];
 
-export const Z_SYNC_FLUSH = new Uint8Array([0,0,255,255]);
+export const Z_SYNC_FLUSH = new Uint8Array([0, 0, 255, 255]);

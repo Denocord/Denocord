@@ -2,25 +2,26 @@ import {
   connectWebSocket,
   isWebSocketCloseEvent,
   WebSocket,
-  WebSocketCloseEvent
-} from "https://deno.land/std@v0.41.0/ws/mod.ts";
-import * as log from "https://deno.land/std@v0.41.0/log/mod.ts";
-import { equal } from "https://deno.land/std@v0.41.0/bytes/mod.ts";
+  WebSocketCloseEvent,
+
+  log,
+  equal,
+  pako,
+} from "../deps.ts";
 import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../lib/constants.ts";
 import Client from "../Client.ts";
-import pako from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
 import Bucket from "../lib/Bucket.ts";
 await log.setup({
   handlers: {
-    console: new log.handlers.ConsoleHandler("DEBUG")
+    console: new log.handlers.ConsoleHandler("DEBUG"),
   },
   loggers: {
     denocord: {
       level: "DEBUG",
-      handlers: ["console"]
-    }
-  }
+      handlers: ["console"],
+    },
+  },
 });
 
 const logger = log.getLogger("denocord");
@@ -39,7 +40,7 @@ class WebsocketShard {
   private sessionID?: string;
   // @ts-ignore
   private deflator: any = new pako.Inflate({
-    chunkSize: 128 * 1024
+    chunkSize: 128 * 1024,
   });
   private globalBucket: Bucket = new Bucket(120, 60000);
   private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
@@ -50,7 +51,7 @@ class WebsocketShard {
     try {
       this.socket = await connectWebSocket(this.client.gatewayURL);
       await this.onOpen();
-      for await (const payload of this.socket.receive()){
+      for await (const payload of this.socket) {
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.client.options.compress) {
@@ -108,24 +109,25 @@ class WebsocketShard {
   }
 
   private async onOpen(): Promise<void> {
-    let isResuming = this.status === "resuming";
+    const isResuming = this.status === "resuming";
     this.status = "handshaking";
     debug("Started handshaking.");
-    await this.sendHeartbeat();
-    await this.identifyClient();
     if (isResuming) {
       await this.send(Gateway.OP_CODES.RESUME, {
         token: this.token,
         session_id: this.sessionID,
-        seq: this.seq
+        seq: this.seq,
       });
+    } else {
+      await this.sendHeartbeat();
+      await this.identifyClient();
     }
   }
 
   private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
     await this.close();
     debug(
-      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`
+      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`,
     );
     this.status = "disconnected";
     const {
@@ -136,17 +138,23 @@ class WebsocketShard {
       INVALID_INTENTS,
       DISALLOWED_INTENTS,
       AUTHENTICATION_FAILED,
-      UNKNOWN_OP_CODE
+      UNKNOWN_OP_CODE,
     } = Gateway.CLOSE_CODES;
-    if (closeData.code === INVALID_INTENTS 
-      || closeData.code === DISALLOWED_INTENTS) {
-        throw new Error("Invalid and/or disallowed gateway intents were provided");
-      }
+    if (
+      closeData.code === INVALID_INTENTS ||
+      closeData.code === DISALLOWED_INTENTS
+    ) {
+      throw new Error(
+        "Invalid and/or disallowed gateway intents were provided",
+      );
+    }
     if (closeData.code === AUTHENTICATION_FAILED) {
       throw new Error("Invalid token");
     }
     if (closeData.code === UNKNOWN_OP_CODE) {
-      throw new Error("An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord.")
+      throw new Error(
+        "An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord.",
+      );
     }
     if (
       (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
@@ -160,7 +168,7 @@ class WebsocketShard {
   }
 
   private async handlePacket(
-    packet: Gateway.GatewayPacket
+    packet: Gateway.GatewayPacket,
   ): Promise<void | never> {
     this.seq = packet.s;
     if (packet.op === Gateway.OP_CODES.HELLO) {
@@ -190,24 +198,28 @@ class WebsocketShard {
     this.heartbeat = setInterval(this.sendHeartbeat.bind(this), interval);
   }
 
-  private send(op: Gateway.OP_CODES, data: any, priority: boolean = false): Promise<void> {
+  private send(
+    op: Gateway.OP_CODES,
+    data: any,
+    priority: boolean = false,
+  ): Promise<void> {
     return new Promise((rs, rj) => {
       let i = 0;
       let wait = 1;
       const func = () => {
         const d = JSON.stringify({
           op,
-          d: data
+          d: data,
         });
         if (++i >= wait) {
           this.socket.send(d).then(rs, rj);
         }
       };
-  
+
       if (op === Gateway.OP_CODES.STATUS_UPDATE) {
         wait++;
         this.presenceUpdateBucket.add(func, priority);
-      } 
+      }
       this.globalBucket.add(func, priority);
     });
   }
@@ -249,9 +261,9 @@ class WebsocketShard {
       properties: {
         $os: Deno.build.os,
         $browser: "Denocord",
-        $device: "Denocord"
+        $device: "Denocord",
       },
-      intents: this.client.options.intents
+      intents: this.client.options.intents,
     });
   }
 
