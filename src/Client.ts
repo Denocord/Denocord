@@ -18,10 +18,8 @@ class Client extends EventEmitter {
   public gatewayURL: string = "";
   public requestHandler = new RequestHandler(this);
 
-  // TODO(Z): This may have implications on boot times.
   public constructor(
-    // personally this should be handled by the user themselves - TTtie
-    private token = Deno.env.get("TOKEN") || "",
+    private token: string,
     public options: ClientOptions = {
       compress: false,
       compressStream: true,

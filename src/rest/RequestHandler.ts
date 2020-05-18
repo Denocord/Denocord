@@ -17,7 +17,6 @@ class RequestHandler {
     return `${method}:${
       path.replace(/\/([a-z-]+)\/(?:[0-9]{17,19})/g, (match, p) => {
         if (p === "channels" || p === "guilds" || p === "webhooks") {
-          //return `/${p}/:id`;
           return match;
         } else {
           return `/${p}/:id`;
