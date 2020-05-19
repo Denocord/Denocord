@@ -1,0 +1,17 @@
+name: "CI"
+on: [push, pull_request]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: Denocord/deno-action@master
+              with:
+                args: '["fmt", "src/"]'
+            - run: git diff
+              name: "Show changes"
+            - run: git reset HEAD --hard
+            - uses: Denocord/deno-action@master
+              with:
+                args: '["fmt", "src/", "--check"]'

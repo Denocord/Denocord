@@ -1,5 +1,5 @@
 /**
- * @deprecated Use @types/dencord.ts
+ * @deprecated Use @types/denocord.ts
  */
 
 export enum OP_CODES {
@@ -13,7 +13,7 @@ export enum OP_CODES {
   REQUEST_GUILD_MEMBERS,
   INVALID_SESSION,
   HELLO,
-  HEARTBEAT_ACK
+  HEARTBEAT_ACK,
 }
 
 export enum GATEWAY_CLOSE_CODES {
@@ -27,7 +27,7 @@ export enum GATEWAY_CLOSE_CODES {
   RATE_LIMITED,
   SESSION_TIMEOUT,
   INVALID_SHARD,
-  SHARDING_REQUIRED
+  SHARDING_REQUIRED,
 }
 
 export namespace Codes {
@@ -42,7 +42,7 @@ export namespace Codes {
     REQUEST_GUILD_MEMBERS,
     INVALID_SESSION,
     HELLO,
-    HEARTBEAT_ACK
+    HEARTBEAT_ACK,
   }
 
   export enum GATEWAY_CLOSE_CODES {
@@ -56,7 +56,7 @@ export namespace Codes {
     RATE_LIMITED,
     SESSION_TIMEOUT,
     INVALID_SHARD,
-    SHARDING_REQUIRED
+    SHARDING_REQUIRED,
   }
 }
 

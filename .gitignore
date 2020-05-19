@@ -3,5 +3,6 @@ node_modules/
 dist/
 .env
 .DS_Store
+bin/testConfig.ts
 
 deno_std/

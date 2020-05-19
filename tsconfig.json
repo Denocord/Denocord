@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
-    "declaration": false,
+    "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "skipLibCheck": true,
+    "moduleResolution": "classic",
     "lib": [
       "esnext"
     ],
     "module": "esnext",
     "noEmitOnError": true,
     "noImplicitAny": true,
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "outDir": "./dist",
@@ -31,13 +32,11 @@
     ]
   },
   "exclude": [
-    "node_modules",
-    "vendor"
+    "node_modules"
   ],
   "include": [
     //"configs/**/*",
     //"src/**/*",
-    "bin/test.ts",
     "src/**/*",
     "src/@types/**/*"
   ]

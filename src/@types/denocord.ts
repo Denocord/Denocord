@@ -10,7 +10,7 @@ export namespace Gateway {
     REQUEST_GUILD_MEMBERS,
     INVALID_SESSION,
     HELLO,
-    HEARTBEAT_ACK
+    HEARTBEAT_ACK,
   }
 
   export enum CLOSE_CODES {
@@ -27,9 +27,9 @@ export namespace Gateway {
     SHARDING_REQUIRED,
     INVALID_API_VER,
     INVALID_INTENTS,
-    DISALLOWED_INTENTS
+    DISALLOWED_INTENTS,
   }
-  
+
   export enum GatewayIntents {
     GUILDS = 1,
     GUILD_MEMBERS = 1 << 1,
@@ -45,7 +45,7 @@ export namespace Gateway {
     GUILD_MESSAGE_TYPING = 1 << 11,
     DIRECT_MESSAGES = 1 << 12,
     DIRECT_MESSAGE_REACTIONS = 1 << 13,
-    DIRECT_MESSAGE_TYPING = 1 << 14
+    DIRECT_MESSAGE_TYPING = 1 << 14,
   }
 
   export type GatewayStatus =
@@ -132,7 +132,7 @@ export namespace Structures {
     GROUP_DM,
     CATEGORY,
     GUILD_NEWS,
-    STORE
+    STORE,
   }
 
   interface BaseChannel {

@@ -1,4 +1,4 @@
-import { Gateway } from "./@types/dencord.ts";
+import { Gateway } from "./@types/denocord.ts";
 
 export interface ClientOptions {
   compress?: boolean;

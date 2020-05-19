@@ -4,8 +4,9 @@ class Snowflake {
   public snowflakeID: bigint;
 
   constructor(snowflakeID: bigint | string) {
-    this.snowflakeID =
-      typeof snowflakeID === "string" ? BigInt(snowflakeID) : snowflakeID;
+    this.snowflakeID = typeof snowflakeID === "string"
+      ? BigInt(snowflakeID)
+      : snowflakeID;
   }
 
   public timestamp(): Date {
