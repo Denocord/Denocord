@@ -1,4 +1,4 @@
-import WebsocketShard from "./lib/ws/WebsocketShard.ts";
+import WebsocketShard from "./lib/ws/websocket_shard.ts";
 
 export const {
   on,
