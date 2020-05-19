@@ -10,4 +10,4 @@ on("message", msg => {
   console.log(msg);
 });
 
-login("A_TOKEN");
+await login("A_TOKEN");

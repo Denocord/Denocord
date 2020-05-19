@@ -1,4 +1,4 @@
-import { Asyncable } from "./typeUtils.ts";
+import { Asyncable } from "./type_utils.ts";
 
 type BucketFunction = () => Asyncable<void>;
 

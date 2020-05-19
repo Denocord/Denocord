@@ -1,5 +1,5 @@
 import { bus } from "./lib/Client.ts";
-import WebsocketShard from "./lib/ws/WebsocketShard.ts";
+import WebsocketShard from "./lib/ws/websocket_shard.ts";
 
 export function onDebug(debugHandler: (msg: string) => void) {
   bus.on("debug", debugHandler);
