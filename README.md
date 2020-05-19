@@ -124,6 +124,10 @@ Any contributions you make are **greatly appreciated**. Please use commit messag
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+**Please note:**
+Please use prettier and Deno fmt for formatting, and try to stick to the [Deno Style Guide](https://github.com/denoland/deno/blob/master/docs/contributing/style_guide.md)
+where appropriate.
+
 
 
 <!-- LICENSE -->

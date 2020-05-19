@@ -5,15 +5,15 @@ import config from "./testConfig.ts";
 
 const cl = new Client(config.token, {
   compressStream: true,
-  intents: Gateway.GatewayIntents.GUILDS |
-    Gateway.GatewayIntents.GUILD_MESSAGES
+  intents:
+    Gateway.GatewayIntents.GUILDS | Gateway.GatewayIntents.GUILD_MESSAGES,
 });
 
 cl.on("READY", () => {
   console.log("Ready.");
 });
 let msgCount = 0;
-cl.on("MESSAGE_CREATE", async e => {
+cl.on("MESSAGE_CREATE", async (e) => {
   console.log(e.author);
   console.log(e.content);
   /*msgCount++;

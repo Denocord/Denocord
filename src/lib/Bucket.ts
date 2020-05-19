@@ -17,10 +17,7 @@ class Bucket {
 
   private async check() {
     if (this.timeout || !this.#queue.length) return;
-    if (
-      this.lastReset + this.resetIn +
-          this.tokenLimit < Date.now()
-    ) {
+    if (this.lastReset + this.resetIn + this.tokenLimit < Date.now()) {
       this.lastReset = Date.now();
       this.remaining = this.tokenLimit;
     }
@@ -33,18 +30,11 @@ class Bucket {
       this.remaining--;
     }
     if (this.#queue.length && !this.timeout) {
-      this.timeout = setTimeout(
-        () => {
-          this.timeout = 0;
-          this.remaining = this.tokenLimit;
-          this.check().catch(() => void 0);
-        },
-        Math.max(
-          0,
-          this.lastReset + this.resetIn +
-            this.tokenLimit - Date.now(),
-        ),
-      );
+      this.timeout = setTimeout(() => {
+        this.timeout = 0;
+        this.remaining = this.tokenLimit;
+        this.check().catch(() => void 0);
+      }, Math.max(0, this.lastReset + this.resetIn + this.tokenLimit - Date.now()));
     }
   }
 }
