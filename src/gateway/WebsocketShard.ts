@@ -237,7 +237,7 @@ class WebsocketShard {
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {
         await this.close(1014);
         this.client.removeAllListeners();
-        // TODO: this should not panic
+        // TODO: this should not panic?
         throw new Error("Failed to receive heartbeat after 3 attempts!");
       }
     }
