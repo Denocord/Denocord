@@ -5,7 +5,6 @@ import { API_BASE } from "../lib/constants.ts";
 class RequestHandler {
   // TODO(TTtie): version should be filled automatically
   private ua = "DiscordBot (https://github.com/Denocord/Denocord, 0.0.1)";
-  private routeMapping: Record<string, string> = {};
   private ratelimitBuckets = new Map<string, SequentialBucket>();
   public globallyRatelimited: boolean = false;
   private globalRatelimitQueue: Function[] = [];
@@ -36,8 +35,7 @@ class RequestHandler {
       path += urlsp.toString();
       body = undefined;
     }
-    const r = this.toRoute(method, path);
-    let bucketName = r;
+    const bucketName = this.toRoute(method, path);
     return new Promise(async (rs, rj) => {
       let bucket: SequentialBucket = this.ratelimitBuckets.get(bucketName)!;
       if (!bucket) {
@@ -47,7 +45,7 @@ class RequestHandler {
 
       const headers: Record<string, string> = {
         "User-Agent": this.ua,
-        Authorization: auth ? (<any> this.client).token : undefined,
+        Authorization: auth ? this.client.token : "",
         "X-RateLimit-Precision": "millisecond",
       };
 

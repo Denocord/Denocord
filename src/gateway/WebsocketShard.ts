@@ -45,7 +45,7 @@ class WebsocketShard {
   private globalBucket: Bucket = new Bucket(120, 60000);
   private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
 
-  public constructor(private token: string, private client: Client) {}
+  public constructor(private client: Client) {}
 
   public async connect(): Promise<void> {
     try {
@@ -114,7 +114,7 @@ class WebsocketShard {
     debug("Started handshaking.");
     if (isResuming) {
       await this.send(Gateway.OP_CODES.RESUME, {
-        token: this.token,
+        token: this.client.token,
         session_id: this.sessionID,
         seq: this.seq,
       });
@@ -237,6 +237,7 @@ class WebsocketShard {
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {
         await this.close(1014);
         this.client.removeAllListeners();
+        // TODO: this should not panic
         throw new Error("Failed to receive heartbeat after 3 attempts!");
       }
     }
@@ -256,7 +257,7 @@ class WebsocketShard {
   private identifyClient(): Promise<void> {
     debug("Identifying client.");
     return this.send(Gateway.OP_CODES.IDENTIFY, {
-      token: this.token,
+      token: this.client.token,
       compress: !!this.client.options.compress,
       properties: {
         $os: Deno.build.os,

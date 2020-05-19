@@ -14,12 +14,12 @@ interface Client {
 }
 
 class Client extends EventEmitter {
-  private ws = new WebsocketShard(this.token, this);
+  private ws = new WebsocketShard(this);
   public gatewayURL: string = "";
   public requestHandler = new RequestHandler(this);
 
   public constructor(
-    private token: string,
+    public token: string,
     public options: ClientOptions = {
       compress: false,
       compressStream: true,
