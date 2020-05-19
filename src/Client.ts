@@ -32,13 +32,13 @@ class Client extends EventEmitter {
 
   public async connect(): Promise<void> {
     // TODO: implement proper ratelimiting support
-
     if (!this.gatewayURL) {
       const { url } = await fetch(`${API_BASE}/gateway`).then((r) => r.json());
       this.gatewayURL = `${url}?v=6&encoding=json${
         this.options.compressStream ? `&compress=zlib-stream` : ""
       }`;
     }
+
     return this.ws.connect();
   }
 
