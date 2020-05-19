@@ -126,7 +126,7 @@ class WebsocketShard {
   private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
     await this.close();
     debug(
-      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`
+      `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`,
     );
     this.status = "disconnected";
     const {
@@ -144,7 +144,7 @@ class WebsocketShard {
       closeData.code === DISALLOWED_INTENTS
     ) {
       throw new Error(
-        "Invalid and/or disallowed gateway intents were provided"
+        "Invalid and/or disallowed gateway intents were provided",
       );
     }
     if (closeData.code === AUTHENTICATION_FAILED) {
@@ -152,7 +152,7 @@ class WebsocketShard {
     }
     if (closeData.code === UNKNOWN_OP_CODE) {
       throw new Error(
-        "An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord."
+        "An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord.",
       );
     }
     if (
@@ -167,7 +167,7 @@ class WebsocketShard {
   }
 
   private async handlePacket(
-    packet: Gateway.GatewayPacket
+    packet: Gateway.GatewayPacket,
   ): Promise<void | never> {
     this.seq = packet.s;
     if (packet.op === Gateway.OP_CODES.HELLO) {
@@ -200,7 +200,7 @@ class WebsocketShard {
   private send(
     op: Gateway.OP_CODES,
     data: any,
-    priority: boolean = false
+    priority: boolean = false,
   ): Promise<void> {
     return new Promise((rs, rj) => {
       let i = 0;

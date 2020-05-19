@@ -30,11 +30,17 @@ class Bucket {
       this.remaining--;
     }
     if (this.#queue.length && !this.timeout) {
-      this.timeout = setTimeout(() => {
-        this.timeout = 0;
-        this.remaining = this.tokenLimit;
-        this.check().catch(() => void 0);
-      }, Math.max(0, this.lastReset + this.resetIn + this.tokenLimit - Date.now()));
+      this.timeout = setTimeout(
+        () => {
+          this.timeout = 0;
+          this.remaining = this.tokenLimit;
+          this.check().catch(() => void 0);
+        },
+        Math.max(
+          0,
+          this.lastReset + this.resetIn + this.tokenLimit - Date.now(),
+        ),
+      );
     }
   }
 }
