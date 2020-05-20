@@ -35,7 +35,7 @@ class Bucket {
       (item = this.queue.shift()!) &&
       this.queue.length !== 0
     ) {
-      item();
+      await item();
     }
 
     if (this.queue.length && !this.timeout) {
