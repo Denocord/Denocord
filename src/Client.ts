@@ -47,7 +47,7 @@ class Client extends EventEmitter {
   }
 
   public createMessage(channelID: string, content: any): Promise<object> {
-    return <Promise<object>> this.requestHandler.request(
+    return this.requestHandler.request(
       "POST",
       `/channels/${channelID}/messages`,
       true,

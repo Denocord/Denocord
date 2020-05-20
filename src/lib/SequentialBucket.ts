@@ -5,12 +5,12 @@ const wait = (ms: number) => new Promise((rs) => setTimeout(rs, ms));
 // TODO(TTtie): test this in the real world
 class SequentialBucket {
   private queue: RatelimitedFunction[] = [];
-  public remaining: number = 1;
-  public limit: number = 1;
-  private timeout: number = 0;
-  public lastTime: number = 0;
-  public lastLocalTime: number = 0;
-  public resetOn: number = 0;
+  public remaining = 1;
+  public limit = 1;
+  private timeout = 0;
+  public lastTime = 0;
+  public lastLocalTime = 0;
+  public resetOn = 0;
 
   private processing: boolean = false;
 

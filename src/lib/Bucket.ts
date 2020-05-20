@@ -1,8 +1,8 @@
 class Bucket {
   private queue: Function[] = [];
-  private remaining: number = this.tokenLimit;
-  private lastReset: number = 0;
-  private timeout: number = 0;
+  private remaining = this.tokenLimit;
+  private lastReset = 0;
+  private timeout = 0;
 
   public constructor(private tokenLimit: number, private resetIn: number) {}
 
