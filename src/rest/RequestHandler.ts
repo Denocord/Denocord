@@ -91,7 +91,9 @@ class RequestHandler {
             bucket.lastLocalTime = Date.now();
             if (resp.headers.has("x-ratelimit-bucket")) {
               const b = resp.headers.get("x-ratelimit-bucket")!;
-              const bucketID = majorParamMatch ? `${b}-${majorParamMatch.groups?.id}` : b;
+              const bucketID = majorParamMatch
+                ? `${b}-${majorParamMatch.groups?.id}`
+                : b;
               if (bucketID !== bucketName) { // using per-route ratelimit
                 this.ratelimitBuckets.delete(bucketName);
                 this.ratelimitBuckets.set(bucketID, bucket);
