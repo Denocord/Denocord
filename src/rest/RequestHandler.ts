@@ -2,12 +2,15 @@ import Client from "../Client.ts";
 import SequentialBucket from "../lib/SequentialBucket.ts";
 import { API_BASE } from "../lib/constants.ts";
 
+const MAJOR_PARAMETER_REGEX = /^\/(?:channels|guilds|webhooks)\/(?<id>\d+)/;
+
 class RequestHandler {
   // TODO(TTtie): version should be filled automatically
   private ua = "DiscordBot (https://github.com/Denocord/Denocord, 0.0.1)";
   private ratelimitBuckets = new Map<string, SequentialBucket>();
   public globallyRatelimited: boolean = false;
   private globalRatelimitQueue: Function[] = [];
+  public routeMapping: Record<string, string> = {};
 
   public constructor(private client: Client) {
   }
@@ -35,7 +38,9 @@ class RequestHandler {
       path += urlsp.toString();
       body = undefined;
     }
-    const bucketName = this.toRoute(method, path);
+    const majorParamMatch = path.match(MAJOR_PARAMETER_REGEX);
+    const route = this.toRoute(method, path);
+    const bucketName = this.routeMapping[route] || route;
     return new Promise(async (rs, rj) => {
       let bucket: SequentialBucket = this.ratelimitBuckets.get(bucketName)!;
       if (!bucket) {
@@ -70,15 +75,6 @@ class RequestHandler {
           const data = await resp.json();
           const discordTime = Date.parse(resp.headers.get("date")!);
           if (resp.ok) {
-            /*if (resp.headers.has("x-ratelimit-bucket")) {
-              const b = resp.headers.get("x-ratelimit-bucket")!;
-              if (b !== bucketName) {
-                this.ratelimitBuckets.delete(r);
-                this.ratelimitBuckets.set(b, bucket);
-                this.routeMapping[r] = b;
-              }
-            }*/
-
             if (resp.headers.has("x-ratelimit-limit")) {
               bucket.limit = +resp.headers.get("x-ratelimit-limit")!;
             }
@@ -93,6 +89,15 @@ class RequestHandler {
             }
             bucket.lastTime = discordTime;
             bucket.lastLocalTime = Date.now();
+            if (resp.headers.has("x-ratelimit-bucket")) {
+              const b = resp.headers.get("x-ratelimit-bucket")!;
+              const bucketID = majorParamMatch ? `${b}-${majorParamMatch.groups?.id}` : b;
+              if (bucketID !== bucketName) { // using per-route ratelimit
+                this.ratelimitBuckets.delete(bucketName);
+                this.ratelimitBuckets.set(bucketID, bucket);
+                this.routeMapping[route] = bucketID;
+              }
+            }
             rs(data);
           } else {
             if (resp.status === 429) {

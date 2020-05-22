@@ -42,13 +42,10 @@ cl.on("MESSAGE_CREATE", async e => {
     await cl.createMessage(e.channel_id, {
       content: "Hello there!"
     });
-    console.log(" ===== POST ===== ");
     console.log(Object.entries((<any>cl.requestHandler).routeMapping));
-    console.log((<any>cl.requestHandler).ratelimitBuckets.size);
     [...(<any>cl.requestHandler).ratelimitBuckets.entries()].forEach(([path, bucket]: [string, any]) => {
       console.log(path, bucket.limit, bucket.remaining, bucket.lastTime, bucket.resetOn);
     })
-    console.log(" ===== POST END ===== ");
   }
   /*msgCount++;
   try {
