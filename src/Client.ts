@@ -43,6 +43,7 @@ class Client extends EventEmitter {
         this.options.compressStream ? `&compress=zlib-stream` : ""
       }`;
     }
+
     return this.ws.connect();
   }
 

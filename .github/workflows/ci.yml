@@ -14,4 +14,4 @@ jobs:
             - run: git reset HEAD --hard
             - uses: Denocord/deno-action@master
               with:
-                args: '["fmt", "src/", "--check"]'
+                args: '["fmt", "src/", "lib", "rest.ts", "mod.ts", "util.ts", "ws.ts", "--check"]'

@@ -41,8 +41,7 @@ class Bucket {
         },
         Math.max(
           0,
-          this.lastReset + this.resetIn +
-            this.tokenLimit - Date.now(),
+          this.lastReset + this.resetIn + this.tokenLimit - Date.now(),
         ),
       );
     }

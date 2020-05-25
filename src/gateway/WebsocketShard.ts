@@ -3,7 +3,6 @@ import {
   isWebSocketCloseEvent,
   WebSocket,
   WebSocketCloseEvent,
-
   log,
   equal,
   pako,

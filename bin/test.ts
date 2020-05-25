@@ -6,8 +6,8 @@ import config from "./testConfig.ts";
 
 const cl = new Client(config.token, {
   compressStream: true,
-  intents: Gateway.GatewayIntents.GUILDS |
-    Gateway.GatewayIntents.GUILD_MESSAGES
+  intents:
+    Gateway.GatewayIntents.GUILDS | Gateway.GatewayIntents.GUILD_MESSAGES,
 });
 
 const SeqBucket = new SequentialBucket();
