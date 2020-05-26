@@ -17,7 +17,7 @@ class RequestHandler {
   public static get() {
     return this.instance ?? (this.instance = new RequestHandler());
   }
-  private constructor(){};
+  private constructor() {}
 
   public toRoute(method: string, path: string) {
     return `${method}:${
@@ -129,7 +129,13 @@ class RequestHandler {
                 this.request(method, path, auth, body).then(rs, rj);
               }, retryAfter);
             } else {
-                rj(new Error(`${resp.status}: ${resp.statusText}\n${JSON.stringify(data, null, 4)}`))
+              rj(
+                new Error(
+                  `${resp.status}: ${resp.statusText}\n${
+                    JSON.stringify(data, null, 4)
+                  }`,
+                ),
+              );
             }
           }
         } catch (err) {

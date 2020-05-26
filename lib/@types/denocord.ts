@@ -29,15 +29,16 @@ export namespace Gateway {
     INVALID_INTENTS,
     DISALLOWED_INTENTS,
   }
-  
 
-  export type GatewayStatus = "connecting"
+  export type GatewayStatus =
+    | "connecting"
     | "handshaking"
     | "ready"
     | "resuming"
     | "disconnected";
 
-  export type DispatchEvents = "PRESENCE_UPDATE"
+  export type DispatchEvents =
+    | "PRESENCE_UPDATE"
     | "VOICE_STATE_UPDATE"
     | "TYPING_START"
     | "MESSAGE_CREATE"
@@ -152,5 +153,3 @@ export namespace Structures {
 export interface UnavailableGuild {}
 
 export interface Guild {}
-
-

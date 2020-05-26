@@ -18,16 +18,16 @@ type WebsocketEvents = {
   message: { messageStub: true };
   // TODO(zorbyte): how do I make it use Gateway.DispatchEvents? - TTtie
   [k: string]: any;
-}
+};
 
 type StrictEECtor = {
-  new(): StrictEventEmitter<EventEmitter, WebsocketEvents>;
+  new (): StrictEventEmitter<EventEmitter, WebsocketEvents>;
 };
 
 export enum CompressionOptions {
   ZLIB_STREAM,
   ZLIB,
-  NONE
+  NONE,
 }
 
 export interface WSOptions {
@@ -35,14 +35,12 @@ export interface WSOptions {
   intents?: Gateway.GatewayIntents;
 }
 
-
 class WebsocketShard extends (EventEmitter as StrictEECtor) {
   private gatewayURL?: string;
   public token?: string;
   public options: WSOptions = {
-    compress: CompressionOptions.NONE
+    compress: CompressionOptions.NONE,
   };
-
 
   public socket!: WebSocket;
   public status: Gateway.GatewayStatus = "connecting";
@@ -58,7 +56,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   });
   private globalBucket: Bucket = new Bucket(120, 60000);
   private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
-
 
   private static instance: WebsocketShard;
 
@@ -92,9 +89,13 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         `Starting the bot would reset the token. Please restart the bot after ${ssl.reset_after}ms`,
       );
     }
-    if (!this.gatewayURL) this.gatewayURL = `${url}?v=6&encoding=json${
-      this.options.compress === CompressionOptions.ZLIB_STREAM ? `&compress=zlib-stream` : ""
+    if (!this.gatewayURL) {
+      this.gatewayURL = `${url}?v=6&encoding=json${
+        this.options.compress === CompressionOptions.ZLIB_STREAM
+          ? `&compress=zlib-stream`
+          : ""
       }`;
+    }
   }
   public configure(options: WSOptions) {
     this.options = options;
