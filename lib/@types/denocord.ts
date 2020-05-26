@@ -29,34 +29,15 @@ export namespace Gateway {
     INVALID_INTENTS,
     DISALLOWED_INTENTS,
   }
+  
 
-  export enum GatewayIntents {
-    GUILDS = 1,
-    GUILD_MEMBERS = 1 << 1,
-    GUILD_BANS = 1 << 2,
-    GUILD_EMOJIS = 1 << 3,
-    GUILD_INTEGRATIONS = 1 << 4,
-    GUILD_WEBHOOKS = 1 << 5,
-    GUILD_INVITES = 1 << 6,
-    GUILD_VOICE_STATES = 1 << 7,
-    GUILD_PRESENCES = 1 << 8,
-    GUILD_MESSAGES = 1 << 9,
-    GUILD_MESSAGE_REACTIONS = 1 << 10,
-    GUILD_MESSAGE_TYPING = 1 << 11,
-    DIRECT_MESSAGES = 1 << 12,
-    DIRECT_MESSAGE_REACTIONS = 1 << 13,
-    DIRECT_MESSAGE_TYPING = 1 << 14,
-  }
-
-  export type GatewayStatus =
-    | "connecting"
+  export type GatewayStatus = "connecting"
     | "handshaking"
     | "ready"
     | "resuming"
     | "disconnected";
 
-  export type DispatchEvents =
-    | "PRESENCE_UPDATE"
+  export type DispatchEvents = "PRESENCE_UPDATE"
     | "VOICE_STATE_UPDATE"
     | "TYPING_START"
     | "MESSAGE_CREATE"
@@ -104,6 +85,24 @@ export namespace Gateway {
     | "GUILD_INTEGRATIONS_UPDATE"
     | "USER_SETTINGS_UPDATE"
     | "CHANNEL_PINS_ACK";
+
+  export enum GatewayIntents {
+    GUILDS = 1,
+    GUILD_MEMBERS = 1 << 1,
+    GUILD_BANS = 1 << 2,
+    GUILD_EMOJIS = 1 << 3,
+    GUILD_INTEGRATIONS = 1 << 4,
+    GUILD_WEBHOOKS = 1 << 5,
+    GUILD_INVITES = 1 << 6,
+    GUILD_VOICE_STATES = 1 << 7,
+    GUILD_PRESENCES = 1 << 8,
+    GUILD_MESSAGES = 1 << 9,
+    GUILD_MESSAGE_REACTIONS = 1 << 10,
+    GUILD_MESSAGE_TYPING = 1 << 11,
+    DIRECT_MESSAGES = 1 << 12,
+    DIRECT_MESSAGE_REACTIONS = 1 << 13,
+    DIRECT_MESSAGE_TYPING = 1 << 14,
+  }
 
   export interface GatewayPacket {
     // The event dispatched when the op code is 0 (the dispatch operation).
@@ -153,3 +152,5 @@ export namespace Structures {
 export interface UnavailableGuild {}
 
 export interface Guild {}
+
+

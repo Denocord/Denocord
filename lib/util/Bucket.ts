@@ -1,55 +1,50 @@
-import { Asyncable } from "./type_utils.ts";
-
-type BucketFunction = () => Asyncable<void>;
-
-/* A bucket to queue items to run at a certain frequency (useful for ratelimiting). */
 class Bucket {
-  private queue: BucketFunction[] = [];
-  private remaining = this.maxItems;
+  private queue: Function[] = [];
+  private remaining = this.tokenLimit;
   private lastReset = 0;
   private timeout = 0;
 
-  /**
-   * @param maxItems The maximum amount items the bucket can have in the queue.
-   * @param emptyFreq The frequency to empty the bucket at.
-   */
-  public constructor(private maxItems: number, private emptyFreq: number) {}
+  public constructor(private tokenLimit: number, private resetIn: number) {}
 
-  public add(func: BucketFunction, priority = false) {
-    this.queue[priority ? "unshift" : "push"](func);
-
-    // TODO(z): Actually see if there are any cases we should checkout.
+  public add(func: Function, priority: boolean = false) {
+    if (priority) {
+      this.queue.unshift(func);
+    } else {
+      this.queue.push(func);
+    }
     this.check().catch(() => void 0);
   }
 
   private async check() {
     if (this.timeout || !this.queue.length) return;
-    if (this.elapsedTime < Date.now()) {
-      this.lastReset = Date.now();
-      this.remaining = this.maxItems;
-    }
-
-    let item: BucketFunction;
-    while (
-      --this.remaining &&
-      (item = this.queue.shift()!) &&
-      this.queue.length !== 0
+    if (
+      this.lastReset + this.resetIn +
+          this.tokenLimit < Date.now()
     ) {
-      await item();
+      this.lastReset = Date.now();
+      this.remaining = this.tokenLimit;
     }
-
+    while (this.remaining > 0) {
+      if (this.queue.length === 0) {
+        break;
+      }
+      const item = this.queue.shift()!;
+      item();
+      this.remaining--;
+    }
     if (this.queue.length && !this.timeout) {
-      this.timeout = setTimeout(() => {
-        this.timeout = 0;
-        this.remaining = this.maxItems;
-        this.check().catch(() => void 0);
-      }, Math.max(0, this.elapsedTime - Date.now()));
+      this.timeout = setTimeout(
+        () => {
+          this.timeout = 0;
+          this.remaining = this.tokenLimit;
+          this.check().catch(() => void 0);
+        },
+        Math.max(
+          0,
+          this.lastReset + this.resetIn + this.tokenLimit - Date.now(),
+        ),
+      );
     }
-  }
-
-  private get elapsedTime() {
-    // Add the max items to account for latency.
-    return this.lastReset + this.emptyFreq + this.maxItems;
   }
 }
 

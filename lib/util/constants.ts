@@ -1,4 +1,4 @@
-import { Gateway } from "../../src/@types/denocord.ts";
+import { Gateway } from "../@types/denocord.ts";
 
 /**
  * Deprecated in favor of auto-discovery
