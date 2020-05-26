@@ -13,12 +13,13 @@ onError(console.error);
 
 on("MESSAGE_CREATE", async msg => {
   //console.log(msg);
-  if ((<{
+  type msgContent = {
     content: string;
-  }>msg).content === "deno!hello") {
-    await rest.request("POST", `/channels/${(<{
-      channel_id: string;
-    }>msg).channel_id}/messages`, true, {
+    channel_id: string;
+  };
+  const data = <msgContent>msg;
+  if (data.content === "deno!hello") {
+    await rest.request("POST", `/channels/${data.channel_id}/messages`, true, {
       content: "Hi!"
     });
   }
