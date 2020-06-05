@@ -1,9 +1,10 @@
 import { EventEmitter, StrictEventEmitter } from "../deps.ts";
-import { bus, setToken } from "../client.ts";
-import { Gateway } from "../@types/denocord.ts";
+import { bus, setToken, state } from "../client.ts";
+import { Gateway, DataTypes, DATA_SYMBOL } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../util/constants.ts";
 import Bucket from "../util/Bucket.ts";
 import RequestHandler from "../rest/request_handler.ts";
+import createObject from "../util/create_object.ts";
 import {
   connectWebSocket,
   isWebSocketCloseEvent,
@@ -12,10 +13,12 @@ import {
   equal,
   pako,
 } from "../deps.ts";
+import ExtendedUser from "../structures/ExtendedUser.ts";
 
 type WebsocketEvents = {
   raw: string;
   message: { messageStub: true };
+  ready: void;
   // TODO(zorbyte): how do I make it use Gateway.DispatchEvents? - TTtie
   [k: string]: any;
 };
@@ -51,9 +54,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   private textDecoder = new TextDecoder("utf-8");
   private sessionID?: string;
   // @ts-ignore
-  private deflator: any = new pako.Inflate({
-    chunkSize: 128 * 1024,
-  });
+  private deflator: any = new pako.Inflate();
   private globalBucket: Bucket = new Bucket(120, 60000);
   private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
 
@@ -89,6 +90,14 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         `Starting the bot would reset the token. Please restart the bot after ${ssl.reset_after}ms`,
       );
     }
+
+    // zlib-stream does not work under linux
+    if (
+      Deno.build.os !== "windows" &&
+      this.options.compress === CompressionOptions.ZLIB_STREAM
+    ) {
+      this.options.compress = CompressionOptions.ZLIB;
+    }
     if (!this.gatewayURL) {
       this.gatewayURL = `${url}?v=6&encoding=json${
         this.options.compress === CompressionOptions.ZLIB_STREAM
@@ -110,9 +119,11 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       this.socket = await connectWebSocket(this.gatewayURL!);
       await this.onOpen();
       for await (const payload of this.socket) {
+        let isCompressed = false;
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.options.compress === CompressionOptions.ZLIB) {
+            isCompressed = true;
             // @ts-ignore
             data = pako.inflate(payload);
           } else if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
@@ -126,9 +137,10 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
                 console.warn("DEFLATE ERROR", this.deflator.err);
                 continue;
               }
+              isCompressed = true;
               data = this.deflator.result;
             } else {
-              this.deflator.push(payload, false);
+              this.deflator.push(payload, 0);
               continue;
             }
           } else {
@@ -136,7 +148,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
             continue;
           }
           try {
-            const json = this.textDecoder.decode(data);
+            const json = this.textDecoder.decode(this.deflator.result);
             const packet = JSON.parse(json);
             await this.handlePacket(packet);
           } catch (err) {
@@ -229,14 +241,60 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       this.status = "resuming";
       await this.close();
       await this.connect();
-    }
-    if (packet.op === Gateway.OP_CODES.DISPATCH) {
-      if (packet.t === "READY") {
-        this.status = "ready";
-        this.sessionID = packet.d.session_id;
-      }
+    } else if (packet.op === Gateway.OP_CODES.DISPATCH) {
       this.debug(`Received dispatch event: ${packet.t}.`);
-      this.emit(packet.t as Gateway.DispatchEvents, packet.d);
+      this.dispatch(packet);
+      //this.emit(packet.t as Gateway.DispatchEvents, packet.d);
+    } else if (packet.op === Gateway.OP_CODES.INVALID_SESSION) {
+      if (packet.d) {
+        this.status = "resuming";
+      } else {
+        this.sessionID = undefined;
+        this.status = "disconnected";
+      }
+      await this.close();
+      setTimeout(
+        async () => await this.connect(),
+        Math.floor(Math.random() * 5000),
+      );
+    } else if (packet.op === Gateway.OP_CODES.HEARTBEAT) {
+      await this.sendHeartbeat(true);
+    }
+  }
+
+  private dispatch(payload: Gateway.GatewayPacket) {
+    switch (payload.t) {
+      case "READY":
+      case "RESUMED": {
+        this.sessionID = payload.d.session_id;
+        (<any> state).user = createObject<ExtendedUser>(
+          payload.d.user,
+          DataTypes.USER,
+        );
+        (<any> state).guilds = new Map(
+          payload.d.guilds.map((g: any) => [
+            g.id,
+            g.unavailable
+              ? { ...g, [DATA_SYMBOL]: DataTypes.GUILD }
+              : createObject(g, DataTypes.GUILD),
+          ]),
+        );
+        setTimeout(() => {
+          this.status = "ready";
+          this.emit("ready");
+        }, 2000);
+        break;
+      }
+
+      case "GUILD_CREATE": {
+        const oldGuild = state.guilds.get(payload.d.id);
+        state.guilds.set(payload.d.id, payload.d);
+        if (this.status === "ready") {
+          if (oldGuild.unavailable === false) {
+            this.emit("guildCreate", payload.d);
+          }
+        }
+      }
     }
   }
 
@@ -272,14 +330,14 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     });
   }
 
-  private async sendHeartbeat(): Promise<void> {
+  private async sendHeartbeat(forced = false): Promise<void> {
     this.debug(`Sending heartbeat.`);
-    if (!this.heartbeatAck) {
+    if (!forced && !this.heartbeatAck) {
       this.failedHeartbeatAck++;
       this.debug("Did not receive heartbeat ACK before next heartbeat!");
       if (this.status === "ready") {
         this.status = "resuming";
-        await this.close();
+        await this.close(1014);
         await this.connect();
         return;
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {

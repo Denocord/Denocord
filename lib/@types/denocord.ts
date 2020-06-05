@@ -120,6 +120,21 @@ export namespace Gateway {
   }
 }
 
+export const DATA_SYMBOL = Symbol("Denocord::Data");
+export enum DataTypes {
+  USER,
+  GUILD,
+  ROLE,
+  CHANNEL,
+  MEMBER,
+  UNKNOWN,
+}
+
+export interface SnowflakeBase {
+  id: string;
+  [DATA_SYMBOL]: DataTypes;
+}
+
 export namespace Voice {
   export enum VOICE_OP_CODES {}
 }

@@ -13,4 +13,4 @@ export function onError(errorHandler: (error: Error) => void) {
 const ws = WebsocketShard.get();
 export const login = ws.login.bind(ws);
 
-export { config } from "./lib/client.ts";
+export { config, state } from "./lib/client.ts";
