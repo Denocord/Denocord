@@ -1,6 +1,5 @@
 //import "https://deno.land/x/dotenv/load.ts"; //broken in 1.0.0-rc3
 import Client from "../src/Client.ts";
-import SequentialBucket from "../src/lib/SequentialBucket.ts";
 import { Gateway } from "../src/@types/denocord.ts";
 import config from "./testConfig.ts";
 
