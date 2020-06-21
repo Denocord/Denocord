@@ -8,4 +8,4 @@ jobs:
             - uses: actions/checkout@v2
             - uses: Denocord/deno-action@master
               with:
-                args: '["fmt", "lib", "*.ts", "--check"]'
+                args: '["fmt", "lib", "rest.ts", "mod.ts", "util.ts", "ws.ts", "--check"]'
