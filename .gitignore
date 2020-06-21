@@ -6,3 +6,4 @@ dist/
 bin/testConfig.ts
 .vscode/
 deno_std/
+.deno_plugins/

@@ -12,6 +12,7 @@ import {
   WebSocketCloseEvent,
   equal,
   pako,
+  decompressor
 } from "../deps.ts";
 import ExtendedUser from "../structures/ExtendedUser.ts";
 
@@ -53,8 +54,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   private seq: number | null = null;
   private textDecoder = new TextDecoder("utf-8");
   private sessionID?: string;
-  // @ts-ignore
-  private deflator: any = new pako.Inflate();
   private globalBucket: Bucket = new Bucket(120, 60000);
   private presenceUpdateBucket: Bucket = new Bucket(5, 60000);
 
@@ -77,6 +76,13 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     bus.emit("debug", "Logging in.");
     this.token = token;
     setToken(token);
+    //@ts-ignore
+    if (this.options.compress === CompressionOptions.ZLIB_STREAM && typeof Deno.openPlugin !== "function") {
+      console.warn(" !!! Using zlib-stream compression is done through an unstable API.  !!!");
+      console.warn(" !!! Please, run Deno with the --unstable flag. Until then, Denocord !!!");
+      console.warn(" !!! will use packet-based zlib compression instead.                 !!!");
+      this.options.compress = CompressionOptions.ZLIB;
+    }
 
     await this.connect();
   }
@@ -89,14 +95,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       throw new Error(
         `Starting the bot would reset the token. Please restart the bot after ${ssl.reset_after}ms`,
       );
-    }
-
-    // zlib-stream does not work under linux
-    if (
-      Deno.build.os !== "windows" &&
-      this.options.compress === CompressionOptions.ZLIB_STREAM
-    ) {
-      this.options.compress = CompressionOptions.ZLIB;
     }
     if (!this.gatewayURL) {
       this.gatewayURL = `${url}?v=6&encoding=json${
@@ -119,11 +117,9 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       this.socket = await connectWebSocket(this.gatewayURL!);
       await this.onOpen();
       for await (const payload of this.socket) {
-        let isCompressed = false;
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.options.compress === CompressionOptions.ZLIB) {
-            isCompressed = true;
             // @ts-ignore
             data = pako.inflate(payload);
           } else if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
@@ -132,15 +128,17 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
               equal(payload.slice(payload.length - 4), Z_SYNC_FLUSH)
             ) {
               // @ts-ignore
-              this.deflator.push(payload, pako.Z_SYNC_FLUSH);
-              if (this.deflator.err) {
+              decompressor.push(payload, true);
+              //this.deflator.push(payload, pako.Z_SYNC_FLUSH);
+              /*if (this.deflator.err) {
                 console.warn("DEFLATE ERROR", this.deflator.err);
                 continue;
-              }
-              isCompressed = true;
-              data = this.deflator.result;
+              }*/
+              // @ts-ignore
+              data = decompressor.res;
             } else {
-              this.deflator.push(payload, 0);
+              // @ts-ignore
+              decompressor.push(payload);
               continue;
             }
           } else {
@@ -148,7 +146,8 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
             continue;
           }
           try {
-            const json = this.textDecoder.decode(this.deflator.result);
+            //@ts-ignore
+            const json = this.textDecoder.decode(data);
             const packet = JSON.parse(json);
             await this.handlePacket(packet);
           } catch (err) {
