@@ -12,7 +12,7 @@ import {
   WebSocketCloseEvent,
   equal,
   pako,
-  decompressor
+  decompressor,
 } from "../deps.ts";
 import ExtendedUser from "../structures/ExtendedUser.ts";
 
@@ -77,10 +77,19 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     this.token = token;
     setToken(token);
     //@ts-ignore
-    if (this.options.compress === CompressionOptions.ZLIB_STREAM && typeof Deno.openPlugin !== "function") {
-      console.warn(" !!! Using zlib-stream compression is done through an unstable API.  !!!");
-      console.warn(" !!! Please, run Deno with the --unstable flag. Until then, Denocord !!!");
-      console.warn(" !!! will use packet-based zlib compression instead.                 !!!");
+    if (
+      this.options.compress === CompressionOptions.ZLIB_STREAM &&
+      typeof Deno.openPlugin !== "function"
+    ) {
+      console.warn(
+        " !!! Using zlib-stream compression is done through an unstable API.  !!!",
+      );
+      console.warn(
+        " !!! Please, run Deno with the --unstable flag. Until then, Denocord !!!",
+      );
+      console.warn(
+        " !!! will use packet-based zlib compression instead.                 !!!",
+      );
       this.options.compress = CompressionOptions.ZLIB;
     }
 
