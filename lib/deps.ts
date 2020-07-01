@@ -8,5 +8,8 @@ export {
 } from "https://deno.land/std@v0.58.0/ws/mod.ts";
 export { equal } from "https://deno.land/std@v0.58.0/bytes/mod.ts";
 export { default as pako } from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
-export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/4a17c82d0783d875587787fbf7aaab4cff0c3266/mod.ts";
+export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/e6979699a90b5e1aaf1022fc3b1391e3b2d0bcd9/mod.ts";
+
+// Development versions of the libraries
+//export { default as decompressor } from "../../denoflate/mod.ts";
 //export { default as pako } from "../../pako/mod.js";

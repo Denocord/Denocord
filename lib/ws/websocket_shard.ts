@@ -123,6 +123,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       await this.discoverWS();
     }
     try {
+      decompressor.reset();
       this.socket = await connectWebSocket(this.gatewayURL!);
       await this.onOpen();
       for await (const payload of this.socket) {
@@ -138,11 +139,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
             ) {
               // @ts-ignore
               decompressor.push(payload, true);
-              //this.deflator.push(payload, pako.Z_SYNC_FLUSH);
-              /*if (this.deflator.err) {
-                console.warn("DEFLATE ERROR", this.deflator.err);
-                continue;
-              }*/
               // @ts-ignore
               data = decompressor.res;
             } else {
