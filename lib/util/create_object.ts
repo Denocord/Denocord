@@ -22,10 +22,14 @@ export default function createObject<T extends SnowflakeBase>(
       g.roles.map((r) => [r.id, createObject<Role>(r, DataTypes.ROLE)]),
     );
     (<any> objectWithoutDataType).channels = new Map(
-      g.channels.map((c) => [c.id, createObject<Channel>(c, DataTypes.CHANNEL)]),
+      g.channels.map((
+        c,
+      ) => [c.id, createObject<Channel>(c, DataTypes.CHANNEL)]),
     );
     (<any> objectWithoutDataType).members = new Map(
-      g.members.map((m) => [m.id, createObject<GuildMember>(m, DataTypes.MEMBER)]),
+      g.members.map((
+        m,
+      ) => [m.id, createObject<GuildMember>(m, DataTypes.MEMBER)]),
     );
     (<any> objectWithoutDataType).presences = new Map(
       g.presences.map((p) => [p.id, p]),
@@ -39,9 +43,12 @@ export default function createObject<T extends SnowflakeBase>(
         .recipients.map((u: any) => createObject<User>(u, DataTypes.USER));
     }
   } else if (dataType === DataTypes.MEMBER) {
-    (<any> objectWithoutDataType).user = createObject<User>((<any> objectWithoutDataType).user, DataTypes.USER);
+    (<any> objectWithoutDataType).user = createObject<User>(
+      (<any> objectWithoutDataType).user,
+      DataTypes.USER,
+    );
   }
 
   (<T> objectWithoutDataType)[DATA_SYMBOL] = dataType;
   return (<T> objectWithoutDataType);
-};
+}
