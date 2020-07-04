@@ -127,6 +127,7 @@ export enum DataTypes {
   ROLE,
   CHANNEL,
   MEMBER,
+  MESSAGE,
   UNKNOWN,
 }
 
@@ -134,6 +135,8 @@ export interface SnowflakeBase {
   id: string;
   [DATA_SYMBOL]: DataTypes;
 }
+
+export type TypelessSnowflakeBase = Omit<SnowflakeBase, typeof DATA_SYMBOL>;
 
 export namespace Voice {
   export enum VOICE_OP_CODES {}
