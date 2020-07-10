@@ -1,19 +1,23 @@
-import Client from "../Client.ts";
-import SequentialBucket from "../lib/SequentialBucket.ts";
-import { API_BASE } from "../lib/constants.ts";
+import { VERSION } from "../../mod.ts";
+import { token } from "../client.ts";
+import SequentialBucket from "./sequential_bucket.ts";
+import { API_BASE } from "../util/constants.ts";
 
 const MAJOR_PARAMETER_REGEX = /^\/(?:channels|guilds|webhooks)\/(?<id>\d+)/;
 
 class RequestHandler {
-  // TODO(TTtie): version should be filled automatically
-  private ua = "DiscordBot (https://github.com/Denocord/Denocord, 0.0.1)";
+  private ua = `DiscordBot (https://github.com/Denocord/Denocord, ${VERSION})`;
   private ratelimitBuckets = new Map<string, SequentialBucket>();
-  public globallyRatelimited: boolean = false;
+  public globallyRatelimited = false;
   private globalRatelimitQueue: Function[] = [];
   public routeMapping: Record<string, string> = {};
 
-  public constructor(private client: Client) {
+  private static instance: RequestHandler;
+
+  public static get() {
+    return this.instance ?? (this.instance = new RequestHandler());
   }
+  private constructor() {}
 
   public toRoute(method: string, path: string) {
     return `${method}:${
@@ -41,6 +45,7 @@ class RequestHandler {
     const majorParamMatch = path.match(MAJOR_PARAMETER_REGEX);
     const route = this.toRoute(method, path);
     const bucketName = this.routeMapping[route] || route;
+    console.log("RQ");
     return new Promise(async (rs, rj) => {
       let bucket: SequentialBucket = this.ratelimitBuckets.get(bucketName)!;
       if (!bucket) {
@@ -50,7 +55,7 @@ class RequestHandler {
 
       const headers: Record<string, string> = {
         "User-Agent": this.ua,
-        Authorization: auth ? this.client.token : "",
+        Authorization: auth ? token : "",
         "X-RateLimit-Precision": "millisecond",
       };
 
@@ -123,6 +128,14 @@ class RequestHandler {
               setTimeout(() => {
                 this.request(method, path, auth, body).then(rs, rj);
               }, retryAfter);
+            } else {
+              rj(
+                new Error(
+                  `${resp.status}: ${resp.statusText}\n${
+                    JSON.stringify(data, null, 4)
+                  }`,
+                ),
+              );
             }
           }
         } catch (err) {

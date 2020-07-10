@@ -4,5 +4,6 @@ dist/
 .env
 .DS_Store
 bin/testConfig.ts
-
+.vscode/
 deno_std/
+.deno_plugins/

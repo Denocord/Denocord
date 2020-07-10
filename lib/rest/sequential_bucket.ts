@@ -2,7 +2,6 @@ type RatelimitedFunction = () => Promise<void>;
 
 const wait = (ms: number) => new Promise((rs) => setTimeout(rs, ms));
 
-// TODO(TTtie): test this in the real world
 class SequentialBucket {
   private queue: RatelimitedFunction[] = [];
   public remaining = 1;
