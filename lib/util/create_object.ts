@@ -33,31 +33,35 @@ export default function createObject(
     const g = <APITypes.APIGuildData> objectWithoutDataType;
     if (g.roles) {
       objectWithoutDataType.roles = new Map(
-        g.roles.map((r) => [r.id, createObject(r, APITypes.DataTypes.ROLE)]),
+        g.roles.map((
+          r: APITypes.APIRoleData,
+        ) => [r.id, createObject(r, APITypes.DataTypes.ROLE)]),
       );
     }
     if (g.channels) {
       objectWithoutDataType.channels = new Map(
         g.channels.map((
-          c,
+          c: APITypes.APIChannelData,
         ) => [c.id, createObject(c, APITypes.DataTypes.CHANNEL)]),
       );
     }
     if (g.members) {
       objectWithoutDataType.members = new Map(
         g.members.map((
-          m,
+          m: APITypes.APIGuildMemberData,
         ) => [m.user?.id, createObject(m, APITypes.DataTypes.MEMBER)]),
       );
     }
     if (g.presences) {
       objectWithoutDataType.presences = new Map(
-        g.presences.map((p) => [p.user.id, p]),
+        g.presences.map((p: APITypes.APIPresenceUpdateData) => [p.user.id, p]),
       );
     }
     if (g.voice_states) {
       objectWithoutDataType.voice_states = new Map(
-        g.voice_states.map((vs) => [vs.user_id, vs]),
+        g.voice_states.map((
+          vs: APITypes.APIVoiceStatePartial,
+        ) => [vs.user_id, vs]),
       );
     }
   } else if (dataType === APITypes.DataTypes.CHANNEL) {
@@ -68,8 +72,8 @@ export default function createObject(
         );
     }
   } else if (dataType === APITypes.DataTypes.MEMBER) {
-    (<any> objectWithoutDataType).user = createObject(
-      (<any> objectWithoutDataType).user,
+    objectWithoutDataType.user = createObject(
+      objectWithoutDataType.user,
       APITypes.DataTypes.USER,
     );
   }
