@@ -1,6 +1,6 @@
-import { EventEmitter, StrictEventEmitter } from "../deps.ts";
+import { EventEmitter, StrictEventEmitter, APITypes } from "../deps.ts";
 import { bus, setToken, state } from "../client.ts";
-import { Gateway, DataTypes, DATA_SYMBOL } from "../@types/denocord.ts";
+import { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH } from "../util/constants.ts";
 import Bucket from "../util/Bucket.ts";
 import RequestHandler from "../rest/request_handler.ts";
@@ -14,12 +14,12 @@ import {
   pako,
   decompressor,
 } from "../deps.ts";
-import ExtendedUser from "../structures/ExtendedUser.ts";
 
 type WebsocketEvents = {
   raw: string;
-  message: { messageStub: true };
+  message: APITypes.Message;
   ready: void;
+  guildCreate: APITypes.Guild;
   // TODO(zorbyte): how do I make it use Gateway.DispatchEvents? - TTtie
   [k: string]: any;
 };
@@ -271,16 +271,16 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       case "READY":
       case "RESUMED": {
         this.sessionID = payload.d.session_id;
-        (<any> state).user = createObject<ExtendedUser>(
+        (<any> state).user = createObject(
           payload.d.user,
-          DataTypes.USER,
+          APITypes.DataTypes.USER,
         );
         (<any> state).guilds = new Map(
-          payload.d.guilds.map((g: any) => [
+          payload.d.guilds.map((g: APITypes.APIGuildUnavailable | APITypes.APIGuildData) => [
             g.id,
             g.unavailable
-              ? { ...g, [DATA_SYMBOL]: DataTypes.GUILD }
-              : createObject(g, DataTypes.GUILD),
+              ? { ...g, [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD }
+              : createObject(<APITypes.APIGuildData>g, APITypes.DataTypes.GUILD),
           ]),
         );
         setTimeout(() => {
@@ -294,10 +294,15 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         const oldGuild = state.guilds.get(payload.d.id);
         state.guilds.set(payload.d.id, payload.d);
         if (this.status === "ready") {
-          if (oldGuild.unavailable === false) {
+          if (oldGuild?.unavailable === false) {
             this.emit("guildCreate", payload.d);
           }
         }
+      }
+
+      case "MESSAGE_CREATE": {
+        const msg = createObject(payload.d, APITypes.DataTypes.MESSAGE);
+        this.emit("message", msg);
       }
     }
   }

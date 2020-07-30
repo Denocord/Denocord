@@ -15,7 +15,7 @@ on("ready", () => {
   console.log(
     `Logged in as ${state.user.username}#${state.user.discriminator}`,
   );
-  console.log(state.guilds.get("616556458946854922")?.guild_hashes);
+  console.log(state.guilds.get("616556458946854922")?.roles);
 });
 
 on("MESSAGE_CREATE", async (msg) => {

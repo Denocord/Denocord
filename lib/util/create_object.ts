@@ -1,54 +1,77 @@
-import { SnowflakeBase, DataTypes, DATA_SYMBOL } from "../@types/denocord.ts";
-import User from "../structures/User.ts";
-import GuildMember from "../structures/GuildMember.ts";
-import Channel from "../structures/Channel.ts";
-import Role from "../structures/Role.ts";
+import { APITypes } from "../deps.ts";
 
-type RawGuildData = {
-  roles: any[];
-  channels: any[];
-  members: any[];
-  presences: any[];
-  voice_states: any[];
-};
+export default function createObject(
+  objectWithoutDataType: APITypes.APIGuildData,
+  dataType: APITypes.DataTypes.GUILD
+): APITypes.Guild;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIRoleData,
+  dataType: APITypes.DataTypes.ROLE
+): APITypes.Role;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIChannelData,
+  dataType: APITypes.DataTypes.CHANNEL
+): APITypes.Channel;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIGuildMemberData,
+  dataType: APITypes.DataTypes.MEMBER
+): APITypes.GuildMember;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIUserData,
+  dataType: APITypes.DataTypes.USER
+): APITypes.User;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIMessageData,
+  dataType: APITypes.DataTypes.MESSAGE
+): APITypes.Message;
 
-export default function createObject<T extends SnowflakeBase>(
-  objectWithoutDataType: Omit<T, typeof DATA_SYMBOL>,
-  dataType: T[typeof DATA_SYMBOL],
-): T {
-  if (dataType === DataTypes.GUILD) {
-    const g = <RawGuildData> <any> objectWithoutDataType;
-    (<any> objectWithoutDataType).roles = new Map(
-      g.roles.map((r) => [r.id, createObject<Role>(r, DataTypes.ROLE)]),
-    );
-    (<any> objectWithoutDataType).channels = new Map(
-      g.channels.map((
-        c,
-      ) => [c.id, createObject<Channel>(c, DataTypes.CHANNEL)]),
-    );
-    (<any> objectWithoutDataType).members = new Map(
-      g.members.map((
-        m,
-      ) => [m.id, createObject<GuildMember>(m, DataTypes.MEMBER)]),
-    );
-    (<any> objectWithoutDataType).presences = new Map(
-      g.presences.map((p) => [p.id, p]),
-    );
-    (<any> objectWithoutDataType).voice_states = new Map(
-      g.voice_states.map((vs) => [vs.id, vs]),
-    );
-  } else if (dataType === DataTypes.CHANNEL) {
-    if ((<any> objectWithoutDataType).recipients) {
-      (<any> objectWithoutDataType).recipients = (<any> objectWithoutDataType)
-        .recipients.map((u: any) => createObject<User>(u, DataTypes.USER));
+export default function createObject(
+  objectWithoutDataType: any,
+  dataType: APITypes.DataTypes,
+): any {
+  if (dataType === APITypes.DataTypes.GUILD) {
+    const g = <APITypes.APIGuildData>objectWithoutDataType;
+    if (g.roles) {
+      objectWithoutDataType.roles = new Map(
+        g.roles.map((r) => [r.id, createObject(r, APITypes.DataTypes.ROLE)]),
+      );
     }
-  } else if (dataType === DataTypes.MEMBER) {
-    (<any> objectWithoutDataType).user = createObject<User>(
-      (<any> objectWithoutDataType).user,
-      DataTypes.USER,
+    if (g.channels) {
+      objectWithoutDataType.channels = new Map(
+        g.channels.map((
+          c,
+        ) => [c.id, createObject(c, APITypes.DataTypes.CHANNEL)]),
+      );
+    }
+    if (g.members) {
+      objectWithoutDataType.members = new Map(
+        g.members.map((
+          m,
+        ) => [m.user?.id, createObject(m, APITypes.DataTypes.MEMBER)]),
+      );
+    }
+    if (g.presences) {
+      objectWithoutDataType.presences = new Map(
+        g.presences.map((p) => [p.user.id, p]),
+      );
+    }
+    if (g.voice_states) {
+      objectWithoutDataType.voice_states = new Map(
+        g.voice_states.map((vs) => [vs.user_id, vs]),
+      );
+    }
+  } else if (dataType === APITypes.DataTypes.CHANNEL) {
+    if (objectWithoutDataType.recipients) {
+      objectWithoutDataType.recipients = objectWithoutDataType
+        .recipients.map((u: APITypes.APIUserData) => createObject(u, APITypes.DataTypes.USER));
+    }
+  } else if (dataType === APITypes.DataTypes.MEMBER) {
+    (<any>objectWithoutDataType).user = createObject(
+      (<any>objectWithoutDataType).user,
+      APITypes.DataTypes.USER,
     );
   }
 
-  (<T> objectWithoutDataType)[DATA_SYMBOL] = dataType;
-  return (<T> objectWithoutDataType);
+  objectWithoutDataType[APITypes.DATA_SYMBOL] = dataType;
+  return objectWithoutDataType;
 }
