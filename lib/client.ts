@@ -1,6 +1,7 @@
 import { StrictEE } from "./util/type_utils.ts";
 import { EventEmitter } from "./deps.ts";
 import ExtendedUser from "./structures/ExtendedUser.ts";
+import Guild from "./structures/Guild.ts";
 
 interface ClientEvents {
   debug: string;
@@ -18,9 +19,12 @@ export let options!: ClientConfig;
 
 export const bus = new EventEmitter() as StrictEE<ClientEvents>;
 
+/**
+ * This should be rather an user provided class 
+ */
 export const state = new class State {
   public readonly user!: ExtendedUser;
-  public readonly guilds!: Map<string, any>;
+  public readonly guilds!: Map<string, Guild>;
 }();
 
 export function config(options: ClientConfig) {}
