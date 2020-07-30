@@ -2,27 +2,27 @@ import { APITypes } from "../deps.ts";
 
 export default function createObject(
   objectWithoutDataType: APITypes.APIGuildData,
-  dataType: APITypes.DataTypes.GUILD
+  dataType: APITypes.DataTypes.GUILD,
 ): APITypes.Guild;
 export default function createObject(
   objectWithoutDataType: APITypes.APIRoleData,
-  dataType: APITypes.DataTypes.ROLE
+  dataType: APITypes.DataTypes.ROLE,
 ): APITypes.Role;
 export default function createObject(
   objectWithoutDataType: APITypes.APIChannelData,
-  dataType: APITypes.DataTypes.CHANNEL
+  dataType: APITypes.DataTypes.CHANNEL,
 ): APITypes.Channel;
 export default function createObject(
   objectWithoutDataType: APITypes.APIGuildMemberData,
-  dataType: APITypes.DataTypes.MEMBER
+  dataType: APITypes.DataTypes.MEMBER,
 ): APITypes.GuildMember;
 export default function createObject(
   objectWithoutDataType: APITypes.APIUserData,
-  dataType: APITypes.DataTypes.USER
+  dataType: APITypes.DataTypes.USER,
 ): APITypes.User;
 export default function createObject(
   objectWithoutDataType: APITypes.APIMessageData,
-  dataType: APITypes.DataTypes.MESSAGE
+  dataType: APITypes.DataTypes.MESSAGE,
 ): APITypes.Message;
 
 export default function createObject(
@@ -30,7 +30,7 @@ export default function createObject(
   dataType: APITypes.DataTypes,
 ): any {
   if (dataType === APITypes.DataTypes.GUILD) {
-    const g = <APITypes.APIGuildData>objectWithoutDataType;
+    const g = <APITypes.APIGuildData> objectWithoutDataType;
     if (g.roles) {
       objectWithoutDataType.roles = new Map(
         g.roles.map((r) => [r.id, createObject(r, APITypes.DataTypes.ROLE)]),
@@ -63,11 +63,13 @@ export default function createObject(
   } else if (dataType === APITypes.DataTypes.CHANNEL) {
     if (objectWithoutDataType.recipients) {
       objectWithoutDataType.recipients = objectWithoutDataType
-        .recipients.map((u: APITypes.APIUserData) => createObject(u, APITypes.DataTypes.USER));
+        .recipients.map((u: APITypes.APIUserData) =>
+          createObject(u, APITypes.DataTypes.USER)
+        );
     }
   } else if (dataType === APITypes.DataTypes.MEMBER) {
-    (<any>objectWithoutDataType).user = createObject(
-      (<any>objectWithoutDataType).user,
+    (<any> objectWithoutDataType).user = createObject(
+      (<any> objectWithoutDataType).user,
       APITypes.DataTypes.USER,
     );
   }

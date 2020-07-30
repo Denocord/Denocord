@@ -276,11 +276,16 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
           APITypes.DataTypes.USER,
         );
         (<any> state).guilds = new Map(
-          payload.d.guilds.map((g: APITypes.APIGuildUnavailable | APITypes.APIGuildData) => [
+          payload.d.guilds.map((
+            g: APITypes.APIGuildUnavailable | APITypes.APIGuildData,
+          ) => [
             g.id,
             g.unavailable
               ? { ...g, [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD }
-              : createObject(<APITypes.APIGuildData>g, APITypes.DataTypes.GUILD),
+              : createObject(
+                <APITypes.APIGuildData> g,
+                APITypes.DataTypes.GUILD,
+              ),
           ]),
         );
         setTimeout(() => {
