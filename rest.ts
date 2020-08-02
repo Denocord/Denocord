@@ -11,6 +11,11 @@ type TypeByID<T extends APITypes.DataTypes> = {
 
 export default rest;
 
+/**
+ * Creates a message in the specified channel
+ * @param parent The channel to create the message in
+ * @param payload The message content
+ */
 export function create(
   parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
   type: APITypes.DataTypes.MESSAGE,
@@ -49,6 +54,6 @@ export async function create(
         ),
         APITypes.DataTypes.MESSAGE,
       );
-    }
+    } 
   }
 }
