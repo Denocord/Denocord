@@ -27,7 +27,7 @@ export default function createObject(
 export default function createObject(
   objectWithoutDataType: APITypes.APIWebhookData,
   dataType: APITypes.DataTypes.WEBHOOK,
-): APITypes.Webhook
+): APITypes.Webhook;
 
 export default function createObject(
   objectWithoutDataType: any,
@@ -77,17 +77,17 @@ export default function createObject(
     }
   } else if (dataType === APITypes.DataTypes.MEMBER) {
     if (objectWithoutDataType.user) {
-        objectWithoutDataType.user = createObject(
-          objectWithoutDataType.user,
-          APITypes.DataTypes.USER,
-        );
+      objectWithoutDataType.user = createObject(
+        objectWithoutDataType.user,
+        APITypes.DataTypes.USER,
+      );
     }
   } else if (dataType === APITypes.DataTypes.WEBHOOK) {
     if (objectWithoutDataType.user) {
-        objectWithoutDataType.user = createObject(
-            objectWithoutDataType.user,
-            APITypes.DataTypes.USER
-        );
+      objectWithoutDataType.user = createObject(
+        objectWithoutDataType.user,
+        APITypes.DataTypes.USER,
+      );
     }
   }
 

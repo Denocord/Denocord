@@ -29,7 +29,7 @@ export function create(
 export function create(
   parent: APITypes.Channel | TypeByID<APITypes.DataTypes.WEBHOOK>,
   type: APITypes.DataTypes.WEBHOOK,
-  payload: APITypes.WebhookCreatePayload
+  payload: APITypes.WebhookCreatePayload,
 ): Promise<APITypes.Webhook>;
 export async function create(
   parent: {
@@ -71,13 +71,13 @@ export async function create(
       }
 
       return createObject(
-          await rest.request(
-              "POST",
-              `/channels/${parent.id}/webhooks`,
-              true,
-              payload,
-          ),
-          APITypes.DataTypes.WEBHOOK
+        await rest.request(
+          "POST",
+          `/channels/${parent.id}/webhooks`,
+          true,
+          payload,
+        ),
+        APITypes.DataTypes.WEBHOOK,
       );
     }
   }
