@@ -21,6 +21,16 @@ export function create(
   type: APITypes.DataTypes.MESSAGE,
   payload: APITypes.MessageCreatePayload,
 ): Promise<APITypes.Message>;
+/**
+ * Creates a webhook in the specified channel
+ * @param parent The channel to create the webhook in
+ * @param payload The webhook data
+ */
+export function create(
+  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.WEBHOOK>,
+  type: APITypes.DataTypes.WEBHOOK,
+  payload: APITypes.WebhookCreatePayload
+): Promise<APITypes.Webhook>;
 export async function create(
   parent: {
     id: string;
@@ -54,6 +64,21 @@ export async function create(
         ),
         APITypes.DataTypes.MESSAGE,
       );
-    } 
+    } else if (type === APITypes.DataTypes.WEBHOOK) {
+      const p = <APITypes.WebhookCreatePayload> payload;
+      if (!p.name) {
+        throw new Error("Missing webhook name");
+      }
+
+      return createObject(
+          await rest.request(
+              "POST",
+              `/channels/${parent.id}/webhooks`,
+              true,
+              payload,
+          ),
+          APITypes.DataTypes.WEBHOOK
+      );
+    }
   }
 }

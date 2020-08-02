@@ -24,6 +24,10 @@ export default function createObject(
   objectWithoutDataType: APITypes.APIMessageData,
   dataType: APITypes.DataTypes.MESSAGE,
 ): APITypes.Message;
+export default function createObject(
+  objectWithoutDataType: APITypes.APIWebhookData,
+  dataType: APITypes.DataTypes.WEBHOOK,
+): APITypes.Webhook
 
 export default function createObject(
   objectWithoutDataType: any,
@@ -72,10 +76,19 @@ export default function createObject(
         );
     }
   } else if (dataType === APITypes.DataTypes.MEMBER) {
-    objectWithoutDataType.user = createObject(
-      objectWithoutDataType.user,
-      APITypes.DataTypes.USER,
-    );
+    if (objectWithoutDataType.user) {
+        objectWithoutDataType.user = createObject(
+          objectWithoutDataType.user,
+          APITypes.DataTypes.USER,
+        );
+    }
+  } else if (dataType === APITypes.DataTypes.WEBHOOK) {
+    if (objectWithoutDataType.user) {
+        objectWithoutDataType.user = createObject(
+            objectWithoutDataType.user,
+            APITypes.DataTypes.USER
+        );
+    }
   }
 
   objectWithoutDataType[APITypes.DATA_SYMBOL] = dataType;
