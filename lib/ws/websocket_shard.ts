@@ -76,9 +76,9 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     bus.emit("debug", "Logging in.");
     this.token = token;
     setToken(token);
-    //@ts-ignore
     if (
       this.options.compress === CompressionOptions.ZLIB_STREAM &&
+      //@ts-ignore
       typeof Deno.openPlugin !== "function"
     ) {
       console.warn(
