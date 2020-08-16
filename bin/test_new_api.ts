@@ -40,6 +40,26 @@ on("message", async (msg) => {
       },
     );
     console.log(newMessage.content);
+  } else if (msg.content === "deno!send_dm") {
+    console.log(msg.author);
+    const channel = await create(msg.author, APITypes.DataTypes.CHANNEL);
+    console.log(channel);
+    const newMessage = await create(
+      channel,
+      APITypes.DataTypes.MESSAGE,
+      {
+        content: "Hi there!",
+        embed: {
+          title: "This is an embed",
+        },
+        files: [
+          new File([new TextEncoder().encode("hello!")], "text.txt", {
+            type: "text/plain",
+          }),
+        ],
+      },
+    );
+    console.log(newMessage.content);
   }
   console.log(msg.content);
 });

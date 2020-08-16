@@ -31,6 +31,15 @@ export function create(
   type: APITypes.DataTypes.WEBHOOK,
   payload: APITypes.WebhookCreatePayload,
 ): Promise<APITypes.Webhook>;
+/**
+ * Creates a private message channel with a user
+ * @param parent The user to create the DM channel for 
+ */
+export function create(
+  parent: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
+  type: APITypes.DataTypes.CHANNEL,
+  _?: never
+): Promise<APITypes.Channel>;
 export async function create(
   parent: {
     id: string;
@@ -79,6 +88,24 @@ export async function create(
         ),
         APITypes.DataTypes.WEBHOOK,
       );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
+    console.log("USER");
+    if (type === APITypes.DataTypes.CHANNEL) {
+      console.log("CHANNEL");
+      const obj = await rest.request(
+        "POST",
+        "/users/@me/channels",
+        true,
+        {
+          recipient_id: parent.id
+        }
+      );
+      console.log(obj);
+      return createObject(
+        obj,
+        APITypes.DataTypes.CHANNEL
+      )
     }
   }
 }

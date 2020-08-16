@@ -1,5 +1,5 @@
 import { APITypes } from "../deps.ts";
-
+import { APIMessageMentionData } from "https://raw.githubusercontent.com/Denocord/discord-api-types/05f0a60d20ab769cb8139beddf131d269fbda046/src/index.ts";
 export default function createObject(
   objectWithoutDataType: APITypes.APIGuildData,
   dataType: APITypes.DataTypes.GUILD,
@@ -88,6 +88,34 @@ export default function createObject(
         objectWithoutDataType.user,
         APITypes.DataTypes.USER,
       );
+    }
+  } else if (dataType === APITypes.DataTypes.MESSAGE) {
+    if (objectWithoutDataType.author) {
+      objectWithoutDataType.author = createObject(
+        objectWithoutDataType.author,
+        APITypes.DataTypes.USER
+      );
+    }
+    if (objectWithoutDataType.member) {
+      objectWithoutDataType.member = createObject(
+        objectWithoutDataType.member,
+        APITypes.DataTypes.MEMBER
+      );
+    }
+    if (objectWithoutDataType.mentions) {
+      objectWithoutDataType.mentions = objectWithoutDataType.mentions.map((mention: APITypes.APIMessageMentionData) => {
+        const user: APIMessageMentionData = createObject(
+          mention,
+          APITypes.DataTypes.USER
+        );
+        if (user.member) {
+          user.member = createObject(
+            user.member,
+            APITypes.DataTypes.MEMBER
+          );
+        }
+        return <APITypes.MessageMention>user;
+      })
     }
   }
 
