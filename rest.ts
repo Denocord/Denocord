@@ -38,7 +38,7 @@ export function create(
 export function create(
   parent: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
   type: APITypes.DataTypes.CHANNEL,
-  _?: never
+  _?: never,
 ): Promise<APITypes.Channel>;
 export async function create(
   parent: {
@@ -98,14 +98,14 @@ export async function create(
         "/users/@me/channels",
         true,
         {
-          recipient_id: parent.id
-        }
+          recipient_id: parent.id,
+        },
       );
       console.log(obj);
       return createObject(
         obj,
-        APITypes.DataTypes.CHANNEL
-      )
+        APITypes.DataTypes.CHANNEL,
+      );
     }
   }
 }

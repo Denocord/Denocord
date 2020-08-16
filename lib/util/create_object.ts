@@ -93,29 +93,31 @@ export default function createObject(
     if (objectWithoutDataType.author) {
       objectWithoutDataType.author = createObject(
         objectWithoutDataType.author,
-        APITypes.DataTypes.USER
+        APITypes.DataTypes.USER,
       );
     }
     if (objectWithoutDataType.member) {
       objectWithoutDataType.member = createObject(
         objectWithoutDataType.member,
-        APITypes.DataTypes.MEMBER
+        APITypes.DataTypes.MEMBER,
       );
     }
     if (objectWithoutDataType.mentions) {
-      objectWithoutDataType.mentions = objectWithoutDataType.mentions.map((mention: APITypes.APIMessageMentionData) => {
-        const user: APIMessageMentionData = createObject(
-          mention,
-          APITypes.DataTypes.USER
-        );
-        if (user.member) {
-          user.member = createObject(
-            user.member,
-            APITypes.DataTypes.MEMBER
+      objectWithoutDataType.mentions = objectWithoutDataType.mentions.map(
+        (mention: APITypes.APIMessageMentionData) => {
+          const user: APIMessageMentionData = createObject(
+            mention,
+            APITypes.DataTypes.USER,
           );
-        }
-        return <APITypes.MessageMention>user;
-      })
+          if (user.member) {
+            user.member = createObject(
+              user.member,
+              APITypes.DataTypes.MEMBER,
+            );
+          }
+          return <APITypes.MessageMention> user;
+        },
+      );
     }
   }
 
