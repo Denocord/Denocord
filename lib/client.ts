@@ -22,7 +22,11 @@ export const bus = new EventEmitter() as StrictEE<ClientEvents>;
  */
 export const state = new class State {
   public readonly user!: APITypes.User;
-  public readonly guilds!: Map<string, APITypes.Guild>;
+  public readonly guilds!: Map<string, APITypes.Guild | {
+    id: string;
+    unavailable: true;
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD;
+  }>;
 }();
 
 export function config(options: ClientConfig) {}

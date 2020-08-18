@@ -14,12 +14,37 @@ import {
   pako,
   decompressor,
 } from "../deps.ts";
-
 type WebsocketEvents = {
+  // TODO(TTtie): Is this used?
   raw: string;
+
+  /**
+   * The event emitted once the message gets created
+   */
   message: APITypes.Message;
+
+  /**
+   * The event emitted once the bot is ready
+   */
   ready: void;
+
+  /**
+   * The event emitted when a guild is created
+   */
   guildCreate: APITypes.Guild;
+
+  /**
+   * The event emitted when a guild is deleted
+   */
+  guildDelete: APITypes.Guild | { 
+    id: string;
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD;
+  };
+
+  /**
+   * The event emitted when a guild is updated. All properties are guaranteed to be available.
+   */
+  guildUpdate: (newGuildData: Partial<APITypes.Guild>, old?: APITypes.Guild) => void;
   // TODO(zorbyte): how do I make it use Gateway.DispatchEvents? - TTtie
   [k: string]: any;
 };
@@ -304,17 +329,57 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
 
       case "GUILD_CREATE": {
         const oldGuild = state.guilds.get(payload.d.id);
-        state.guilds.set(payload.d.id, payload.d);
+        const guild = createObject(payload.d, APITypes.DataTypes.GUILD);
+        state.guilds.set(payload.d.id, guild);
         if (this.status === "ready") {
-          if (oldGuild?.unavailable === false) {
-            this.emit("guildCreate", payload.d);
+          if (!oldGuild || oldGuild?.unavailable === false) {
+            this.emit("guildCreate", guild);
           }
         }
+        break;
+      }
+
+      case "GUILD_DELETE": {
+        const oldGuild: APITypes.Guild = <APITypes.Guild>state.guilds.get(payload.d.id);
+        if (typeof payload.d.unavailable !== "undefined") { // Guild becomes N/A
+          state.guilds.set(payload.d.id, {
+            ...(oldGuild || {}),
+            ...payload.d,
+            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD
+          });
+          break;
+        }
+
+        if (oldGuild) {
+          state.guilds.delete(payload.d.id);
+          this.emit("guildDelete", oldGuild);
+        } else {
+          this.emit("guildDelete", {
+            id: payload.d.id,
+            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD
+          });
+        }
+        break;
+      }
+
+      case "GUILD_UPDATE": {
+        const oldGuild = <APITypes.Guild> state.guilds.get(payload.d.guild_id);
+        if (!oldGuild) {
+          this.emit("guildUpdate", createObject(payload.d, APITypes.DataTypes.GUILD));
+        } else {
+          const oldGuildCopy = {...oldGuild};
+          delete payload.d.guild_id;
+          const newGuild = createObject(payload.d, APITypes.DataTypes.GUILD);
+          Object.assign(oldGuild, newGuild);
+          this.emit("guildUpdate", oldGuild, oldGuildCopy);
+        }
+        break;
       }
 
       case "MESSAGE_CREATE": {
         const msg = createObject(payload.d, APITypes.DataTypes.MESSAGE);
         this.emit("message", msg);
+        break;
       }
     }
   }
