@@ -123,7 +123,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       await this.discoverWS();
     }
     try {
-      decompressor.reset();
+      if (this.options.compress === CompressionOptions.ZLIB_STREAM) decompressor.reset();
       this.socket = await connectWebSocket(this.gatewayURL!);
       await this.onOpen();
       for await (const payload of this.socket) {
