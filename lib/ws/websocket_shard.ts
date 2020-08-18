@@ -47,7 +47,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   public options: WSOptions = {
     compress: CompressionOptions.NONE,
     shardID: 0,
-    shardCount: 1
+    shardCount: 1,
   };
 
   public socket!: WebSocket;
@@ -128,7 +128,9 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       await this.discoverWS();
     }
     try {
-      if (this.options.compress === CompressionOptions.ZLIB_STREAM) decompressor.reset();
+      if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
+        decompressor.reset();
+      }
       this.socket = await connectWebSocket(this.gatewayURL!);
       await this.onOpen();
       for await (const payload of this.socket) {
@@ -389,7 +391,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         $device: "Denocord",
       },
       intents: this.options.intents,
-      shard: [this.options.shardID || 0, this.options.shardCount || 1]
+      shard: [this.options.shardID || 0, this.options.shardCount || 1],
     });
   }
 }
