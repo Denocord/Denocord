@@ -36,7 +36,7 @@ type WebsocketEvents = {
   /**
    * The event emitted when a guild is deleted
    */
-  guildDelete: APITypes.Guild | { 
+  guildDelete: APITypes.Guild | {
     id: string;
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD;
   };
@@ -44,7 +44,10 @@ type WebsocketEvents = {
   /**
    * The event emitted when a guild is updated. All properties are guaranteed to be available.
    */
-  guildUpdate: (newGuildData: Partial<APITypes.Guild>, old?: APITypes.Guild) => void;
+  guildUpdate: (
+    newGuildData: Partial<APITypes.Guild>,
+    old?: APITypes.Guild,
+  ) => void;
   // TODO(zorbyte): how do I make it use Gateway.DispatchEvents? - TTtie
   [k: string]: any;
 };
@@ -340,12 +343,14 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       }
 
       case "GUILD_DELETE": {
-        const oldGuild: APITypes.Guild = <APITypes.Guild>state.guilds.get(payload.d.id);
+        const oldGuild: APITypes.Guild = <APITypes.Guild> state.guilds.get(
+          payload.d.id,
+        );
         if (typeof payload.d.unavailable !== "undefined") { // Guild becomes N/A
           state.guilds.set(payload.d.id, {
             ...(oldGuild || {}),
             ...payload.d,
-            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD
+            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD,
           });
           break;
         }
@@ -356,7 +361,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         } else {
           this.emit("guildDelete", {
             id: payload.d.id,
-            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD
+            [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD,
           });
         }
         break;
@@ -365,9 +370,12 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       case "GUILD_UPDATE": {
         const oldGuild = <APITypes.Guild> state.guilds.get(payload.d.guild_id);
         if (!oldGuild) {
-          this.emit("guildUpdate", createObject(payload.d, APITypes.DataTypes.GUILD));
+          this.emit(
+            "guildUpdate",
+            createObject(payload.d, APITypes.DataTypes.GUILD),
+          );
         } else {
-          const oldGuildCopy = {...oldGuild};
+          const oldGuildCopy = { ...oldGuild };
           delete payload.d.guild_id;
           const newGuild = createObject(payload.d, APITypes.DataTypes.GUILD);
           Object.assign(oldGuild, newGuild);

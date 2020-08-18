@@ -68,13 +68,13 @@ on("message", async (msg) => {
   console.log(msg.content);
 });
 
-on("guildCreate", g => {
+on("guildCreate", (g) => {
   console.log(`Welcome me to ${g.name}!`);
-})
+});
 
-on("guildDelete", g => {
+on("guildDelete", (g) => {
   const guild = <APITypes.Guild> g;
-  if (typeof (<APITypes.Guild>g).name !== "undefined") {
+  if (typeof (<APITypes.Guild> g).name !== "undefined") {
     console.log(`I was removed from ${guild.name} (${guild.id})`);
   } else {
     console.log(`I was removed from an unknown guild (${g.id})`);
@@ -87,14 +87,14 @@ on("guildUpdate", (newData, old) => {
     const inspectedOld = Deno.inspect(old).split("\n");
 
     const difference = diff(inspectedOld, inspectedNew);
-    
-    const differenceArray = difference.map(diffItem => {
+
+    const differenceArray = difference.map((diffItem) => {
       if (diffItem.type === DiffType.common) return `  ${diffItem.value}`;
       if (diffItem.type === DiffType.added) return `+ ${diffItem.value}`;
       if (diffItem.type === DiffType.removed) return `- ${diffItem.value}`;
-    })
+    });
     console.log(differenceArray.join("\n"));
   }
-})
+});
 
 await login(cfg.token);
