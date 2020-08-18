@@ -37,6 +37,8 @@ export enum CompressionOptions {
 export interface WSOptions {
   compress?: CompressionOptions;
   intents?: Gateway.GatewayIntents;
+  shardID?: number;
+  shardCount?: number;
 }
 
 class WebsocketShard extends (EventEmitter as StrictEECtor) {
@@ -44,6 +46,8 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   public token?: string;
   public options: WSOptions = {
     compress: CompressionOptions.NONE,
+    shardID: 0,
+    shardCount: 1
   };
 
   public socket!: WebSocket;
@@ -92,7 +96,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       );
       this.options.compress = CompressionOptions.ZLIB;
     }
-
     await this.connect();
   }
 
@@ -114,7 +117,9 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     }
   }
   public configure(options: WSOptions) {
-    this.options = options;
+    Object.assign(this.options, options);
+    // TODO(TTtie): should this be obj.assign like in djs, eris and co or set props as they are?
+    // this.options = options;
   }
 
   private async connect() {
@@ -384,6 +389,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         $device: "Denocord",
       },
       intents: this.options.intents,
+      shard: [this.options.shardID || 0, this.options.shardCount || 1]
     });
   }
 }

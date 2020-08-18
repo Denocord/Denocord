@@ -8,7 +8,7 @@ wsConfigure({
   compress: CompressionOptions.ZLIB_STREAM,
 });
 
-onDebug(console.debug);
+onDebug((msg) => console.debug("[DEBUG]", msg));
 onError(console.error);
 
 on("ready", () => {
