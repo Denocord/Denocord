@@ -90,9 +90,7 @@ export async function create(
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
-    console.log("USER");
     if (type === APITypes.DataTypes.CHANNEL) {
-      console.log("CHANNEL");
       const obj = await rest.request(
         "POST",
         "/users/@me/channels",
@@ -101,7 +99,6 @@ export async function create(
           recipient_id: parent.id,
         },
       );
-      console.log(obj);
       return createObject(
         obj,
         APITypes.DataTypes.CHANNEL,
