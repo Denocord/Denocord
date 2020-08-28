@@ -108,22 +108,6 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     bus.emit("debug", "Logging in.");
     this.token = token;
     setToken(token);
-    if (
-      this.options.compress === CompressionOptions.ZLIB_STREAM &&
-      //@ts-ignore
-      typeof Deno.openPlugin !== "function"
-    ) {
-      console.warn(
-        " !!! Using zlib-stream compression is done through an unstable API.  !!!",
-      );
-      console.warn(
-        " !!! Please, run Deno with the --unstable flag. Until then, Denocord !!!",
-      );
-      console.warn(
-        " !!! will use packet-based zlib compression instead.                 !!!",
-      );
-      this.options.compress = CompressionOptions.ZLIB;
-    }
     await this.connect();
   }
 
@@ -139,7 +123,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     if (!this.gatewayURL) {
       this.gatewayURL = `${url}?v=6&encoding=json${
         this.options.compress === CompressionOptions.ZLIB_STREAM
-          ? `&compress=zlib-stream`
+          ? "&compress=zlib-stream"
           : ""
       }`;
     }
