@@ -1,5 +1,4 @@
 import { APITypes } from "../deps.ts";
-import { APIMessageMentionData } from "https://raw.githubusercontent.com/Denocord/discord-api-types/05f0a60d20ab769cb8139beddf131d269fbda046/src/index.ts";
 export default function createObject(
   objectWithoutDataType: APITypes.APIGuildData,
   dataType: APITypes.DataTypes.GUILD,
@@ -105,7 +104,7 @@ export default function createObject(
     if (objectWithoutDataType.mentions) {
       objectWithoutDataType.mentions = objectWithoutDataType.mentions.map(
         (mention: APITypes.APIMessageMentionData) => {
-          const user: APIMessageMentionData = createObject(
+          const user: APITypes.APIMessageMentionData = createObject(
             mention,
             APITypes.DataTypes.USER,
           );
