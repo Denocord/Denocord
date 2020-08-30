@@ -24,12 +24,22 @@ export function create(
   payload: APITypes.MessageCreatePayload,
 ): Promise<APITypes.Message>;
 /**
+ * Creates a invite in the specified channel
+ * @param parent The channel to create the invite in
+ * @param payload The properties of new invite
+ */
+export function create(
+  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  type: APITypes.DataTypes.INVITE,
+  payload?: APITypes.CreateInvitePayload,
+): Promise<APITypes.Invite>;
+/**
  * Creates a webhook in the specified channel
  * @param parent The channel to create the webhook in
  * @param payload The webhook data
  */
 export function create(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.WEBHOOK>,
+  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
   type: APITypes.DataTypes.WEBHOOK,
   payload: APITypes.CreateWebhookPayload,
 ): Promise<APITypes.Webhook>;
@@ -116,6 +126,17 @@ export async function create(
         ),
         APITypes.DataTypes.WEBHOOK,
       );
+    } else if (type === APITypes.DataTypes.INVITE) {
+        const p = <APITypes.CreateInvitePayload> payload || {};
+        return createObject(
+            await rest.request(
+                "POST",
+                `/channels/${parent.id}/invites`,
+                true,
+                p
+            ),
+            APITypes.DataTypes.INVITE
+        );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
     if (type === APITypes.DataTypes.CHANNEL) {

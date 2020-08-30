@@ -87,14 +87,11 @@ on("message", async (msg) => {
       return console.log("Cannot find the proper channel for invite");
     }
 
-    const invite: APITypes.APIInviteData =
-      <APITypes.APIInviteData> <unknown> await rest.request(
-        "POST",
-        `/channels/${channel.id}/invites`,
-        true,
-        {},
-      );
-
+    const invite: APITypes.Invite = await create({
+        id: channel.id,
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
+    }, APITypes.DataTypes.INVITE);
+    console.log(invite[APITypes.DATA_SYMBOL]);
     const dm = await create(msg.author, APITypes.DataTypes.CHANNEL);
     await create(dm, APITypes.DataTypes.MESSAGE, {
       content: `Here's your invite: https://discord.gg/${invite.code}`,

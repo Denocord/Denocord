@@ -27,7 +27,10 @@ export default function createObject(
   objectWithoutDataType: APITypes.APIWebhookData,
   dataType: APITypes.DataTypes.WEBHOOK,
 ): APITypes.Webhook;
-
+export default function createObject(
+  objectWithoutDataType: APITypes.APIInviteData,
+  dataType: APITypes.DataTypes.INVITE,
+): APITypes.Invite;
 export default function createObject(
   objectWithoutDataType: any,
   dataType: APITypes.DataTypes,
@@ -117,6 +120,19 @@ export default function createObject(
           return <APITypes.MessageMention> user;
         },
       );
+    }
+  } else if (dataType === APITypes.DataTypes.INVITE) {
+    if (objectWithoutDataType.guild) {
+        objectWithoutDataType.guild = createObject(objectWithoutDataType.guild, APITypes.DataTypes.GUILD);
+    }
+    if (objectWithoutDataType.channel) {
+        objectWithoutDataType.channel = createObject(objectWithoutDataType.channel, APITypes.DataTypes.CHANNEL);
+    }
+    if (objectWithoutDataType.inviter) {
+        objectWithoutDataType.inviter = createObject(objectWithoutDataType.inviter, APITypes.DataTypes.USER);
+    }
+    if (objectWithoutDataType.target_user) {
+        objectWithoutDataType.target_user = createObject(objectWithoutDataType.target_user, APITypes.DataTypes.USER);
     }
   }
 
