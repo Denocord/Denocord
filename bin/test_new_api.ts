@@ -88,8 +88,8 @@ on("message", async (msg) => {
     }
 
     const invite: APITypes.Invite = await create({
-        id: channel.id,
-        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
+      id: channel.id,
+      [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL,
     }, APITypes.DataTypes.INVITE);
     console.log(invite[APITypes.DATA_SYMBOL]);
     const dm = await create(msg.author, APITypes.DataTypes.CHANNEL);

@@ -123,16 +123,28 @@ export default function createObject(
     }
   } else if (dataType === APITypes.DataTypes.INVITE) {
     if (objectWithoutDataType.guild) {
-        objectWithoutDataType.guild = createObject(objectWithoutDataType.guild, APITypes.DataTypes.GUILD);
+      objectWithoutDataType.guild = createObject(
+        objectWithoutDataType.guild,
+        APITypes.DataTypes.GUILD,
+      );
     }
     if (objectWithoutDataType.channel) {
-        objectWithoutDataType.channel = createObject(objectWithoutDataType.channel, APITypes.DataTypes.CHANNEL);
+      objectWithoutDataType.channel = createObject(
+        objectWithoutDataType.channel,
+        APITypes.DataTypes.CHANNEL,
+      );
     }
     if (objectWithoutDataType.inviter) {
-        objectWithoutDataType.inviter = createObject(objectWithoutDataType.inviter, APITypes.DataTypes.USER);
+      objectWithoutDataType.inviter = createObject(
+        objectWithoutDataType.inviter,
+        APITypes.DataTypes.USER,
+      );
     }
     if (objectWithoutDataType.target_user) {
-        objectWithoutDataType.target_user = createObject(objectWithoutDataType.target_user, APITypes.DataTypes.USER);
+      objectWithoutDataType.target_user = createObject(
+        objectWithoutDataType.target_user,
+        APITypes.DataTypes.USER,
+      );
     }
   }
 

@@ -127,16 +127,16 @@ export async function create(
         APITypes.DataTypes.WEBHOOK,
       );
     } else if (type === APITypes.DataTypes.INVITE) {
-        const p = <APITypes.CreateInvitePayload> payload || {};
-        return createObject(
-            await rest.request(
-                "POST",
-                `/channels/${parent.id}/invites`,
-                true,
-                p
-            ),
-            APITypes.DataTypes.INVITE
-        );
+      const p = <APITypes.CreateInvitePayload> payload || {};
+      return createObject(
+        await rest.request(
+          "POST",
+          `/channels/${parent.id}/invites`,
+          true,
+          p,
+        ),
+        APITypes.DataTypes.INVITE,
+      );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
     if (type === APITypes.DataTypes.CHANNEL) {
