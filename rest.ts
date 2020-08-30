@@ -11,6 +11,8 @@ type TypeByID<T extends APITypes.DataTypes> = {
 
 export default rest;
 
+export const ROOT_SYMBOL = Symbol("Denocord::DataRoot");
+
 /**
  * Creates a message in the specified channel
  * @param parent The channel to create the message in
@@ -29,7 +31,7 @@ export function create(
 export function create(
   parent: APITypes.Channel | TypeByID<APITypes.DataTypes.WEBHOOK>,
   type: APITypes.DataTypes.WEBHOOK,
-  payload: APITypes.WebhookCreatePayload,
+  payload: APITypes.CreateWebhookPayload,
 ): Promise<APITypes.Webhook>;
 /**
  * Creates a private message channel with a user
@@ -40,18 +42,44 @@ export function create(
   type: APITypes.DataTypes.CHANNEL,
   _?: never,
 ): Promise<APITypes.Channel>;
+/**
+ * Creates a guild. The bot user must be in less than 10 guilds to be able to create one.
+ * @param payload New guild options
+ */
+export function create(
+  _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.GUILD,
+  payload: APITypes.CreateGuildPayload
+): Promise<APITypes.Guild>;
 export async function create(
   parent: {
     id: string;
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
-  },
+  } | typeof ROOT_SYMBOL, 
   type: APITypes.DataTypes,
   payload: any,
 ): Promise<any> {
-  if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+  if (parent === ROOT_SYMBOL) {
+    // The thing to create must be determined by type
+    if (type === APITypes.DataTypes.GUILD) {
+      const p = <APITypes.CreateGuildPayload> payload;
+      if (!p || !p.name) {
+        throw new Error("Missing guild name");
+      }
+      return createObject(
+        await rest.request(
+          "POST",
+          "/guilds",
+          true,
+          p
+        ),
+        APITypes.DataTypes.GUILD
+      );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
     if (type === APITypes.DataTypes.MESSAGE) {
       const p = <APITypes.MessageCreatePayload> payload;
-      if (!p.files || !p.content || !p.embed) {
+      if (!p || (!p.files && !p.content && !p.embed)) {
         throw new Error("Missing message content");
       }
       validateAllowedMentions(p.allowed_mentions);
@@ -74,8 +102,8 @@ export async function create(
         APITypes.DataTypes.MESSAGE,
       );
     } else if (type === APITypes.DataTypes.WEBHOOK) {
-      const p = <APITypes.WebhookCreatePayload> payload;
-      if (!p.name) {
+      const p = <APITypes.CreateWebhookPayload> payload;
+      if (!p || !p.name) {
         throw new Error("Missing webhook name");
       }
 
@@ -91,16 +119,15 @@ export async function create(
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
     if (type === APITypes.DataTypes.CHANNEL) {
-      const obj = await rest.request(
-        "POST",
-        "/users/@me/channels",
-        true,
-        {
-          recipient_id: parent.id,
-        },
-      );
       return createObject(
-        obj,
+        await rest.request(
+          "POST",
+          "/users/@me/channels",
+          true,
+          {
+            recipient_id: parent.id,
+          },
+        ),
         APITypes.DataTypes.CHANNEL,
       );
     }
