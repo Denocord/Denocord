@@ -11,4 +11,5 @@ export { default as pako } from "https://raw.githubusercontent.com/Denocord/pako
 export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/e2c3812d8410abc1f2c0b200e5e89f42ee1e907e/mod.ts";
 //deno-fmt-ignore-line
 //export { default as decompressor } from "../../denoflate/mod.ts";
-export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types/9ad5fabbc7cdffb4a9636fd383b5dbdd40a03af9/src/high_level.ts";
+export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types/c5f9129ae8bb8ec7f3b3f1ec8edce8bb5887f1a4/src/high_level.ts";
+
