@@ -16,9 +16,11 @@ on("ready", () => {
   console.log(
     `Logged in as ${state.user.username}#${state.user.discriminator}`,
   );
-  console.log(Array.from(state.guilds.values()).map(g => {
+  console.log(
+    Array.from(state.guilds.values()).map((g) => {
       if (!g.unavailable) console.log(g.name, g.id);
-  }))
+    }),
+  );
 });
 
 on("message", async (msg) => {
@@ -64,30 +66,38 @@ on("message", async (msg) => {
       },
     );
     console.log(newMessage.content);
-  } else if (msg.content === "deno!create_server" && msg.author.id === "150628341316059136") {
+  } else if (
+    msg.content === "deno!create_server" &&
+    msg.author.id === "150628341316059136"
+  ) {
     const newGuild = await create(ROOT_SYMBOL, APITypes.DataTypes.GUILD, {
-        name: "My cool server" 
+      name: "My cool server",
     });
 
     console.log(newGuild);
     //DataTypes.INVITE not a thing yet
-    const channelList: APITypes.APIChannelData[] = <APITypes.APIChannelData[]><unknown>await rest.request(
+    const channelList: APITypes.APIChannelData[] =
+      <APITypes.APIChannelData[]> <unknown> await rest.request(
         "GET",
         `/guilds/${newGuild.id}/channels`,
-        true
-    );
-    const channel = channelList.find(c => c.type === 0);
-    if (!channel) return console.log("Cannot find the proper channel for invite");
+        true,
+      );
+    const channel = channelList.find((c) => c.type === 0);
+    if (!channel) {
+      return console.log("Cannot find the proper channel for invite");
+    }
 
-    const invite: APITypes.APIInviteData = <APITypes.APIInviteData><unknown>await rest.request(
+    const invite: APITypes.APIInviteData =
+      <APITypes.APIInviteData> <unknown> await rest.request(
         "POST",
         `/channels/${channel.id}/invites`,
         true,
-        {});
+        {},
+      );
 
     const dm = await create(msg.author, APITypes.DataTypes.CHANNEL);
     await create(dm, APITypes.DataTypes.MESSAGE, {
-        content: `Here's your invite: https://discord.gg/${invite.code}`
+      content: `Here's your invite: https://discord.gg/${invite.code}`,
     });
   }
   console.log(msg.content);

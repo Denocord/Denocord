@@ -49,13 +49,13 @@ export function create(
 export function create(
   _: typeof ROOT_SYMBOL,
   type: APITypes.DataTypes.GUILD,
-  payload: APITypes.CreateGuildPayload
+  payload: APITypes.CreateGuildPayload,
 ): Promise<APITypes.Guild>;
 export async function create(
   parent: {
     id: string;
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
-  } | typeof ROOT_SYMBOL, 
+  } | typeof ROOT_SYMBOL,
   type: APITypes.DataTypes,
   payload: any,
 ): Promise<any> {
@@ -71,9 +71,9 @@ export async function create(
           "POST",
           "/guilds",
           true,
-          p
+          p,
         ),
-        APITypes.DataTypes.GUILD
+        APITypes.DataTypes.GUILD,
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
