@@ -45,7 +45,6 @@ class RequestHandler {
     const majorParamMatch = path.match(MAJOR_PARAMETER_REGEX);
     const route = this.toRoute(method, path);
     const bucketName = this.routeMapping[route] || route;
-    console.log("RQ");
     return new Promise(async (rs, rj) => {
       let bucket: SequentialBucket = this.ratelimitBuckets.get(bucketName)!;
       if (!bucket) {
@@ -108,7 +107,7 @@ class RequestHandler {
             rs(data);
           } else {
             if (resp.status === 429) {
-              let retryAfter = +resp.headers.get("retry-after")! || 1;
+              let retryAfter = +resp.headers.get("retry-after")! || 0;
               // request routed through cloudflare
               if (
                 resp.headers.has("retry-after") && resp.headers.has("via") &&
@@ -116,11 +115,15 @@ class RequestHandler {
               ) {
                 retryAfter *= 1000;
               }
-              bucket.resetOn = discordTime + retryAfter;
-              if (resp.headers.get("x-ratelimit-global")) {
-                this.globallyRatelimited = true;
-                setTimeout(() => this.globalUnlock(), retryAfter);
-              }
+
+              if (retryAfter) {
+                if (resp.headers.get("x-ratelimit-global")) {
+                  this.globallyRatelimited = true;
+                  setTimeout(() => this.globalUnlock(), retryAfter);
+                } else {
+                  bucket.resetOn = discordTime + retryAfter;
+                }
+              } 
               console.warn(
                 `${this.globallyRatelimited ? "Global" : "Unexpected"} 429 :(`,
               );
