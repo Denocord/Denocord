@@ -8,7 +8,7 @@ export {
 } from "https://deno.land/std@0.66.0/ws/mod.ts";
 export { equal } from "https://deno.land/std@0.66.0/bytes/mod.ts";
 export { default as pako } from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
-export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/e2c3812d8410abc1f2c0b200e5e89f42ee1e907e/mod.ts";
+export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/6319461e7203631cc73abbefcb0306a14059f7ab/mod.ts";
 //deno-fmt-ignore-line
 //export { default as decompressor } from "../../denoflate/mod.ts";
 export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types/c6cbd8e15fa0afd5f3b50640fa5802822994c345/src/high_level.ts";
