@@ -8,3 +8,4 @@ bin/log.txt
 .vscode/
 deno_std/
 .deno_plugins/
+docs/

@@ -11,7 +11,7 @@ import {
   WebSocket,
   WebSocketCloseEvent,
   equal,
-  pako,
+  inflate,
   decompressor,
 } from "../deps.ts";
 type WebsocketEvents = {
@@ -149,8 +149,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         if (payload instanceof Uint8Array) {
           let data: Uint8Array;
           if (this.options.compress === CompressionOptions.ZLIB) {
-            // @ts-ignore
-            data = pako.inflate(payload);
+            data = inflate(payload);
           } else if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
             if (
               payload.length >= 4 &&
