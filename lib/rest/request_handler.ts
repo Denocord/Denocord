@@ -68,13 +68,16 @@ class RequestHandler {
       const doRequest = async () => {
         console.log("Sending a request to Discord...");
         try {
-          const resp = await fetch(`${API_BASE}/api/v${API_REST_VERSION}${path}`, {
-            method,
-            headers,
-            body: typeof body === "object" && !(body instanceof FormData)
-              ? JSON.stringify(body)
-              : body,
-          });
+          const resp = await fetch(
+            `${API_BASE}/api/v${API_REST_VERSION}${path}`,
+            {
+              method,
+              headers,
+              body: typeof body === "object" && !(body instanceof FormData)
+                ? JSON.stringify(body)
+                : body,
+            },
+          );
 
           const discordTime = Date.parse(resp.headers.get("date")!);
 
@@ -103,10 +106,9 @@ class RequestHandler {
               this.routeMapping[route] = bucketID;
             }
           }
-          
+
           if (resp.status === 204) rs();
           const data = await resp.json();
-          
 
           if (resp.ok) {
             rs(data);
@@ -128,7 +130,7 @@ class RequestHandler {
                 } else {
                   bucket.resetOn = discordTime + retryAfter;
                 }
-              } 
+              }
               console.warn(
                 `${this.globallyRatelimited ? "Global" : "Unexpected"} 429 :(`,
               );
