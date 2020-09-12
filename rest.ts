@@ -164,8 +164,8 @@ export async function create(
  */
 export function get(
   _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.CHANNEL,
   id: string,
-  dataType: APITypes.DataTypes.CHANNEL,
   __?: void,
 ): Promise<APITypes.Channel>;
 /**
@@ -174,8 +174,8 @@ export function get(
  */
 export function get(
   _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.USER,
   id: string,
-  dataType: APITypes.DataTypes.USER,
   __?: void,
 ): Promise<APITypes.User>;
 /**
@@ -184,8 +184,8 @@ export function get(
  */
 export function get(
   _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.GUILD,
   id: string,
-  dataType: APITypes.DataTypes.GUILD,
   __?: void,
 ): Promise<APITypes.Guild>;
 /**
@@ -194,8 +194,8 @@ export function get(
  */
 export function get(
   _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.INVITE,
   code: string,
-  dataType: APITypes.DataTypes.INVITE,
   __?: void,
 ): Promise<APITypes.Invite>;
 /**
@@ -204,18 +204,70 @@ export function get(
  */
 export function get(
   _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.WEBHOOK,
   code: string,
-  dataType: APITypes.DataTypes.WEBHOOK,
   __?: void,
 ): Promise<APITypes.Webhook>;
+
+/**
+ * Gets a list of channels from a Discord guild
+ * @param parent The guild
+ */
+export function get(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  type: APITypes.DataTypes.CHANNEL,
+  _?: string,
+  __?: void,
+): Promise<APITypes.Channel[]>;
+/**
+ * Gets a list of roles from a Discord guild
+ * @param parent The guild
+ */
+export function get(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  type: APITypes.DataTypes.ROLE,
+  _?: string,
+  __?: void,
+): Promise<APITypes.Role[]>;
+/**
+ * Gets a list of webhooks from a Discord guild
+ * @param parent The guild
+ */
+export function get(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  type: APITypes.DataTypes.WEBHOOK,
+  _?: string,
+  __?: void,
+): Promise<APITypes.Webhook[]>;
+/**
+ * Gets a list of invites from a Discord guild
+ * @param parent The guild
+ */
+export function get(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  type: APITypes.DataTypes.INVITE,
+  _?: string,
+  __?: void,
+): Promise<APITypes.Invite[]>;
+/**
+ * Gets a specific member from a Discord guild
+ * @param parent The guild
+ * @param id The ID of the member
+ */
+export function get(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  type: APITypes.DataTypes.INVITE,
+  id: string,
+  __?: void,
+): Promise<APITypes.GuildMember>;
 export async function get(
   parent: ParentObject,
-  id: string,
-  dataType: APITypes.DataTypes,
-  options: any,
+  type: APITypes.DataTypes,
+  id?: string,
+  options?: any,
 ): Promise<any> {
   if (parent === ROOT_SYMBOL) {
-    if (dataType === APITypes.DataTypes.CHANNEL) {
+    if (type === APITypes.DataTypes.CHANNEL) {
       return createObject(
         await rest.request(
           "GET",
@@ -224,7 +276,7 @@ export async function get(
         ),
         APITypes.DataTypes.CHANNEL,
       );
-    } else if (dataType === APITypes.DataTypes.USER) {
+    } else if (type === APITypes.DataTypes.USER) {
       return createObject(
         await rest.request(
           "GET",
@@ -233,7 +285,7 @@ export async function get(
         ),
         APITypes.DataTypes.USER,
       );
-    } else if (dataType === APITypes.DataTypes.GUILD) {
+    } else if (type === APITypes.DataTypes.GUILD) {
       return createObject(
         await rest.request(
           "GET",
@@ -242,7 +294,7 @@ export async function get(
         ),
         APITypes.DataTypes.GUILD,
       );
-    } else if (dataType === APITypes.DataTypes.INVITE) {
+    } else if (type === APITypes.DataTypes.INVITE) {
       return createObject(
         await rest.request(
           "GET",
@@ -251,7 +303,7 @@ export async function get(
         ),
         APITypes.DataTypes.INVITE,
       );
-    } else if (dataType === APITypes.DataTypes.WEBHOOK) {
+    } else if (type === APITypes.DataTypes.WEBHOOK) {
       return createObject(
         await rest.request(
           "GET",
@@ -261,8 +313,80 @@ export async function get(
         APITypes.DataTypes.WEBHOOK,
       );
     }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
+    if (type === APITypes.DataTypes.WEBHOOK) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/webhooks`,
+        true,
+      ).then((wh) =>
+        wh.map((obj: APITypes.APIWebhookData) =>
+          createObject(obj, APITypes.DataTypes.WEBHOOK)
+        )
+      );
+    } else if (type === APITypes.DataTypes.CHANNEL) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/channels`,
+        true,
+      ).then((c) =>
+        c.map((obj: APITypes.APIChannelData) =>
+          createObject(obj, APITypes.DataTypes.CHANNEL)
+        )
+      );
+    } else if (type === APITypes.DataTypes.MEMBER) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/guilds/${parent.id}/members/${id}`,
+          true,
+        ),
+        APITypes.DataTypes.MEMBER,
+      );
+    } else if (type === APITypes.DataTypes.ROLE) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/roles`,
+        true,
+      ).then((r) =>
+        r.map((obj: APITypes.APIRoleData) =>
+          createObject(obj, APITypes.DataTypes.ROLE)
+        )
+      );
+    } else if (type === APITypes.DataTypes.INVITE) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/invites`,
+        true,
+      ).then((i) =>
+        i.map((obj: APITypes.APIInviteData) =>
+          createObject(obj, APITypes.DataTypes.INVITE)
+        )
+      );
+    }
   }
 }
+
+/**
+ * Gets a list of the guild members from a Discord guild
+ * @param parent The guild
+ * @param options Options for the fetched member list
+ */
+get.guildMembers = function (
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  options?: APITypes.ListGuildMembersPayload,
+) {
+  return rest.request(
+    "GET",
+    `/guilds/${parent.id}/members`,
+    true,
+    options,
+  ).then((m) =>
+    m.map((obj: APITypes.APIGuildMemberData) =>
+      createObject(obj, APITypes.DataTypes.MEMBER)
+    )
+  );
+};
 //#endregion get(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
