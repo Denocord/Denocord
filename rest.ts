@@ -9,9 +9,13 @@ type TypeByID<T extends APITypes.DataTypes> = {
   [APITypes.DATA_SYMBOL]: T;
 };
 
+type ParentObject = TypeByID<APITypes.DataTypes> | typeof ROOT_SYMBOL;
+
 export default rest;
 
 export const ROOT_SYMBOL = Symbol("Denocord::DataRoot");
+
+//#region create(...)
 
 /**
  * Creates a message in the specified channel
@@ -62,17 +66,14 @@ export function create(
   payload: APITypes.CreateGuildPayload,
 ): Promise<APITypes.Guild>;
 export async function create(
-  parent: {
-    id: string;
-    [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
-  } | typeof ROOT_SYMBOL,
+  parent: ParentObject,
   type: APITypes.DataTypes,
   payload: any,
 ): Promise<any> {
   if (parent === ROOT_SYMBOL) {
     // The thing to create must be determined by type
     if (type === APITypes.DataTypes.GUILD) {
-      const p = <APITypes.CreateGuildPayload> payload;
+      const p = <APITypes.CreateGuildPayload>payload;
       if (!p || !p.name) {
         throw new Error("Missing guild name");
       }
@@ -88,7 +89,7 @@ export async function create(
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
     if (type === APITypes.DataTypes.MESSAGE) {
-      const p = <APITypes.MessageCreatePayload> payload;
+      const p = <APITypes.MessageCreatePayload>payload;
       if (!p || (!p.files && !p.content && !p.embed)) {
         throw new Error("Missing message content");
       }
@@ -112,7 +113,7 @@ export async function create(
         APITypes.DataTypes.MESSAGE,
       );
     } else if (type === APITypes.DataTypes.WEBHOOK) {
-      const p = <APITypes.CreateWebhookPayload> payload;
+      const p = <APITypes.CreateWebhookPayload>payload;
       if (!p || !p.name) {
         throw new Error("Missing webhook name");
       }
@@ -127,7 +128,7 @@ export async function create(
         APITypes.DataTypes.WEBHOOK,
       );
     } else if (type === APITypes.DataTypes.INVITE) {
-      const p = <APITypes.CreateInvitePayload> payload || {};
+      const p = <APITypes.CreateInvitePayload>payload || {};
       return createObject(
         await rest.request(
           "POST",
@@ -154,5 +155,113 @@ export async function create(
     }
   }
 }
+
+//#endregion create(...)
+//#region get(...)
+/**
+ * Gets a channel from Discord
+ * @param id The ID of the channel
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  id: string,
+  dataType: APITypes.DataTypes.CHANNEL,
+  __?: void
+): Promise<APITypes.Channel>;
+/**
+ * Gets a user from Discord
+ * @param id The user ID. To fetch authenticated user, use "@me"
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  id: string,
+  dataType: APITypes.DataTypes.USER,
+  __?: void
+): Promise<APITypes.User>;
+/**
+ * Gets a guild from Discord
+ * @param id The guild ID
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  id: string,
+  dataType: APITypes.DataTypes.GUILD,
+  __?: void
+): Promise<APITypes.Guild>;
+/**
+ * Gets an invite from Discord
+ * @param id The invite code
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  code: string,
+  dataType: APITypes.DataTypes.INVITE,
+  __?: void
+): Promise<APITypes.Invite>;
+/**
+ * Gets a webhook from from Discord
+ * @param id The webhook ID
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  code: string,
+  dataType: APITypes.DataTypes.WEBHOOK,
+  __?: void
+): Promise<APITypes.Webhook>;
+export async function get(parent: ParentObject,
+  id: string,
+  dataType: APITypes.DataTypes,
+  options: any): Promise<any> {
+  if (parent === ROOT_SYMBOL) {
+    if (dataType === APITypes.DataTypes.CHANNEL) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/channels/${id}`,
+          true
+        ),
+        APITypes.DataTypes.CHANNEL
+      );
+    } else if (dataType === APITypes.DataTypes.USER) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/users/${id}`,
+          true
+        ),
+        APITypes.DataTypes.USER
+      );
+    } else if (dataType === APITypes.DataTypes.GUILD) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/guilds/${id}`,
+          true
+        ),
+        APITypes.DataTypes.GUILD
+      );
+    } else if (dataType === APITypes.DataTypes.INVITE) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/invites/${id}`,
+          true
+        ),
+        APITypes.DataTypes.INVITE
+      );
+    } else if (dataType === APITypes.DataTypes.WEBHOOK) {
+      return createObject(
+        await rest.request(
+          "GET",
+          `/webhooks/${id}`,
+          true
+        ),
+        APITypes.DataTypes.WEBHOOK
+      );
+    }
+  }
+}
+//#endregion get(...)
+
 
 export { setAPIBase } from "./lib/util/constants.ts";
