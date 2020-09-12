@@ -1,7 +1,7 @@
 import { EventEmitter, StrictEventEmitter, APITypes } from "../deps.ts";
 import { bus, setToken, state } from "../client.ts";
 import { Gateway } from "../@types/denocord.ts";
-import { Z_SYNC_FLUSH } from "../util/constants.ts";
+import { Z_SYNC_FLUSH, API_WS_VERSION } from "../util/constants.ts";
 import Bucket from "../util/Bucket.ts";
 import RequestHandler from "../rest/request_handler.ts";
 import createObject from "../util/create_object.ts";
@@ -121,7 +121,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       );
     }
     if (!this.gatewayURL) {
-      this.gatewayURL = `${url}?v=6&encoding=json${
+      this.gatewayURL = `${url}?v=${API_WS_VERSION}&encoding=json${
         this.options.compress === CompressionOptions.ZLIB_STREAM
           ? "&compress=zlib-stream"
           : ""

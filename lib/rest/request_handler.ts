@@ -1,7 +1,7 @@
 import { VERSION } from "../../mod.ts";
 import { token } from "../client.ts";
 import SequentialBucket from "./sequential_bucket.ts";
-import { API_BASE } from "../util/constants.ts";
+import { API_BASE, API_REST_VERSION } from "../util/constants.ts";
 
 const MAJOR_PARAMETER_REGEX = /^\/(?:channels|guilds|webhooks)\/(?<id>\d+)/;
 
@@ -68,42 +68,47 @@ class RequestHandler {
       const doRequest = async () => {
         console.log("Sending a request to Discord...");
         try {
-          const resp = await fetch(`${API_BASE}${path}`, {
+          const resp = await fetch(`${API_BASE}/api/v${API_REST_VERSION}${path}`, {
             method,
             headers,
             body: typeof body === "object" && !(body instanceof FormData)
               ? JSON.stringify(body)
               : body,
           });
+
+          const discordTime = Date.parse(resp.headers.get("date")!);
+
+          if (resp.headers.has("x-ratelimit-limit")) {
+            bucket.limit = +resp.headers.get("x-ratelimit-limit")!;
+          }
+
+          if (resp.headers.has("x-ratelimit-remaining")) {
+            bucket.remaining =
+              +(resp.headers.get("x-ratelimit-remaining") || 0);
+          }
+
+          if (resp.headers.has("x-ratelimit-reset")) {
+            bucket.resetOn = +resp.headers.get("x-ratelimit-reset")! * 1000;
+          }
+          bucket.lastTime = discordTime;
+          bucket.lastLocalTime = Date.now();
+          if (resp.headers.has("x-ratelimit-bucket")) {
+            const b = resp.headers.get("x-ratelimit-bucket")!;
+            const bucketID = majorParamMatch
+              ? `${b}-${majorParamMatch.groups?.id}`
+              : b;
+            if (bucketID !== bucketName) { // using per-route ratelimit
+              this.ratelimitBuckets.delete(bucketName);
+              this.ratelimitBuckets.set(bucketID, bucket);
+              this.routeMapping[route] = bucketID;
+            }
+          }
+          
           if (resp.status === 204) rs();
           const data = await resp.json();
-          const discordTime = Date.parse(resp.headers.get("date")!);
+          
+
           if (resp.ok) {
-            if (resp.headers.has("x-ratelimit-limit")) {
-              bucket.limit = +resp.headers.get("x-ratelimit-limit")!;
-            }
-
-            if (resp.headers.has("x-ratelimit-remaining")) {
-              bucket.remaining =
-                +(resp.headers.get("x-ratelimit-remaining") || 0);
-            }
-
-            if (resp.headers.has("x-ratelimit-reset")) {
-              bucket.resetOn = +resp.headers.get("x-ratelimit-reset")! * 1000;
-            }
-            bucket.lastTime = discordTime;
-            bucket.lastLocalTime = Date.now();
-            if (resp.headers.has("x-ratelimit-bucket")) {
-              const b = resp.headers.get("x-ratelimit-bucket")!;
-              const bucketID = majorParamMatch
-                ? `${b}-${majorParamMatch.groups?.id}`
-                : b;
-              if (bucketID !== bucketName) { // using per-route ratelimit
-                this.ratelimitBuckets.delete(bucketName);
-                this.ratelimitBuckets.set(bucketID, bucket);
-                this.routeMapping[route] = bucketID;
-              }
-            }
             rs(data);
           } else {
             if (resp.status === 429) {
