@@ -73,7 +73,7 @@ export async function create(
   if (parent === ROOT_SYMBOL) {
     // The thing to create must be determined by type
     if (type === APITypes.DataTypes.GUILD) {
-      const p = <APITypes.CreateGuildPayload>payload;
+      const p = <APITypes.CreateGuildPayload> payload;
       if (!p || !p.name) {
         throw new Error("Missing guild name");
       }
@@ -89,7 +89,7 @@ export async function create(
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
     if (type === APITypes.DataTypes.MESSAGE) {
-      const p = <APITypes.MessageCreatePayload>payload;
+      const p = <APITypes.MessageCreatePayload> payload;
       if (!p || (!p.files && !p.content && !p.embed)) {
         throw new Error("Missing message content");
       }
@@ -113,7 +113,7 @@ export async function create(
         APITypes.DataTypes.MESSAGE,
       );
     } else if (type === APITypes.DataTypes.WEBHOOK) {
-      const p = <APITypes.CreateWebhookPayload>payload;
+      const p = <APITypes.CreateWebhookPayload> payload;
       if (!p || !p.name) {
         throw new Error("Missing webhook name");
       }
@@ -128,7 +128,7 @@ export async function create(
         APITypes.DataTypes.WEBHOOK,
       );
     } else if (type === APITypes.DataTypes.INVITE) {
-      const p = <APITypes.CreateInvitePayload>payload || {};
+      const p = <APITypes.CreateInvitePayload> payload || {};
       return createObject(
         await rest.request(
           "POST",
@@ -166,7 +166,7 @@ export function get(
   _: typeof ROOT_SYMBOL,
   id: string,
   dataType: APITypes.DataTypes.CHANNEL,
-  __?: void
+  __?: void,
 ): Promise<APITypes.Channel>;
 /**
  * Gets a user from Discord
@@ -176,7 +176,7 @@ export function get(
   _: typeof ROOT_SYMBOL,
   id: string,
   dataType: APITypes.DataTypes.USER,
-  __?: void
+  __?: void,
 ): Promise<APITypes.User>;
 /**
  * Gets a guild from Discord
@@ -186,7 +186,7 @@ export function get(
   _: typeof ROOT_SYMBOL,
   id: string,
   dataType: APITypes.DataTypes.GUILD,
-  __?: void
+  __?: void,
 ): Promise<APITypes.Guild>;
 /**
  * Gets an invite from Discord
@@ -196,7 +196,7 @@ export function get(
   _: typeof ROOT_SYMBOL,
   code: string,
   dataType: APITypes.DataTypes.INVITE,
-  __?: void
+  __?: void,
 ): Promise<APITypes.Invite>;
 /**
  * Gets a webhook from from Discord
@@ -206,62 +206,63 @@ export function get(
   _: typeof ROOT_SYMBOL,
   code: string,
   dataType: APITypes.DataTypes.WEBHOOK,
-  __?: void
+  __?: void,
 ): Promise<APITypes.Webhook>;
-export async function get(parent: ParentObject,
+export async function get(
+  parent: ParentObject,
   id: string,
   dataType: APITypes.DataTypes,
-  options: any): Promise<any> {
+  options: any,
+): Promise<any> {
   if (parent === ROOT_SYMBOL) {
     if (dataType === APITypes.DataTypes.CHANNEL) {
       return createObject(
         await rest.request(
           "GET",
           `/channels/${id}`,
-          true
+          true,
         ),
-        APITypes.DataTypes.CHANNEL
+        APITypes.DataTypes.CHANNEL,
       );
     } else if (dataType === APITypes.DataTypes.USER) {
       return createObject(
         await rest.request(
           "GET",
           `/users/${id}`,
-          true
+          true,
         ),
-        APITypes.DataTypes.USER
+        APITypes.DataTypes.USER,
       );
     } else if (dataType === APITypes.DataTypes.GUILD) {
       return createObject(
         await rest.request(
           "GET",
           `/guilds/${id}`,
-          true
+          true,
         ),
-        APITypes.DataTypes.GUILD
+        APITypes.DataTypes.GUILD,
       );
     } else if (dataType === APITypes.DataTypes.INVITE) {
       return createObject(
         await rest.request(
           "GET",
           `/invites/${id}`,
-          true
+          true,
         ),
-        APITypes.DataTypes.INVITE
+        APITypes.DataTypes.INVITE,
       );
     } else if (dataType === APITypes.DataTypes.WEBHOOK) {
       return createObject(
         await rest.request(
           "GET",
           `/webhooks/${id}`,
-          true
+          true,
         ),
-        APITypes.DataTypes.WEBHOOK
+        APITypes.DataTypes.WEBHOOK,
       );
     }
   }
 }
 //#endregion get(...)
-
 
 export { setAPIBase } from "./lib/util/constants.ts";
