@@ -60,8 +60,7 @@ export default function createObject(
     }
     if (g.presences) {
       objectWithoutDataType.presences = new Map(
-        g.presences.map((p: APITypes.GatewayPresenceUpdate) =>
-          [p.user.id, p]),
+        g.presences.map((p: APITypes.GatewayPresenceUpdate) => [p.user.id, p]),
       );
     }
     if (g.voice_states) {
@@ -107,11 +106,13 @@ export default function createObject(
     }
     if (objectWithoutDataType.mentions) {
       objectWithoutDataType.mentions = objectWithoutDataType.mentions.map(
-        (mention: APITypes.APIUser & {
-          member?: Omit<APITypes.APIGuildMember, "user">
-        }) => {
+        (
+          mention: APITypes.APIUser & {
+            member?: Omit<APITypes.APIGuildMember, "user">;
+          },
+        ) => {
           const user: APITypes.APIUser & {
-            member?: Omit<APITypes.APIGuildMember, "user">
+            member?: Omit<APITypes.APIGuildMember, "user">;
           } = createObject(
             mention,
             APITypes.DataTypes.USER,

@@ -219,7 +219,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       InvalidIntents,
       DisallowedIntents,
       AuthenticationFailed,
-      UnknownOpCode
+      UnknownOpCode,
     } = APITypes.GatewayCloseCodes;
     if (
       closeData.code === InvalidIntents ||
@@ -352,7 +352,9 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
 
       case "GUILD_UPDATE": {
         // TODO(TTtie): Do they really send a full guild?
-        const oldGuild = <APITypes.Guild> state.guilds.get((<any>payload.d).guild_id);
+        const oldGuild = <APITypes.Guild> state.guilds.get(
+          (<any> payload.d).guild_id,
+        );
         if (!oldGuild) {
           this.emit(
             "guildUpdate",
@@ -360,7 +362,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
           );
         } else {
           const oldGuildCopy = { ...oldGuild };
-          delete (<any>payload.d).guild_id;
+          delete (<any> payload.d).guild_id;
           const newGuild = createObject(payload.d, APITypes.DataTypes.GUILD);
           Object.assign(oldGuild, newGuild);
           this.emit("guildUpdate", oldGuild, oldGuildCopy);
