@@ -1,15 +1,11 @@
 import { EventEmitter, StrictEventEmitter, APITypes } from "../deps.ts";
 import { bus, setToken, state } from "../client.ts";
-import { Gateway } from "../@types/denocord.ts";
+import type { Gateway } from "../@types/denocord.ts";
 import { Z_SYNC_FLUSH, API_WS_VERSION } from "../util/constants.ts";
 import Bucket from "../util/Bucket.ts";
 import RequestHandler from "../rest/request_handler.ts";
 import createObject from "../util/create_object.ts";
 import {
-  connectWebSocket,
-  isWebSocketCloseEvent,
-  WebSocket,
-  WebSocketCloseEvent,
   equal,
   inflate,
   decompressor,
@@ -143,53 +139,63 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
         decompressor.reset();
       }
-      this.socket = await connectWebSocket(this.gatewayURL!);
-      await this.onOpen();
-      for await (const payload of this.socket) {
-        if (payload instanceof Uint8Array) {
-          let data: Uint8Array;
-          if (this.options.compress === CompressionOptions.ZLIB) {
-            data = inflate(payload);
-          } else if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
-            if (
-              payload.length >= 4 &&
-              equal(payload.slice(payload.length - 4), Z_SYNC_FLUSH)
-            ) {
-              // @ts-ignore
-              decompressor.push(payload, true);
-              // @ts-ignore
-              data = decompressor.res;
-            } else {
-              // @ts-ignore
-              decompressor.push(payload);
-              continue;
-            }
-          } else {
-            console.warn("WTF: Got binary data without compression enabled");
-            continue;
-          }
-          try {
-            //@ts-ignore
-            const json = this.textDecoder.decode(data);
-            const packet = JSON.parse(json);
-            await this.handlePacket(packet);
-          } catch (err) {
-            bus.emit("error", err);
-          }
-        } else if (isWebSocketCloseEvent(payload)) {
-          await this.onClose(payload);
-          break;
-        } else if (typeof payload === "string") {
-          const packet = JSON.parse(payload);
-          await this.handlePacket(packet);
-        }
-      }
+      await new Promise((_, rj) => {
+        this.socket = new WebSocket(this.gatewayURL!);
+        this.socket.addEventListener("error", (err) => {
+          rj(err);
+        })
+        this.socket.addEventListener("open", () => {
+          this.onOpen().catch(rj);
+        })
+        this.socket.addEventListener("message", m => {
+            const payload = m.data;
+            this.onMessage(payload).catch(rj);
+        });
+        this.socket.addEventListener("close", ev => {
+          this.onClose(ev).catch(rj);
+        })
+      })
     } catch (err) {
       console.error(err.stack);
       if (this.socket) this.close(1011);
       throw err;
     }
   }
+
+  private async onMessage(received: unknown) {
+    if (received instanceof Blob) {
+      let data: Uint8Array;
+      const buf = new Uint8Array(await received.arrayBuffer());
+      if (this.options.compress === CompressionOptions.ZLIB) {
+        data = inflate(buf);
+      } else if (this.options.compress === CompressionOptions.ZLIB_STREAM) {
+        if (
+          buf.length >= 4 &&
+          equal(buf.slice(buf.length - 4), Z_SYNC_FLUSH)
+        ) {
+          decompressor.push(buf, true);
+          data = decompressor.res!;
+        } else {
+          decompressor.push(buf);
+          return;
+        }
+      } else {
+        console.warn("WTF: Got binary data without compression enabled");
+        return;
+      }
+      try {
+        const json = this.textDecoder.decode(data);
+        const packet = JSON.parse(json);
+        await this.handlePacket(packet);
+      } catch (err) {
+        bus.emit("error", err);
+      }
+    } else if (typeof received === "string") {
+      const packet = JSON.parse(received);
+      await this.handlePacket(packet);
+    }
+  }
+
   private async onOpen(): Promise<void> {
     const isResuming = this.status === "resuming";
     this.status = "handshaking";
@@ -205,7 +211,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       await this.identifyClient();
     }
   }
-  private async onClose(closeData: WebSocketCloseEvent): Promise<void | never> {
+  private async onClose(closeData: CloseEvent): Promise<void | never> {
     await this.close();
     this.debug(
       `Disconnected with code ${closeData.code} for reason:\n${closeData.reason}`,
@@ -261,7 +267,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     } else if (packet.op === APITypes.GatewayOPCodes.Reconnect) {
       // Discord is sending reconnect packets every n
       this.status = "resuming";
-      await this.close();
+      this.close();
       await this.connect();
     } else if (packet.op === APITypes.GatewayOPCodes.Dispatch) {
       this.debug(`Received dispatch event: ${packet.t}.`);
@@ -274,13 +280,13 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         this.sessionID = undefined;
         this.status = "disconnected";
       }
-      await this.close();
+      this.close();
       setTimeout(
         async () => await this.connect(),
         Math.floor(Math.random() * 5000),
       );
     } else if (packet.op === APITypes.GatewayOPCodes.Heartbeat) {
-      await this.sendHeartbeat(true);
+      this.sendHeartbeat(true);
     }
   }
 
@@ -388,26 +394,24 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     op: APITypes.GatewayOPCodes,
     data: any,
     priority: boolean = false,
-  ): Promise<void> {
-    return new Promise((rs, rj) => {
-      let i = 0;
-      let wait = 1;
-      const func = () => {
-        const d = JSON.stringify({
-          op,
-          d: data,
-        });
-        if (++i >= wait) {
-          this.socket.send(d).then(rs, rj);
-        }
-      };
-
-      if (op === APITypes.GatewayOPCodes.PresenceUpdate) {
-        wait++;
-        this.presenceUpdateBucket.add(func, priority);
+  ) {
+    let i = 0;
+    let wait = 1;
+    const func = () => {
+      const d = JSON.stringify({
+        op,
+        d: data,
+      });
+      if (++i >= wait) {
+        this.socket.send(d);
       }
-      this.globalBucket.add(func, priority);
-    });
+    };
+
+    if (op === APITypes.GatewayOPCodes.PresenceUpdate) {
+      wait++;
+      this.presenceUpdateBucket.add(func, priority);
+    }
+    this.globalBucket.add(func, priority);
   }
 
   private async sendHeartbeat(forced = false): Promise<void> {
@@ -417,31 +421,31 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       this.debug("Did not receive heartbeat ACK before next heartbeat!");
       if (this.status === "ready") {
         this.status = "resuming";
-        await this.close(1014);
+        this.close(1014);
         await this.connect();
         return;
       } else if (this.status === "handshaking" && this.failedHeartbeatAck > 2) {
-        await this.close(1014);
+        this.close(1014);
         // TODO: this should not panic?
         throw new Error("Failed to receive heartbeat after 3 attempts!");
       }
     }
 
     this.heartbeatAck = false;
-    await this.send(APITypes.GatewayOPCodes.Heartbeat, this.seq, true);
+    this.send(APITypes.GatewayOPCodes.Heartbeat, this.seq, true);
     this.debug("Heartbeat sent.");
   }
 
-  public async close(code = 1000): Promise<void> {
+  public close(code = 1000) {
     this.failedHeartbeatAck = 0;
     this.heartbeatAck = true;
     if (this.heartbeat) clearInterval(this.heartbeat);
-    if (!this.socket.isClosed) this.socket.close(code);
+    if (this.socket.readyState !== WebSocket.CLOSED) this.socket.close(code);
   }
 
-  private identifyClient(): Promise<void> {
+  private identifyClient() {
     this.debug("Identifying client.");
-    return this.send(APITypes.GatewayOPCodes.Identify, {
+    this.send(APITypes.GatewayOPCodes.Identify, {
       token: this.token,
       compress: this.options.compress !== CompressionOptions.NONE,
       properties: {
