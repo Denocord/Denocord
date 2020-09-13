@@ -76,8 +76,8 @@ on("message", async (msg) => {
 
     console.log(newGuild);
     //DataTypes.INVITE not a thing yet
-    const channelList: APITypes.APIChannelData[] =
-      <APITypes.APIChannelData[]> <unknown> await rest.request(
+    const channelList: APITypes.APIChannel[] =
+      <APITypes.APIChannel[]> <unknown> await rest.request(
         "GET",
         `/guilds/${newGuild.id}/channels`,
         true,

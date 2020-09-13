@@ -1,34 +1,34 @@
 import { APITypes } from "../deps.ts";
 export default function createObject(
-  objectWithoutDataType: APITypes.APIGuildData,
+  objectWithoutDataType: APITypes.APIGuild,
   dataType: APITypes.DataTypes.GUILD,
 ): APITypes.Guild;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIRoleData,
+  objectWithoutDataType: APITypes.APIRole,
   dataType: APITypes.DataTypes.ROLE,
 ): APITypes.Role;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIChannelData,
+  objectWithoutDataType: APITypes.APIChannel,
   dataType: APITypes.DataTypes.CHANNEL,
 ): APITypes.Channel;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIGuildMemberData,
+  objectWithoutDataType: APITypes.APIGuildMember,
   dataType: APITypes.DataTypes.MEMBER,
 ): APITypes.GuildMember;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIUserData,
+  objectWithoutDataType: APITypes.APIUser,
   dataType: APITypes.DataTypes.USER,
 ): APITypes.User;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIMessageData,
+  objectWithoutDataType: APITypes.APIMessage,
   dataType: APITypes.DataTypes.MESSAGE,
 ): APITypes.Message;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIWebhookData,
+  objectWithoutDataType: APITypes.APIWebhook,
   dataType: APITypes.DataTypes.WEBHOOK,
 ): APITypes.Webhook;
 export default function createObject(
-  objectWithoutDataType: APITypes.APIInviteData,
+  objectWithoutDataType: APITypes.APIInvite,
   dataType: APITypes.DataTypes.INVITE,
 ): APITypes.Invite;
 export default function createObject(
@@ -36,44 +36,45 @@ export default function createObject(
   dataType: APITypes.DataTypes,
 ): any {
   if (dataType === APITypes.DataTypes.GUILD) {
-    const g = <APITypes.APIGuildData> objectWithoutDataType;
+    const g = <APITypes.APIGuild> objectWithoutDataType;
     if (g.roles) {
       objectWithoutDataType.roles = new Map(
         g.roles.map((
-          r: APITypes.APIRoleData,
+          r: APITypes.APIRole,
         ) => [r.id, createObject(r, APITypes.DataTypes.ROLE)]),
       );
     }
     if (g.channels) {
       objectWithoutDataType.channels = new Map(
         g.channels.map((
-          c: APITypes.APIChannelData,
+          c: APITypes.APIChannel,
         ) => [c.id, createObject(c, APITypes.DataTypes.CHANNEL)]),
       );
     }
     if (g.members) {
       objectWithoutDataType.members = new Map(
         g.members.map((
-          m: APITypes.APIGuildMemberData,
+          m: APITypes.APIGuildMember,
         ) => [m.user?.id, createObject(m, APITypes.DataTypes.MEMBER)]),
       );
     }
     if (g.presences) {
       objectWithoutDataType.presences = new Map(
-        g.presences.map((p: APITypes.APIPresenceUpdateData) => [p.user.id, p]),
+        g.presences.map((p: APITypes.GatewayPresenceUpdate) =>
+          [p.user.id, p]),
       );
     }
     if (g.voice_states) {
       objectWithoutDataType.voice_states = new Map(
         g.voice_states.map((
-          vs: APITypes.APIVoiceStatePartial,
+          vs: Omit<APITypes.GatewayVoiceState, "guild_id">,
         ) => [vs.user_id, vs]),
       );
     }
   } else if (dataType === APITypes.DataTypes.CHANNEL) {
     if (objectWithoutDataType.recipients) {
       objectWithoutDataType.recipients = objectWithoutDataType
-        .recipients.map((u: APITypes.APIUserData) =>
+        .recipients.map((u: APITypes.APIUser) =>
           createObject(u, APITypes.DataTypes.USER)
         );
     }
@@ -106,8 +107,12 @@ export default function createObject(
     }
     if (objectWithoutDataType.mentions) {
       objectWithoutDataType.mentions = objectWithoutDataType.mentions.map(
-        (mention: APITypes.APIMessageMentionData) => {
-          const user: APITypes.APIMessageMentionData = createObject(
+        (mention: APITypes.APIUser & {
+          member?: Omit<APITypes.APIGuildMember, "user">
+        }) => {
+          const user: APITypes.APIUser & {
+            member?: Omit<APITypes.APIGuildMember, "user">
+          } = createObject(
             mention,
             APITypes.DataTypes.USER,
           );
