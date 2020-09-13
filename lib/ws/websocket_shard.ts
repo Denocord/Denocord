@@ -143,18 +143,18 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         this.socket = new WebSocket(this.gatewayURL!);
         this.socket.addEventListener("error", (err) => {
           rj(err);
-        })
+        });
         this.socket.addEventListener("open", () => {
           this.onOpen().catch(rj);
-        })
-        this.socket.addEventListener("message", m => {
-            const payload = m.data;
-            this.onMessage(payload).catch(rj);
         });
-        this.socket.addEventListener("close", ev => {
+        this.socket.addEventListener("message", (m) => {
+          const payload = m.data;
+          this.onMessage(payload).catch(rj);
+        });
+        this.socket.addEventListener("close", (ev) => {
           this.onClose(ev).catch(rj);
-        })
-      })
+        });
+      });
     } catch (err) {
       console.error(err.stack);
       if (this.socket) this.close(1011);
