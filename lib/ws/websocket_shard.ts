@@ -64,7 +64,7 @@ export enum CompressionOptions {
 
 export interface WSOptions {
   compress?: CompressionOptions;
-  intents?: Gateway.GatewayIntents;
+  intents?: APITypes.GatewayIntentBits;
   shardID?: number;
   shardCount?: number;
 }
@@ -195,7 +195,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     this.status = "handshaking";
     this.debug("Started handshaking.");
     if (isResuming) {
-      await this.send(Gateway.OP_CODES.RESUME, {
+      await this.send(APITypes.GatewayOPCodes.Resume, {
         token: this.token,
         session_id: this.sessionID,
         seq: this.seq,
@@ -212,36 +212,36 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     );
     this.status = "disconnected";
     const {
-      UNKNOWN_ERROR,
-      INVALID_SEQ,
-      RATE_LIMITED,
-      SESSION_TIMEOUT,
-      INVALID_INTENTS,
-      DISALLOWED_INTENTS,
-      AUTHENTICATION_FAILED,
-      UNKNOWN_OP_CODE,
-    } = Gateway.CLOSE_CODES;
+      UnknownError,
+      InvalidSeq,
+      RateLimited,
+      SessionTimedOut,
+      InvalidIntents,
+      DisallowedIntents,
+      AuthenticationFailed,
+      UnknownOpCode
+    } = APITypes.GatewayCloseCodes;
     if (
-      closeData.code === INVALID_INTENTS ||
-      closeData.code === DISALLOWED_INTENTS
+      closeData.code === InvalidIntents ||
+      closeData.code === DisallowedIntents
     ) {
       throw new Error(
         "Invalid and/or disallowed gateway intents were provided",
       );
     }
-    if (closeData.code === AUTHENTICATION_FAILED) {
+    if (closeData.code === AuthenticationFailed) {
       throw new Error("Invalid token");
     }
-    if (closeData.code === UNKNOWN_OP_CODE) {
+    if (closeData.code === UnknownOpCode) {
       throw new Error(
         "An unknown op code was sent. This shouldn't happen - please report this at https://github.com/Denocord/Denocord.",
       );
     }
     if (
-      (this.sessionID && closeData.code === UNKNOWN_ERROR) ||
-      closeData.code === INVALID_SEQ ||
-      closeData.code === RATE_LIMITED ||
-      closeData.code === SESSION_TIMEOUT
+      (this.sessionID && closeData.code === UnknownError) ||
+      closeData.code === InvalidSeq ||
+      closeData.code === RateLimited ||
+      closeData.code === SessionTimedOut
     ) {
       this.status = "resuming";
       await this.connect();
@@ -250,24 +250,24 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   }
 
   private async handlePacket(
-    packet: Gateway.GatewayPacket,
+    packet: APITypes.GatewayReceivePayload,
   ): Promise<void | never> {
     this.seq = packet.s;
-    if (packet.op === Gateway.OP_CODES.HELLO) {
+    if (packet.op === APITypes.GatewayOPCodes.Hello) {
       this.setHeartbeat(packet.d.heartbeat_interval);
-    } else if (packet.op === Gateway.OP_CODES.HEARTBEAT_ACK) {
+    } else if (packet.op === APITypes.GatewayOPCodes.HeartbeatAck) {
       this.heartbeatAck = true;
       this.debug("Received heartbeat ack.");
-    } else if (packet.op === Gateway.OP_CODES.RECONNECT) {
+    } else if (packet.op === APITypes.GatewayOPCodes.Reconnect) {
       // Discord is sending reconnect packets every n
       this.status = "resuming";
       await this.close();
       await this.connect();
-    } else if (packet.op === Gateway.OP_CODES.DISPATCH) {
+    } else if (packet.op === APITypes.GatewayOPCodes.Dispatch) {
       this.debug(`Received dispatch event: ${packet.t}.`);
       this.dispatch(packet);
       //this.emit(packet.t as Gateway.DispatchEvents, packet.d);
-    } else if (packet.op === Gateway.OP_CODES.INVALID_SESSION) {
+    } else if (packet.op === APITypes.GatewayOPCodes.InvalidSession) {
       if (packet.d) {
         this.status = "resuming";
       } else {
@@ -279,12 +279,12 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         async () => await this.connect(),
         Math.floor(Math.random() * 5000),
       );
-    } else if (packet.op === Gateway.OP_CODES.HEARTBEAT) {
+    } else if (packet.op === APITypes.GatewayOPCodes.Heartbeat) {
       await this.sendHeartbeat(true);
     }
   }
 
-  private dispatch(payload: Gateway.GatewayPacket) {
+  private dispatch(payload: APITypes.GatewayDispatchPayload) {
     switch (payload.t) {
       case "READY":
       case "RESUMED": {
@@ -295,13 +295,13 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         );
         (<any> state).guilds = new Map(
           payload.d.guilds.map((
-            g: APITypes.APIGuildUnavailable | APITypes.APIGuildData,
+            g: APITypes.APIUnavailableGuild | APITypes.APIGuild,
           ) => [
             g.id,
             g.unavailable
               ? { ...g, [APITypes.DATA_SYMBOL]: APITypes.DataTypes.GUILD }
               : createObject(
-                <APITypes.APIGuildData> g,
+                <APITypes.APIGuild> g,
                 APITypes.DataTypes.GUILD,
               ),
           ]),
@@ -351,7 +351,8 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       }
 
       case "GUILD_UPDATE": {
-        const oldGuild = <APITypes.Guild> state.guilds.get(payload.d.guild_id);
+        // TODO(TTtie): Do they really send a full guild?
+        const oldGuild = <APITypes.Guild> state.guilds.get((<any>payload.d).guild_id);
         if (!oldGuild) {
           this.emit(
             "guildUpdate",
@@ -359,7 +360,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
           );
         } else {
           const oldGuildCopy = { ...oldGuild };
-          delete payload.d.guild_id;
+          delete (<any>payload.d).guild_id;
           const newGuild = createObject(payload.d, APITypes.DataTypes.GUILD);
           Object.assign(oldGuild, newGuild);
           this.emit("guildUpdate", oldGuild, oldGuildCopy);
@@ -382,7 +383,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   }
 
   private send(
-    op: Gateway.OP_CODES,
+    op: APITypes.GatewayOPCodes,
     data: any,
     priority: boolean = false,
   ): Promise<void> {
@@ -399,7 +400,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
         }
       };
 
-      if (op === Gateway.OP_CODES.STATUS_UPDATE) {
+      if (op === APITypes.GatewayOPCodes.PresenceUpdate) {
         wait++;
         this.presenceUpdateBucket.add(func, priority);
       }
@@ -425,7 +426,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
     }
 
     this.heartbeatAck = false;
-    await this.send(Gateway.OP_CODES.HEARTBEAT, this.seq, true);
+    await this.send(APITypes.GatewayOPCodes.Heartbeat, this.seq, true);
     this.debug("Heartbeat sent.");
   }
 
@@ -438,7 +439,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
 
   private identifyClient(): Promise<void> {
     this.debug("Identifying client.");
-    return this.send(Gateway.OP_CODES.IDENTIFY, {
+    return this.send(APITypes.GatewayOPCodes.Identify, {
       token: this.token,
       compress: this.options.compress !== CompressionOptions.NONE,
       properties: {

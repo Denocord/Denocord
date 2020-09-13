@@ -35,7 +35,7 @@ export function create(
 export function create(
   parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
   type: APITypes.DataTypes.INVITE,
-  payload?: APITypes.CreateInvitePayload,
+  payload?: APITypes.RESTPostAPIChannelInviteJSONBody,
 ): Promise<APITypes.Invite>;
 /**
  * Creates a webhook in the specified channel
@@ -45,7 +45,7 @@ export function create(
 export function create(
   parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
   type: APITypes.DataTypes.WEBHOOK,
-  payload: APITypes.CreateWebhookPayload,
+  payload: APITypes.RESTPostAPIChannelWebhookJSONBody,
 ): Promise<APITypes.Webhook>;
 /**
  * Creates a private message channel with a user
@@ -63,7 +63,7 @@ export function create(
 export function create(
   _: typeof ROOT_SYMBOL,
   type: APITypes.DataTypes.GUILD,
-  payload: APITypes.CreateGuildPayload,
+  payload: APITypes.RESTPostAPIGuildsJSONBody,
 ): Promise<APITypes.Guild>;
 export async function create(
   parent: ParentObject,
@@ -73,7 +73,7 @@ export async function create(
   if (parent === ROOT_SYMBOL) {
     // The thing to create must be determined by type
     if (type === APITypes.DataTypes.GUILD) {
-      const p = <APITypes.CreateGuildPayload> payload;
+      const p = <APITypes.RESTPostAPIGuildsJSONBody> payload;
       if (!p || !p.name) {
         throw new Error("Missing guild name");
       }
@@ -113,7 +113,7 @@ export async function create(
         APITypes.DataTypes.MESSAGE,
       );
     } else if (type === APITypes.DataTypes.WEBHOOK) {
-      const p = <APITypes.CreateWebhookPayload> payload;
+      const p = <APITypes.RESTPostAPIChannelWebhookJSONBody> payload;
       if (!p || !p.name) {
         throw new Error("Missing webhook name");
       }
@@ -128,7 +128,7 @@ export async function create(
         APITypes.DataTypes.WEBHOOK,
       );
     } else if (type === APITypes.DataTypes.INVITE) {
-      const p = <APITypes.CreateInvitePayload> payload || {};
+      const p = <APITypes.RESTPostAPIChannelInviteJSONBody> payload || {};
       return createObject(
         await rest.request(
           "POST",
@@ -320,7 +320,7 @@ export async function get(
         `/guilds/${parent.id}/webhooks`,
         true,
       ).then((wh) =>
-        wh.map((obj: APITypes.APIWebhookData) =>
+        wh.map((obj: APITypes.APIWebhook) =>
           createObject(obj, APITypes.DataTypes.WEBHOOK)
         )
       );
@@ -330,7 +330,7 @@ export async function get(
         `/guilds/${parent.id}/channels`,
         true,
       ).then((c) =>
-        c.map((obj: APITypes.APIChannelData) =>
+        c.map((obj: APITypes.APIChannel) =>
           createObject(obj, APITypes.DataTypes.CHANNEL)
         )
       );
@@ -349,7 +349,7 @@ export async function get(
         `/guilds/${parent.id}/roles`,
         true,
       ).then((r) =>
-        r.map((obj: APITypes.APIRoleData) =>
+        r.map((obj: APITypes.APIRole) =>
           createObject(obj, APITypes.DataTypes.ROLE)
         )
       );
@@ -359,7 +359,7 @@ export async function get(
         `/guilds/${parent.id}/invites`,
         true,
       ).then((i) =>
-        i.map((obj: APITypes.APIInviteData) =>
+        i.map((obj: APITypes.APIInvite) =>
           createObject(obj, APITypes.DataTypes.INVITE)
         )
       );
@@ -374,7 +374,7 @@ export async function get(
  */
 get.guildMembers = function (
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-  options?: APITypes.ListGuildMembersPayload,
+  options?: APITypes.RESTGetAPIGuildMembersQuery,
 ) {
   return rest.request(
     "GET",
@@ -382,7 +382,7 @@ get.guildMembers = function (
     true,
     options,
   ).then((m) =>
-    m.map((obj: APITypes.APIGuildMemberData) =>
+    m.map((obj: APITypes.APIGuildMember) =>
       createObject(obj, APITypes.DataTypes.MEMBER)
     )
   );
