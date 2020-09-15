@@ -261,6 +261,14 @@ export async function get(
   type: APITypes.DataTypes.MESSAGE,
   id: string,
 ): Promise<APITypes.Message>;
+/**
+ * Gets a list of invites from a Discord channel
+ * @param parent The guild
+ */
+export function get(
+  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  type: APITypes.DataTypes.INVITE,
+): Promise<APITypes.Invite[]>;
 
 export async function get(
   parent: ParentObject,
@@ -385,6 +393,16 @@ export async function get(
           true,
         ),
         APITypes.DataTypes.MESSAGE,
+      );
+    } else if (type === APITypes.DataTypes.INVITE) {
+      return rest.request(
+        "GET",
+        `/channels/${parent.id}/invites`,
+        true,
+      ).then((i) =>
+        i.map((obj: APITypes.APIInvite) =>
+          createObject(obj, APITypes.DataTypes.INVITE)
+        )
       );
     }
   }
