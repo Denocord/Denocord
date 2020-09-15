@@ -12,9 +12,11 @@ type TypeByID<T extends APITypes.DataTypes> = {
 
 type ParentObject = TypeByID<APITypes.DataTypes> | typeof ROOT_SYMBOL;
 
-type ObjectOrType<T extends {
-  [APITypes.DATA_SYMBOL]: APITypes.DataTypes
-}> = T | TypeByID<T[typeof DATA_SYMBOL]>;
+type ObjectOrType<
+  T extends {
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
+  },
+> = T | TypeByID<T[typeof DATA_SYMBOL]>;
 
 export default rest;
 
@@ -495,6 +497,33 @@ get.messages = function (
   ).then((msg) =>
     msg.map((m: APITypes.APIMessage) =>
       createObject(m, APITypes.DataTypes.MESSAGE)
+    )
+  );
+};
+
+/**
+ * Get a list of users who reacted on a Discord message
+ * @param channel The channel the message is in
+ * @param parent The message
+ * @param emoji The emoji - should be either a custom emoji in format of `name:id` or an Unicode emoji
+ * @param options The options for fetching the reactions
+ */
+get.reactions = function (
+  channel: ObjectOrType<APITypes.Channel>,
+  parent: ObjectOrType<APITypes.Message>,
+  emoji: string,
+  options?: APITypes.RESTGetAPIChannelMessageReactionsQuery,
+): Promise<APITypes.User[]> {
+  return rest.request(
+    "GET",
+    `/channels/${channel.id}/messages/${parent.id}/reactions/${
+      encodeURIComponent(emoji)
+    }`,
+    true,
+    options,
+  ).then((msg) =>
+    msg.map((user: APITypes.APIUser) =>
+      createObject(user, APITypes.DataTypes.USER)
     )
   );
 };
