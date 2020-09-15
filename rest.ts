@@ -375,7 +375,7 @@ export async function get(
 get.guildMembers = function (
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
   options?: APITypes.RESTGetAPIGuildMembersQuery,
-) {
+): Promise<APITypes.GuildMember[]> {
   return rest.request(
     "GET",
     `/guilds/${parent.id}/members`,
@@ -387,6 +387,37 @@ get.guildMembers = function (
     )
   );
 };
+
+
+async function getBan(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  user: APITypes.User | TypeByID<APITypes.DataTypes.USER>
+): Promise<APITypes.Ban>;
+async function getBan(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+): Promise<APITypes.Ban[]>
+async function getBan(
+  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  user?: APITypes.User | TypeByID<APITypes.DataTypes.USER>
+): Promise<any> {
+  const ban = await rest.request("GET",
+    `/guilds/${parent.id}/bans${user ? `/${user}` : ""}`,
+    true)
+
+  if (Array.isArray(ban)) {
+    return ban.map((ban: APITypes.APIBan) => ({
+      ...ban,
+      user: createObject(ban.user, APITypes.DataTypes.USER)
+    }))
+  } else {
+    return {
+      ...ban,
+      user: createObject(ban.user, APITypes.DataTypes.USER)
+    };
+  }
+}
+
+get.ban = getBan;
 //#endregion get(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
