@@ -12,6 +12,10 @@ type TypeByID<T extends APITypes.DataTypes> = {
 
 type ParentObject = TypeByID<APITypes.DataTypes> | typeof ROOT_SYMBOL;
 
+type ObjectOrType<T extends {
+  [APITypes.DATA_SYMBOL]: APITypes.DataTypes
+}> = T | TypeByID<T[typeof DATA_SYMBOL]>;
+
 export default rest;
 
 export const ROOT_SYMBOL = Symbol("Denocord::DataRoot");
@@ -24,7 +28,7 @@ export const ROOT_SYMBOL = Symbol("Denocord::DataRoot");
  * @param payload The message content
  */
 export function create(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.MESSAGE,
   payload: APITypes.MessageCreatePayload,
 ): Promise<APITypes.Message>;
@@ -34,7 +38,7 @@ export function create(
  * @param payload The properties of new invite
  */
 export function create(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.INVITE,
   payload?: APITypes.RESTPostAPIChannelInviteJSONBody,
 ): Promise<APITypes.Invite>;
@@ -44,7 +48,7 @@ export function create(
  * @param payload The webhook data
  */
 export function create(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.WEBHOOK,
   payload: APITypes.RESTPostAPIChannelWebhookJSONBody,
 ): Promise<APITypes.Webhook>;
@@ -53,7 +57,7 @@ export function create(
  * @param parent The user to create the DM channel for 
  */
 export function create(
-  parent: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
+  parent: ObjectOrType<APITypes.User>,
   type: APITypes.DataTypes.CHANNEL,
   _?: never,
 ): Promise<APITypes.Channel>;
@@ -210,7 +214,7 @@ export function get(
  * @param parent The guild
  */
 export function get(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.CHANNEL,
 ): Promise<APITypes.Channel[]>;
 /**
@@ -218,7 +222,7 @@ export function get(
  * @param parent The guild
  */
 export function get(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.ROLE,
 ): Promise<APITypes.Role[]>;
 /**
@@ -226,11 +230,15 @@ export function get(
  * @param parent The guild
  */
 export function get(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.WEBHOOK,
 ): Promise<APITypes.Webhook[]>;
+/**
+ * Gets a list of webhooks from a Discord channel
+ * @param parent The channel
+ */
 export function get(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.WEBHOOK,
 ): Promise<APITypes.Webhook[]>;
 /**
@@ -238,7 +246,7 @@ export function get(
  * @param parent The guild
  */
 export function get(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.INVITE,
 ): Promise<APITypes.Invite[]>;
 /**
@@ -247,7 +255,7 @@ export function get(
  * @param id The ID of the member
  */
 export function get(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.MEMBER,
   id: string,
 ): Promise<APITypes.GuildMember>;
@@ -257,7 +265,7 @@ export function get(
  * @param id The ID of the message
  */
 export async function get(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.MESSAGE,
   id: string,
 ): Promise<APITypes.Message>;
@@ -266,7 +274,7 @@ export async function get(
  * @param parent The guild
  */
 export function get(
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.INVITE,
 ): Promise<APITypes.Invite[]>;
 
@@ -414,7 +422,7 @@ export async function get(
  * @param options Options for the fetched member list
  */
 get.guildMembers = function (
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
   options?: APITypes.RESTGetAPIGuildMembersQuery,
 ): Promise<APITypes.GuildMember[]> {
   return rest.request(
@@ -435,19 +443,19 @@ get.guildMembers = function (
  * @param user The user to look the ban up for
  */
 async function getBan(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-  user: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
+  parent: ObjectOrType<APITypes.Guild>,
+  user: ObjectOrType<APITypes.User>,
 ): Promise<APITypes.Ban>;
 /**
  * Get a list of bans in a Discord guild
  * @param parent The guild
  */
 async function getBan(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
+  parent: ObjectOrType<APITypes.Guild>,
 ): Promise<APITypes.Ban[]>;
 async function getBan(
-  parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-  user?: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
+  parent: ObjectOrType<APITypes.Guild>,
+  user?: ObjectOrType<APITypes.User>,
 ): Promise<any> {
   const ban = await rest.request(
     "GET",
@@ -476,7 +484,7 @@ get.ban = getBan;
  * @param options Options for fetching the messages
  */
 get.messages = function (
-  parent: APITypes.Channel | TypeByID<APITypes.DataTypes.CHANNEL>,
+  parent: ObjectOrType<APITypes.Channel>,
   options?: APITypes.RESTGetAPIChannelMessagesQuery,
 ): Promise<APITypes.Message[]> {
   return rest.request(
