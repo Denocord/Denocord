@@ -407,31 +407,32 @@ get.guildMembers = function (
   );
 };
 
-
 async function getBan(
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-  user: APITypes.User | TypeByID<APITypes.DataTypes.USER>
+  user: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
 ): Promise<APITypes.Ban>;
 async function getBan(
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-): Promise<APITypes.Ban[]>
+): Promise<APITypes.Ban[]>;
 async function getBan(
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
-  user?: APITypes.User | TypeByID<APITypes.DataTypes.USER>
+  user?: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
 ): Promise<any> {
-  const ban = await rest.request("GET",
+  const ban = await rest.request(
+    "GET",
     `/guilds/${parent.id}/bans${user ? `/${user}` : ""}`,
-    true)
+    true,
+  );
 
   if (Array.isArray(ban)) {
     return ban.map((ban: APITypes.APIBan) => ({
       ...ban,
-      user: createObject(ban.user, APITypes.DataTypes.USER)
-    }))
+      user: createObject(ban.user, APITypes.DataTypes.USER),
+    }));
   } else {
     return {
       ...ban,
-      user: createObject(ban.user, APITypes.DataTypes.USER)
+      user: createObject(ban.user, APITypes.DataTypes.USER),
     };
   }
 }
