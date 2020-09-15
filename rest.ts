@@ -407,10 +407,19 @@ get.guildMembers = function (
   );
 };
 
+/**
+ * Get a ban of a certain user from a Discord guild
+ * @param parent The guild
+ * @param user The user to look the ban up for
+ */
 async function getBan(
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
   user: APITypes.User | TypeByID<APITypes.DataTypes.USER>,
 ): Promise<APITypes.Ban>;
+/**
+ * Get a list of bans in a Discord guild
+ * @param parent The guild
+ */
 async function getBan(
   parent: APITypes.Guild | TypeByID<APITypes.DataTypes.GUILD>,
 ): Promise<APITypes.Ban[]>;
