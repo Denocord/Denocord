@@ -72,6 +72,12 @@ export function create(
   type: APITypes.DataTypes.GUILD,
   payload: APITypes.RESTPostAPIGuildsJSONBody,
 ): Promise<APITypes.Guild>;
+
+export function create(
+  parent: ObjectOrType<APITypes.Guild>,
+  type: APITypes.DataTypes.ROLE,
+  payload: APITypes.RESTPostAPIGuildRoleJSONBody,
+): Promise<APITypes.Role>;
 export async function create(
   parent: ParentObject,
   type: APITypes.DataTypes,
@@ -160,8 +166,33 @@ export async function create(
         APITypes.DataTypes.CHANNEL,
       );
     }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
+    if (type === APITypes.DataTypes.ROLE) {
+      return createObject(
+        await rest.request(
+          "POST",
+          `/guilds/${parent.id}/roles`,
+          true,
+          payload,
+        ),
+        APITypes.DataTypes.ROLE,
+      );
+    }
   }
 }
+
+create.ban = async function (
+  guild: ObjectOrType<APITypes.Guild>,
+  user: ObjectOrType<APITypes.User>,
+  options?: APITypes.RESTPutAPIGuildBanJSONBody,
+): Promise<void> {
+  await rest.request(
+    "PUT",
+    `/guilds/${guild.id}/bans/${user.id}`,
+    true,
+    options,
+  );
+};
 
 //#endregion create(...)
 //#region get(...)
