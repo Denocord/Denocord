@@ -638,6 +638,12 @@ export async function remove(
         `/invites/${(<APITypes.Invite> object).code}`,
         true,
       );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
+      await rest.request(
+        "DELETE",
+        `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+      );
     }
   }
 }
