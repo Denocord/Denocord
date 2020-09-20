@@ -92,7 +92,6 @@ on("message", async (msg) => {
       content: `Here's your invite: https://discord.gg/${invite.code}`,
     });
   }
-  console.log(msg.content);
 });
 
 on("guildCreate", (g) => {
