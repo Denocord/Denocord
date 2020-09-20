@@ -1,6 +1,6 @@
 import { config, login, onDebug, onError, state, APITypes } from "../mod.ts";
 import { on, configure as wsConfigure, CompressionOptions } from "../ws.ts";
-import rest, { create, ROOT_SYMBOL } from "../rest.ts";
+import rest, { create, get, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
 import diff, { DiffType } from "https://deno.land/std@0.65.0/testing/diff.ts";
 
@@ -76,12 +76,7 @@ on("message", async (msg) => {
 
     console.log(newGuild);
     //DataTypes.INVITE not a thing yet
-    const channelList: APITypes.APIChannel[] =
-      <APITypes.APIChannel[]> <unknown> await rest.request(
-        "GET",
-        `/guilds/${newGuild.id}/channels`,
-        true,
-      );
+    const channelList = await get(newGuild, APITypes.DataTypes.CHANNEL);
     const channel = channelList.find((c) => c.type === 0);
     if (!channel) {
       return console.log("Cannot find the proper channel for invite");
