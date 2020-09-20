@@ -603,20 +603,20 @@ get.vanityURL = async function (
 //#region remove(...)
 export function remove(
   parent: typeof ROOT_SYMBOL,
-  object: ObjectOrType<APITypes.Guild>
+  object: ObjectOrType<APITypes.Guild>,
 ): Promise<void>;
 export async function remove(
   parent: ParentObject,
   object: TypeByID<APITypes.DataTypes>,
-  options?: any
+  options?: any,
 ): Promise<void> {
   if (parent === ROOT_SYMBOL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
       await rest.request(
         "DELETE",
         `/guilds/${object.id}`,
-        true
-      )
+        true,
+      );
     }
   }
 }
