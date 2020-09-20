@@ -535,27 +535,29 @@ get.reactions = function (
  */
 get.auditLog = async function (
   guild: ObjectOrType<APITypes.Guild>,
-  options?: APITypes.RESTGetAPIAuditLogQuery
-): Promise<APITypes.APIAuditLog & {
-  webhooks: APITypes.Webhook[];
-  users: APITypes.User[]
-}> {
+  options?: APITypes.RESTGetAPIAuditLogQuery,
+): Promise<
+  APITypes.APIAuditLog & {
+    webhooks: APITypes.Webhook[];
+    users: APITypes.User[];
+  }
+> {
   const log: APITypes.APIAuditLog = await rest.request(
     "GET",
     `/guilds/${guild.id}/audit-logs`,
     true,
-    options
+    options,
   );
 
   // TODO(TTtie): Should we bother data-typing audit log changes?
   return {
     ...log,
-    webhooks: log.webhooks.map(w => 
-      createObject(w, APITypes.DataTypes.WEBHOOK)),
-    users: log.users.map(u => 
-      createObject(u, APITypes.DataTypes.USER))
-  }
-}
+    webhooks: log.webhooks.map((w) =>
+      createObject(w, APITypes.DataTypes.WEBHOOK)
+    ),
+    users: log.users.map((u) => createObject(u, APITypes.DataTypes.USER)),
+  };
+};
 //#endregion get(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
