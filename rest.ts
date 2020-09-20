@@ -527,6 +527,35 @@ get.reactions = function (
     )
   );
 };
+
+/**
+ * Gets an audit log of a guild
+ * @param guild The guild
+ * @param options The options for querying the audit log
+ */
+get.auditLog = async function (
+  guild: ObjectOrType<APITypes.Guild>,
+  options?: APITypes.RESTGetAPIAuditLogQuery
+): Promise<APITypes.APIAuditLog & {
+  webhooks: APITypes.Webhook[];
+  users: APITypes.User[]
+}> {
+  const log: APITypes.APIAuditLog = await rest.request(
+    "GET",
+    `/guilds/${guild.id}/audit-logs`,
+    true,
+    options
+  );
+
+  // TODO(TTtie): Should we bother data-typing audit log changes?
+  return {
+    ...log,
+    webhooks: log.webhooks.map(w => 
+      createObject(w, APITypes.DataTypes.WEBHOOK)),
+    users: log.users.map(u => 
+      createObject(u, APITypes.DataTypes.USER))
+  }
+}
 //#endregion get(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
