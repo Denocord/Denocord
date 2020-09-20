@@ -9,13 +9,22 @@ type TypeByID<T extends APITypes.DataTypes> = {
   [APITypes.DATA_SYMBOL]: T;
 };
 
+type PossiblyNonIDTypedObject<T extends APITypes.DataTypes = Exclude<APITypes.DataTypes, APITypes.DataTypes.INVITE>> =
+  T extends APITypes.DataTypes.INVITE ? {
+    code: string;
+    [APITypes.DATA_SYMBOL]: T
+  } : TypeByID<T>;
+
 type ParentObject = TypeByID<APITypes.DataTypes> | typeof ROOT_SYMBOL;
 
 type ObjectOrType<
   T extends {
-    [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes
   },
-> = T | TypeByID<T[typeof APITypes.DATA_SYMBOL]>;
+> = T | ( T[typeof APITypes.DATA_SYMBOL] extends APITypes.DataTypes.INVITE ? {
+  code: string,
+  [APITypes.DATA_SYMBOL]: APITypes.DataTypes.INVITE;
+} : TypeByID<T[typeof APITypes.DATA_SYMBOL]>);
 
 export default rest;
 
@@ -601,25 +610,46 @@ get.vanityURL = async function (
 //#endregion get(...)
 
 //#region remove(...)
-export function remove(
-  parent: typeof ROOT_SYMBOL,
+/**
+ * Deletes a guild
+ * @param object The guild to delete
+ */
+export async function remove(
+  _: typeof ROOT_SYMBOL,
   object: ObjectOrType<APITypes.Guild>,
+): Promise<void>;
+/**
+ * Deletes an invite
+ * @param obj An invite object with either `code` or `id` properties set as the invite code.
+ */
+export async function remove(
+  _: typeof ROOT_SYMBOL,
+  obj: APITypes.Invite | {
+    code: string;
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes.INVITE
+  }
 ): Promise<void>;
 export async function remove(
   parent: ParentObject,
-  object: TypeByID<APITypes.DataTypes>,
+  object: TypeByID<APITypes.DataTypes> | APITypes.Invite,
   options?: any,
 ): Promise<void> {
   if (parent === ROOT_SYMBOL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
       await rest.request(
         "DELETE",
-        `/guilds/${object.id}`,
+        `/guilds/${(<TypeByID<APITypes.DataTypes>>object).id}`,
+        true,
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.INVITE) {
+      await rest.request(
+        "DELETE",
+        `/invites/${(<APITypes.Invite>object).code}`,
         true,
       );
     }
   }
-}
+};
 //#endregion remove(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
