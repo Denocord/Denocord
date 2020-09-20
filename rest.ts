@@ -589,6 +589,16 @@ get.auditLog = async function (
     users: log.users.map((u) => createObject(u, APITypes.DataTypes.USER)),
   };
 };
+
+get.vanityURL = async function (
+  guild: ObjectOrType<APITypes.Guild>,
+): Promise<APITypes.RESTGetAPIGuildVanityUrlResult> {
+  return rest.request(
+    "GET",
+    `/guilds/${guild.id}/vanity-url`,
+    true,
+  );
+};
 //#endregion get(...)
 
 export { setAPIBase } from "./lib/util/constants.ts";
