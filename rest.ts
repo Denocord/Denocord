@@ -644,6 +644,12 @@ export async function remove(
         `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
       );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+      await rest.request(
+        "DELETE",
+        `/channels/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+      );
     }
   }
 }
