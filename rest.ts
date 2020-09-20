@@ -2,7 +2,6 @@ import RequestHandler from "./lib/rest/request_handler.ts";
 import { APITypes } from "./lib/deps.ts";
 import createObject from "./lib/util/create_object.ts";
 import validateAllowedMentions from "./lib/util/allowed_mentions.ts";
-import { DATA_SYMBOL } from "https://raw.githubusercontent.com/Denocord/discord-api-types-new/554bb77056895a73c87fce7dfadcfa33a158bbdb/high_level.ts";
 const rest = RequestHandler.get();
 
 type TypeByID<T extends APITypes.DataTypes> = {
@@ -16,7 +15,7 @@ type ObjectOrType<
   T extends {
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
   },
-> = T | TypeByID<T[typeof DATA_SYMBOL]>;
+> = T | TypeByID<T[typeof APITypes.DATA_SYMBOL]>;
 
 export default rest;
 
@@ -415,7 +414,7 @@ export async function get(
         )
       );
     }
-  } else if (parent[DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
     if (type === APITypes.DataTypes.WEBHOOK) {
       return rest.request(
         "GET",
