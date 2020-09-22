@@ -611,7 +611,7 @@ export async function remove(
 ): Promise<void>;
 /**
  * Deletes an invite
- * @param obj An invite object with either `code` or `id` properties set as the invite code.
+ * @param obj An invite object
  */
 export async function remove(
   _: typeof ROOT_SYMBOL,
@@ -619,6 +619,16 @@ export async function remove(
     code: string;
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes.INVITE;
   },
+  reason?: string
+): Promise<void>;
+/**
+ * Deletes a webhook
+ * @param obj A webhook object
+ */
+export async function remove(
+  _: typeof ROOT_SYMBOL,
+  obj: APITypes.Webhook,
+  reason?: string
 ): Promise<void>;
 export async function remove(
   parent: ParentObject,
@@ -637,18 +647,38 @@ export async function remove(
         "DELETE",
         `/invites/${(<APITypes.Invite> object).code}`,
         true,
+        {
+          reason: options.toString()
+        }
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
       await rest.request(
         "DELETE",
         `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
+        {
+          reason: options.toString()
+        }
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
       await rest.request(
         "DELETE",
         `/channels/${(<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
+        {
+          reason: options.toString()
+        }
+      );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+    if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.MESSAGE) {
+      await rest.request(
+        "DELETE",
+        `/channels/${parent.id}/messages/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+        {
+          reason: options.toString()
+        }
       );
     }
   }
