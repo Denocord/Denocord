@@ -59,7 +59,7 @@ class RequestHandler {
       };
 
       if (!(body instanceof FormData) && body && body.reason) {
-        headers["X-Audit-Log-Reason"] = body.reason;
+        headers["X-Audit-Log-Reason"] = encodeURIComponent(body.reason);
         delete body.reason;
       }
       if (!(body instanceof FormData)) {
