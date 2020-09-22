@@ -612,6 +612,7 @@ export async function remove(
 /**
  * Deletes an invite
  * @param obj An invite object
+ * @param reason The reason for deleting the invite
  */
 export async function remove(
   _: typeof ROOT_SYMBOL,
@@ -624,10 +625,21 @@ export async function remove(
 /**
  * Deletes a webhook
  * @param obj A webhook object
+ * @param reason The reason for deleting the webhook
  */
 export async function remove(
   _: typeof ROOT_SYMBOL,
-  obj: APITypes.Webhook,
+  obj: ObjectOrType<APITypes.Webhook>,
+  reason?: string
+): Promise<void>;
+/**
+ * Deletes a message
+ * @param obj A message object
+ * @param reason The reason for deleting the message
+ */
+export async function remove(
+  parent: ObjectOrType<APITypes.Channel>,
+  obj: ObjectOrType<APITypes.Message>,
   reason?: string
 ): Promise<void>;
 export async function remove(
@@ -682,6 +694,27 @@ export async function remove(
       );
     }
   }
+}
+
+/**
+ * Deletes multiple messages at once
+ * @param messages The messages to delete
+ * @param reason The reason for deleting the messages
+ */
+remove.messages = async function (
+  parent: ObjectOrType<APITypes.Channel>,
+  messages: (string | ObjectOrType<APITypes.Message>)[],
+  reason?: string
+) {
+  await rest.request(
+    "DELETE",
+    `/channels/${parent.id}/messages/bulk-delete`,
+    true,
+    {
+      reason,
+      messages: messages.map(s => typeof s === "string" ? s : s.id)
+    }
+  );
 }
 
 //#endregion remove(...)

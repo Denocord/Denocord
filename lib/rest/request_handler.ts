@@ -37,8 +37,17 @@ class RequestHandler {
     auth: boolean = true,
     body?: any,
   ): Promise<any> {
-    if (method === "GET") {
-      const urlsp = new URLSearchParams(body);
+    if (method === "GET" || method === "DELETE") {
+      const urlsp = new URLSearchParams();
+      for (const k of Object.keys(body)) {
+        if (Array.isArray(body[k])) {
+          for (const val of body[k]) {
+            urlsp.append(k, val);
+          }
+        } else {
+          urlsp.append(k, body[k]);
+        }
+      }
       path += urlsp.toString();
       body = undefined;
     }
@@ -60,7 +69,7 @@ class RequestHandler {
 
       if (!(body instanceof FormData) && body && body.reason) {
         headers["X-Audit-Log-Reason"] = encodeURIComponent(body.reason);
-        delete body.reason;
+        if (method !== "POST" || !path.includes("/prune/")) delete body.reason;
       }
       if (!(body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
