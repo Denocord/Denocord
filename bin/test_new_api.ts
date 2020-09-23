@@ -91,20 +91,30 @@ on("message", async (msg) => {
     await create(dm, APITypes.DataTypes.MESSAGE, {
       content: `Here's your invite: https://discord.gg/${invite.code}`,
     });
-  } else if (msg.content.startsWith("deno!remove_messages ") &&
-    msg.author.id === "150628341316059136") {
-      const [, ...messagesToDelete] = msg.content.split(" ");
-      await remove.messages({
+  } else if (
+    msg.content.startsWith("deno!remove_messages ") &&
+    msg.author.id === "150628341316059136"
+  ) {
+    const [, ...messagesToDelete] = msg.content.split(" ");
+    await remove.messages(
+      {
         id: msg.channel_id,
-        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
-      }, messagesToDelete, "Because I can");
-      await create({
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL,
+      },
+      messagesToDelete,
+      "Because I can",
+    );
+    await create(
+      {
         id: msg.channel_id,
-        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
-      }, APITypes.DataTypes.MESSAGE, {
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL,
+      },
+      APITypes.DataTypes.MESSAGE,
+      {
         content: "Deleted the messages you specified.",
-      });
-    }
+      },
+    );
+  }
 });
 
 on("guildCreate", (g) => {

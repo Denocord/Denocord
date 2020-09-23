@@ -620,7 +620,7 @@ export async function remove(
     code: string;
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes.INVITE;
   },
-  reason?: string
+  reason?: string,
 ): Promise<void>;
 /**
  * Deletes a webhook
@@ -630,7 +630,7 @@ export async function remove(
 export async function remove(
   _: typeof ROOT_SYMBOL,
   obj: ObjectOrType<APITypes.Webhook>,
-  reason?: string
+  reason?: string,
 ): Promise<void>;
 /**
  * Deletes a message
@@ -640,7 +640,7 @@ export async function remove(
 export async function remove(
   parent: ObjectOrType<APITypes.Channel>,
   obj: ObjectOrType<APITypes.Message>,
-  reason?: string
+  reason?: string,
 ): Promise<void>;
 export async function remove(
   parent: ParentObject,
@@ -660,8 +660,8 @@ export async function remove(
         `/invites/${(<APITypes.Invite> object).code}`,
         true,
         {
-          reason: options.toString()
-        }
+          reason: options.toString(),
+        },
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
       await rest.request(
@@ -669,8 +669,8 @@ export async function remove(
         `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
         {
-          reason: options.toString()
-        }
+          reason: options.toString(),
+        },
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
       await rest.request(
@@ -678,19 +678,21 @@ export async function remove(
         `/channels/${(<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
         {
-          reason: options.toString()
-        }
+          reason: options.toString(),
+        },
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.MESSAGE) {
       await rest.request(
         "DELETE",
-        `/channels/${parent.id}/messages/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        `/channels/${parent.id}/messages/${
+          (<TypeByID<APITypes.DataTypes>> object).id
+        }`,
         true,
         {
-          reason: options.toString()
-        }
+          reason: options.toString(),
+        },
       );
     }
   }
@@ -704,7 +706,7 @@ export async function remove(
 remove.messages = async function (
   parent: ObjectOrType<APITypes.Channel>,
   messages: (string | ObjectOrType<APITypes.Message>)[],
-  reason?: string
+  reason?: string,
 ) {
   await rest.request(
     "POST",
@@ -712,10 +714,10 @@ remove.messages = async function (
     true,
     {
       reason,
-      messages: messages.map(s => typeof s === "string" ? s : s.id)
-    }
+      messages: messages.map((s) => typeof s === "string" ? s : s.id),
+    },
   );
-}
+};
 
 //#endregion remove(...)
 export { setAPIBase } from "./lib/util/constants.ts";
