@@ -38,18 +38,20 @@ class RequestHandler {
     body?: any,
   ): Promise<any> {
     if (method === "GET" || method === "DELETE") {
-      const urlsp = new URLSearchParams();
-      for (const k of Object.keys(body)) {
-        if (Array.isArray(body[k])) {
-          for (const val of body[k]) {
-            urlsp.append(k, val);
+      if (body) {
+        const urlsp = new URLSearchParams();
+        for (const k of Object.keys(body)) {
+          if (Array.isArray(body[k])) {
+            for (const val of body[k]) {
+              urlsp.append(k, val);
+            }
+          } else {
+            urlsp.append(k, body[k]);
           }
-        } else {
-          urlsp.append(k, body[k]);
         }
+        path += `?${urlsp}`;
+        body = undefined;
       }
-      path += urlsp.toString();
-      body = undefined;
     }
     const majorParamMatch = path.match(MAJOR_PARAMETER_REGEX);
     const route = this.toRoute(method, path);
