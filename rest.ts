@@ -707,7 +707,7 @@ remove.messages = async function (
   reason?: string
 ) {
   await rest.request(
-    "DELETE",
+    "POST",
     `/channels/${parent.id}/messages/bulk-delete`,
     true,
     {
