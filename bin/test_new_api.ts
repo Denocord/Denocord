@@ -1,6 +1,6 @@
 import { config, login, onDebug, onError, state, APITypes } from "../mod.ts";
 import { on, configure as wsConfigure, CompressionOptions } from "../ws.ts";
-import rest, { create, get, ROOT_SYMBOL } from "../rest.ts";
+import rest, { create, get, remove, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
 import diff, { DiffType } from "https://deno.land/std@0.65.0/testing/diff.ts";
 
@@ -91,7 +91,20 @@ on("message", async (msg) => {
     await create(dm, APITypes.DataTypes.MESSAGE, {
       content: `Here's your invite: https://discord.gg/${invite.code}`,
     });
-  }
+  } else if (msg.content.startsWith("deno!remove_messages ") &&
+    msg.author.id === "150628341316059136") {
+      const [, ...messagesToDelete] = msg.content.split(" ");
+      await remove.messages({
+        id: msg.channel_id,
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
+      }, messagesToDelete, "Because I can");
+      await create({
+        id: msg.channel_id,
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL
+      }, APITypes.DataTypes.MESSAGE, {
+        content: "Deleted the messages you specified.",
+      });
+    }
 });
 
 on("guildCreate", (g) => {
