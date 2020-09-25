@@ -746,6 +746,7 @@ export async function remove(
 
 /**
  * Deletes multiple messages at once
+ * @param parent The channel to delete the messages from
  * @param messages The messages to delete
  * @param reason The reason for deleting the messages
  */
