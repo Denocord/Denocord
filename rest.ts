@@ -283,7 +283,7 @@ export function get(
 ): Promise<APITypes.Invite[]>;
 /**
  * Gets a specific member from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the member from
  * @param id The ID of the member
  */
 export function get(
