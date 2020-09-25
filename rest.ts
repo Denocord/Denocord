@@ -766,5 +766,25 @@ remove.messages = async function (
   );
 };
 
+/**
+ * Unbans a user from a guild
+ * @param parent The guild to unban the user from
+ * @param user The user to unban
+ * @param reason The reason for unbanning the user
+ */
+remove.ban = async function (
+  parent: ObjectOrType<APITypes.Guild>,
+  user: ObjectOrType<APITypes.User>,
+  reason?: string,
+) {
+  await rest.request(
+    "DELETE",
+    `/guilds/${parent.id}/bans/${user.id}`,
+    true,
+    {
+      reason,
+    },
+  );
+};
 //#endregion remove(...)
 export { setAPIBase } from "./lib/util/constants.ts";
