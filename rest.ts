@@ -642,9 +642,29 @@ export async function remove(
   obj: ObjectOrType<APITypes.Message>,
   reason?: string,
 ): Promise<void>;
+/**
+ * Removes (kicks) a member
+ * @param obj A member object
+ * @param reason The reason for removing the member
+ */
+export async function remove(
+  parent: ObjectOrType<APITypes.Guild>,
+  obj: ObjectOrType<APITypes.GuildMember>,
+  reason?: string,
+): Promise<void>;
+/**
+ * Deletes a role
+ * @param obj A role object
+ * @param reason The reason for deleting the role
+ */
+export async function remove(
+  parent: ObjectOrType<APITypes.Channel>,
+  obj: ObjectOrType<APITypes.Message>,
+  reason?: string,
+): Promise<void>;
 export async function remove(
   parent: ParentObject,
-  object: TypeByID<APITypes.DataTypes> | APITypes.Invite,
+  object: TypeByID<APITypes.DataTypes> | APITypes.Invite | APITypes.GuildMember,
   options?: any,
 ): Promise<void> {
   if (parent === ROOT_SYMBOL) {
@@ -689,6 +709,29 @@ export async function remove(
         `/channels/${parent.id}/messages/${
           (<TypeByID<APITypes.DataTypes>> object).id
         }`,
+        true,
+        {
+          reason: options.toString(),
+        },
+      );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
+    if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.MEMBER) {
+      await rest.request(
+        "DELETE",
+        `/guilds/${parent.id}/members/${
+          (<TypeByID<APITypes.DataTypes>> object).id
+        }`,
+        true,
+        {
+          reason: options.toString(),
+        },
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.ROLE) {
+      await rest.request(
+        "DELETE",
+        `/guilds/${parent.id}/roles/${(<APITypes.GuildMember> object).user
+          ?.id || (<TypeByID<APITypes.DataTypes>> object).id}`,
         true,
         {
           reason: options.toString(),
