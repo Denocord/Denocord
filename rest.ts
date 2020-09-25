@@ -620,12 +620,14 @@ get.vanityURL = async function (
 
 //#region remove(...)
 /**
- * Deletes a guild
- * @param object The guild to delete
+ * Deletes/leaves a guild
+ * @param object The guild to delete/leave
+ * @param deleteGuild Whether to delete the guild as a whole or only leave it. Defaults to false (leaving the server only)
  */
 export async function remove(
   _: typeof ROOT_SYMBOL,
   object: ObjectOrType<APITypes.Guild>,
+  deleteGuild?: boolean,
 ): Promise<void>;
 /**
  * Deletes an invite
@@ -690,11 +692,19 @@ export async function remove(
 ): Promise<void> {
   if (parent === ROOT_SYMBOL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
-      await rest.request(
-        "DELETE",
-        `/guilds/${(<TypeByID<APITypes.DataTypes>> object).id}`,
-        true,
-      );
+      if (!options) {
+        await rest.request(
+          "DELETE",
+          `/guilds/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+          true,
+        );
+      } else {
+        await rest.request(
+          "DELETE",
+          `/users/@me/guilds/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+          true,
+        );
+      }
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.INVITE) {
       await rest.request(
         "DELETE",
