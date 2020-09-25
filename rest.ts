@@ -243,7 +243,7 @@ export function get(
 
 /**
  * Gets a list of channels from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the channel list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Guild>,
@@ -251,7 +251,7 @@ export function get(
 ): Promise<APITypes.Channel[]>;
 /**
  * Gets a list of roles from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the role list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Guild>,
@@ -259,7 +259,7 @@ export function get(
 ): Promise<APITypes.Role[]>;
 /**
  * Gets a list of webhooks from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the webhook list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Guild>,
@@ -267,7 +267,7 @@ export function get(
 ): Promise<APITypes.Webhook[]>;
 /**
  * Gets a list of webhooks from a Discord channel
- * @param parent The channel
+ * @param parent The channel to get the webhook list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Channel>,
@@ -275,7 +275,7 @@ export function get(
 ): Promise<APITypes.Webhook[]>;
 /**
  * Gets a list of invites from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the invite list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Guild>,
@@ -293,7 +293,7 @@ export function get(
 ): Promise<APITypes.GuildMember>;
 /**
  * Get a specific message from a Discord channel
- * @param parent The channel
+ * @param parent The channel to get the message from
  * @param id The ID of the message
  */
 export async function get(
@@ -303,7 +303,7 @@ export async function get(
 ): Promise<APITypes.Message>;
 /**
  * Gets a list of invites from a Discord channel
- * @param parent The guild
+ * @param parent The guild to get the channel list from
  */
 export function get(
   parent: ObjectOrType<APITypes.Channel>,
@@ -450,7 +450,7 @@ export async function get(
 
 /**
  * Gets a list of the guild members from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the member list from
  * @param options Options for the fetched member list
  */
 get.guildMembers = function (
@@ -471,7 +471,7 @@ get.guildMembers = function (
 
 /**
  * Get a ban of a certain user from a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the ban from
  * @param user The user to look the ban up for
  */
 async function getBan(
@@ -480,7 +480,7 @@ async function getBan(
 ): Promise<APITypes.Ban>;
 /**
  * Get a list of bans in a Discord guild
- * @param parent The guild
+ * @param parent The guild to get the ban list frm
  */
 async function getBan(
   parent: ObjectOrType<APITypes.Guild>,
@@ -512,7 +512,7 @@ get.ban = getBan;
 
 /**
  * Get a list of messages in a Discord channel
- * @param parent The channel
+ * @param parent The channel to get the messages from
  * @param options Options for fetching the messages
  */
 get.messages = function (
