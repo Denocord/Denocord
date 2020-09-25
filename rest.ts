@@ -611,7 +611,7 @@ export async function remove(
 ): Promise<void>;
 /**
  * Deletes an invite
- * @param obj An invite object
+ * @param obj The invite to delete
  * @param reason The reason for deleting the invite
  */
 export async function remove(
@@ -624,7 +624,7 @@ export async function remove(
 ): Promise<void>;
 /**
  * Deletes a webhook
- * @param obj A webhook object
+ * @param obj The webhook to delete
  * @param reason The reason for deleting the webhook
  */
 export async function remove(
@@ -634,7 +634,8 @@ export async function remove(
 ): Promise<void>;
 /**
  * Deletes a message
- * @param obj A message object
+ * @param parent The channel to delete the message from
+ * @param obj The message to delete
  * @param reason The reason for deleting the message
  */
 export async function remove(
@@ -644,7 +645,8 @@ export async function remove(
 ): Promise<void>;
 /**
  * Removes (kicks) a member
- * @param obj A member object
+ * @param parent The guild to remove the member from
+ * @param obj The member to remove
  * @param reason The reason for removing the member
  */
 export async function remove(
@@ -654,7 +656,8 @@ export async function remove(
 ): Promise<void>;
 /**
  * Deletes a role
- * @param obj A role object
+ * @param parent The guild to delete the role from
+ * @param obj The role to delete
  * @param reason The reason for deleting the role
  */
 export async function remove(
