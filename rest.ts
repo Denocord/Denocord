@@ -532,6 +532,24 @@ get.messages = function (
 };
 
 /**
+ * Gets a list of pinned messages in a channel
+ * @param parent The channel to get the pinned messages from
+ */
+get.pinnedMessages = function (
+  parent: ObjectOrType<APITypes.Channel>,
+): Promise<APITypes.Message[]> {
+  return rest.request(
+    "GET",
+    `/channels/${parent.id}/pins`,
+    true,
+  ).then((msg) =>
+    msg.map((m: APITypes.APIMessage) =>
+      createObject(m, APITypes.DataTypes.MESSAGE)
+    )
+  );
+};
+
+/**
  * Get a list of users who reacted on a Discord message
  * @param channel The channel the message is in
  * @param parent The message
