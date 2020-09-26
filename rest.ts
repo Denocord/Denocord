@@ -611,7 +611,7 @@ get.auditLog = async function (
  * Gets a vanity URL of a guild
  * @param guild The guild to get the vanity URL from
  */
-get.vanityURL = async function (
+get.vanityURL = function (
   guild: ObjectOrType<APITypes.Guild>,
 ): Promise<APITypes.RESTGetAPIGuildVanityUrlResult> {
   return rest.request(
