@@ -620,6 +620,30 @@ get.vanityURL = function (
     true,
   );
 };
+
+/**
+ * Gets the gateway URL along with information related to current bot
+ */
+function getGateway(
+  withBotInfo: true,
+): Promise<APITypes.RESTGetAPIGatewayBotResult>;
+/**
+ * Gets the gateway URL
+ */
+function getGateway(
+  withBotInfo: false,
+): Promise<APITypes.RESTGetAPIGatewayResult>;
+function getGateway(
+  withBotInfo: boolean = false,
+): Promise<APITypes.RESTGetAPIGatewayResult> {
+  return rest.request(
+    "GET",
+    `/gateway${withBotInfo ? "/bot" : ""}`,
+    true,
+  );
+}
+
+get.gateway = getGateway;
 //#endregion get(...)
 
 //#region remove(...)
