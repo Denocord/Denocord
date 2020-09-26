@@ -206,7 +206,7 @@ export function get(
 ): Promise<APITypes.Channel>;
 /**
  * Gets a user from Discord
- * @param id The user ID. To fetch authenticated user, use "@me"
+ * @param id The user ID. To fetch current user, use "@me"
  */
 export function get(
   _: typeof ROOT_SYMBOL,
@@ -552,7 +552,7 @@ get.pinnedMessages = function (
 /**
  * Get a list of users who reacted on a Discord message
  * @param channel The channel the message is in
- * @param parent The message
+ * @param parent The message to get the reactions from
  * @param emoji The emoji - should be either a custom emoji in format of `name:id` or an Unicode emoji
  * @param options The options for fetching the reactions
  */
@@ -578,7 +578,7 @@ get.reactions = function (
 
 /**
  * Gets an audit log of a guild
- * @param guild The guild
+ * @param guild The guild to get the audit log from
  * @param options The options for querying the audit log
  */
 get.auditLog = async function (
@@ -607,6 +607,10 @@ get.auditLog = async function (
   };
 };
 
+/**
+ * Gets a vanity URL of a guild
+ * @param guild The guild to get the vanity URL from
+ */
 get.vanityURL = async function (
   guild: ObjectOrType<APITypes.Guild>,
 ): Promise<APITypes.RESTGetAPIGuildVanityUrlResult> {
