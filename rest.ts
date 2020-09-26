@@ -631,7 +631,7 @@ function getGateway(
  * Gets the gateway URL
  */
 function getGateway(
-  withBotInfo: false,
+  withBotInfo?: false,
 ): Promise<APITypes.RESTGetAPIGatewayResult>;
 function getGateway(
   withBotInfo: boolean = false,
