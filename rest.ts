@@ -2,6 +2,7 @@ import RequestHandler from "./lib/rest/request_handler.ts";
 import { APITypes } from "./lib/deps.ts";
 import createObject from "./lib/util/create_object.ts";
 import validateAllowedMentions from "./lib/util/allowed_mentions.ts";
+import { AuditLogOptionsType } from "https://raw.githubusercontent.com/Denocord/discord-api-types-new/b958cea82373f76169c4ccee2e984a8f4f4e6c2a/v6/payloads/auditLog.ts";
 const rest = RequestHandler.get();
 
 type TypeByID<T extends APITypes.DataTypes> = {
@@ -71,6 +72,18 @@ export function create(
   type: APITypes.DataTypes.GUILD,
   payload: APITypes.RESTPostAPIGuildsJSONBody,
 ): Promise<APITypes.Guild>;
+/**
+ * Executes a webhook
+ * @param parent The webhook to use for creating the message - must contain both `id` and `token`
+ * @param payload The options for a message
+ */
+export function create<T extends APITypes.WebhookExecutePayload>(
+  parent: ObjectOrType<APITypes.Webhook> & { 
+    token: string
+  },
+  type: APITypes.DataTypes.MESSAGE,
+  payload: T
+): Promise<T["wait"] extends true ? APITypes.Message : void>;
 
 export function create(
   parent: ObjectOrType<APITypes.Guild>,
