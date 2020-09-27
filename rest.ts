@@ -235,7 +235,7 @@ create.ban = async function (
  */
 create.typing = async function (
   channel: ObjectOrType<APITypes.Channel>,
-) {
+): Promise<void> {
   await rest.request(
     "POST",
     `/channels/${channel.id}/typing`,
