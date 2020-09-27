@@ -694,6 +694,20 @@ function getGateway(
 }
 
 get.gateway = getGateway;
+
+/**
+ * Lists available voice regions
+ * @param guild If passed, will list voice regions available for that specific guild
+ */
+get.voiceRegions = function(
+  guild?: ObjectOrType<APITypes.Guild>
+): Promise<APITypes.APIVoiceRegion[]> {
+  return rest.request(
+    "GET",
+    guild ? `/guilds/${guild.id}/regions` : "/voice/regions",
+    true,
+  )
+}
 //#endregion get(...)
 
 //#region remove(...)
