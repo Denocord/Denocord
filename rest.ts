@@ -218,7 +218,7 @@ export async function create(
         "POST",
         url,
         false,
-        payload,
+        body,
       ).then((m) => {
         if (payload.wait) {
           return createObject(m, APITypes.DataTypes.MESSAGE);
