@@ -191,6 +191,20 @@ export async function create(
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
     if (type === APITypes.DataTypes.MESSAGE) {
+      const p = <APITypes.WebhookExecutePayload> payload;
+      if (!p || (!p.files && !p.content && (!p.embeds || p.embeds.length === 0))) {
+        throw new Error("Missing message content");
+      }
+      validateAllowedMentions(p.allowed_mentions);
+      let body: APITypes.WebhookExecutePayload | FormData = payload;
+      if (p.files && p.files.length > 0) {
+        body = new FormData();
+        for (const file of p.files) {
+          body.append("file", file);
+        }
+        delete p.files;
+        body.append("payload_json", JSON.stringify(p));
+      }
       let url = `/webhooks/${parent.id}/${
         (<{
           token: string;
