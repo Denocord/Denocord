@@ -77,11 +77,11 @@ export function create(
  * @param payload The options for a message
  */
 export function create<T extends APITypes.WebhookExecutePayload>(
-  parent: ObjectOrType<APITypes.Webhook> & { 
-    token: string
+  parent: ObjectOrType<APITypes.Webhook> & {
+    token: string;
   },
   type: APITypes.DataTypes.MESSAGE,
-  payload: T
+  payload: T,
 ): Promise<T["wait"] extends true ? APITypes.Message : void>;
 
 export function create(
@@ -188,6 +188,30 @@ export async function create(
         ),
         APITypes.DataTypes.ROLE,
       );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
+    if (type === APITypes.DataTypes.MESSAGE) {
+      let url = `/webhooks/${parent.id}/${
+        (<{
+          token: string;
+        }> <unknown> parent).token
+      }`;
+      if (payload.wait) {
+        url += "?wait=true";
+        delete payload.wait;
+      }
+      return rest.request(
+        "POST",
+        url,
+        false,
+        payload,
+      ).then((m) => {
+        if (payload.wait) {
+          return createObject(m, APITypes.DataTypes.MESSAGE);
+        } else {
+          return undefined;
+        }
+      });
     }
   }
 }
