@@ -192,7 +192,9 @@ export async function create(
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
     if (type === APITypes.DataTypes.MESSAGE) {
       const p = <APITypes.WebhookExecutePayload> payload;
-      if (!p || (!p.files && !p.content && (!p.embeds || p.embeds.length === 0))) {
+      if (
+        !p || (!p.files && !p.content && (!p.embeds || p.embeds.length === 0))
+      ) {
         throw new Error("Missing message content");
       }
       validateAllowedMentions(p.allowed_mentions);
