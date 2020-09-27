@@ -925,5 +925,72 @@ remove.ban = async function (
     },
   );
 };
+
+/**
+ * Removes all reactions from a message
+ * @param channel The channel the message is in
+ * @param message The channel to remove the reactions from
+ */
+async function removeReaction(
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+): Promise<void>;
+/**
+ * Removes all reactions from a message for a specified emoji
+ * @param channel The channel the message is in
+ * @param message The channel to remove the reactions from
+ * @param emoji The emoji to remove
+ */
+async function removeReaction(
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  emoji: string,
+): Promise<void>;
+/**
+ * Removes all reactions from a message for a specified emoji for a specified user
+ * @param channel The channel the message is in
+ * @param message The channel to remove the reactions from
+ * @param emoji The emoji to remove
+ * @param user The user to remove the reaction for. Pass a user with ID of "@me" to use the authenticated user.
+ */
+async function removeReaction(
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  emoji: string,
+  user: ObjectOrType<APITypes.User>,
+): Promise<void>;
+async function removeReaction(
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  emoji?: string,
+  user?: ObjectOrType<APITypes.User>,
+): Promise<void> {
+  if (emoji) {
+    const baseURL = `/channels/${channel.id}/messages/${message.id}/reactions/${
+      encodeURIComponent(emoji)
+    }`;
+    if (!user) {
+      await rest.request(
+        "DELETE",
+        baseURL,
+        true,
+      );
+    } else {
+      await rest.request(
+        "DELETE",
+        `${baseURL}/${user.id}`,
+        true,
+      );
+    }
+  } else {
+    await rest.request(
+      "DELETE",
+      `/channels/${channel.id}/messages/${message.id}/reactions`,
+      true,
+    );
+  }
+}
+
+remove.reaction = removeReaction;
 //#endregion remove(...)
 export { setAPIBase } from "./lib/util/constants.ts";
