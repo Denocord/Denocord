@@ -530,7 +530,7 @@ async function getBan(
 ): Promise<APITypes.Ban>;
 /**
  * Get a list of bans in a Discord guild
- * @param parent The guild to get the ban list frm
+ * @param parent The guild to get the ban list from
  */
 async function getBan(
   parent: ObjectOrType<APITypes.Guild>,
