@@ -229,6 +229,20 @@ create.ban = async function (
   );
 };
 
+/**
+ * Triggers the typing indicator in a channel
+ * @param channel The channel to trigger the typing indicator in
+ */
+create.typing = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+) {
+  await rest.request(
+    "POST",
+    `/channels/${channel.id}/typing`,
+    true,
+  );
+};
+
 //#endregion create(...)
 //#region get(...)
 /**
