@@ -243,6 +243,25 @@ create.typing = async function (
   );
 };
 
+/**
+ * Adds a reaction to a message
+ * @param channel The channel the message is in
+ * @param message The message to react to
+ * @param emoji The emoji to react with
+ */
+create.reaction = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  emoji: string,
+): Promise<void> {
+  await rest.request(
+    "PUT",
+    `/channels/${channel.id}/messages/${message.id}/reactions/${
+      encodeURIComponent(emoji)
+    }/@me`,
+    true,
+  );
+};
 //#endregion create(...)
 //#region get(...)
 /**
@@ -699,15 +718,15 @@ get.gateway = getGateway;
  * Lists available voice regions
  * @param guild If passed, will list voice regions available for that specific guild
  */
-get.voiceRegions = function(
-  guild?: ObjectOrType<APITypes.Guild>
+get.voiceRegions = function (
+  guild?: ObjectOrType<APITypes.Guild>,
 ): Promise<APITypes.APIVoiceRegion[]> {
   return rest.request(
     "GET",
     guild ? `/guilds/${guild.id}/regions` : "/voice/regions",
     true,
-  )
-}
+  );
+};
 //#endregion get(...)
 
 //#region remove(...)
