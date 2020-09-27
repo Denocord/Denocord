@@ -7,4 +7,4 @@ export { default as decompressor } from "https://raw.githubusercontent.com/Denoc
 //export { default as decompressor } from "../../denoflate/mod.ts";
 
 // TODO: rewrite from discord-api-types-new to discord-api-types once main repo renamed
-export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types-new/1c42e322dc051440b13868093e480570a5bef17a/high_level.ts";
+export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types-new/b958cea82373f76169c4ccee2e984a8f4f4e6c2a/high_level.ts";
