@@ -21,6 +21,20 @@ export default rest;
 
 export const ROOT_SYMBOL = Symbol("Denocord::DataRoot");
 
+/**
+ * Options for deleting webhooks
+ */
+export interface WebhookRemoveOptions {
+  /**
+   * The token of the webhook
+   */
+  token?: string;
+  /**
+   * The reason for deleting the webhook
+   */
+  reason?: string;
+}
+
 //#region create(...)
 
 /**
@@ -325,6 +339,23 @@ export function get(
   type: APITypes.DataTypes.WEBHOOK,
   id: string,
 ): Promise<APITypes.Webhook>;
+/**
+ * Gets a webhook from from Discord using the webhook token
+ * @param id The webhook ID
+ * @param token The token of the webhook
+ */
+export function get(
+  _: typeof ROOT_SYMBOL,
+  type: APITypes.DataTypes.WEBHOOK,
+  id: string,
+  token: string,
+): Promise<
+  Pick<
+    APITypes.Webhook,
+    | keyof APITypes.RESTGetAPIWebhookWithTokenResult
+    | typeof APITypes.DATA_SYMBOL
+  >
+>;
 
 /**
  * Gets a list of channels from a Discord guild
@@ -442,8 +473,8 @@ export async function get(
       return createObject(
         await rest.request(
           "GET",
-          `/webhooks/${id}`,
-          true,
+          `/webhooks/${id}${options ? `/${options}` : ""}`,
+          !options,
         ),
         APITypes.DataTypes.WEBHOOK,
       );
@@ -772,12 +803,12 @@ export async function remove(
 /**
  * Deletes a webhook
  * @param obj The webhook to delete
- * @param reason The reason for deleting the webhook
+ * @param options The options for deleting the webhook
  */
 export async function remove(
   _: typeof ROOT_SYMBOL,
   obj: ObjectOrType<APITypes.Webhook>,
-  reason?: string,
+  options?: WebhookRemoveOptions,
 ): Promise<void>;
 /**
  * Deletes a message
@@ -844,10 +875,10 @@ export async function remove(
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
       await rest.request(
         "DELETE",
-        `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}`,
-        true,
+        `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}${options.token ? `/${options.token}` : ""}`,
+        !options.token,
         {
-          reason: options.toString(),
+          reason: options.reason?.toString(),
         },
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
