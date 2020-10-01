@@ -875,7 +875,9 @@ export async function remove(
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
       await rest.request(
         "DELETE",
-        `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}${options.token ? `/${options.token}` : ""}`,
+        `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}${
+          options.token ? `/${options.token}` : ""
+        }`,
         !options.token,
         {
           reason: options.reason?.toString(),
