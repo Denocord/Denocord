@@ -2,7 +2,9 @@ import { config, login, onDebug, onError, state, APITypes } from "../mod.ts";
 import { on, configure as wsConfigure, CompressionOptions } from "../ws.ts";
 import rest, { create, get, remove, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
-import diff, { DiffType } from "https://deno.land/std@0.65.0/testing/diff.ts";
+import diff, { DiffType } from "https://deno.land/std@0.71.0/testing/diff.ts";
+// Strip ANSI from eval
+import { stripColor } from "https://deno.land/std@0.71.0/fmt/colors.ts";
 
 config({ someOption: false });
 wsConfigure({
@@ -112,6 +114,57 @@ on("message", async (msg) => {
       APITypes.DataTypes.MESSAGE,
       {
         content: "Deleted the messages you specified.",
+      },
+    );
+  } else if (
+    msg.content.startsWith("deno!eval ") &&
+    msg.author.id === "150628341316059136"
+  ) {
+    const [, ...code] = msg.content.split(" ");
+    const AsyncFunction = (async () => {}).constructor as FunctionConstructor;
+    let output: unknown;
+    try {
+      output = await (new AsyncFunction(
+        "msg",
+        "create",
+        "get",
+        "remove",
+        "ROOT_SYMBOL",
+        "APITypes",
+        code.join(" "),
+      ))(msg, create, get, remove, ROOT_SYMBOL, APITypes);
+    } catch (err) {
+      output = err;
+    }
+    const insp = stripColor(Deno.inspect(output));
+    const codeBlock = `\`\`\`js\n${insp}\n\`\`\``;
+
+    if (codeBlock.length > 2048) {
+      console.log(output);
+      await create(
+        {
+          id: msg.channel_id,
+          [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL,
+        },
+        APITypes.DataTypes.MESSAGE,
+        {
+          content: "Check your console for eval output.",
+        },
+      );
+      return;
+    }
+    await create(
+      {
+        id: msg.channel_id,
+        [APITypes.DATA_SYMBOL]: APITypes.DataTypes.CHANNEL,
+      },
+      APITypes.DataTypes.MESSAGE,
+      {
+        embed: {
+          title: "✅ Evaluated!",
+          color: 0x008800,
+          description: codeBlock,
+        },
       },
     );
   }
