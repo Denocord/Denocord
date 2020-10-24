@@ -12,11 +12,11 @@ export let API_BASE = "https://discord.com";
 /**
  * The version of Discord's REST API
  */
-export const API_REST_VERSION = 7;
+export const API_REST_VERSION = APITypes.APIVersion
 /**
  * The version of Discord's gateway
  */
-export const API_WS_VERSION = 6;
+export const API_WS_VERSION = APITypes.APIVersion;
 
 export const DISCORD_EPOCH = 14200704e5;
 export const Z_SYNC_FLUSH = new Uint8Array([0, 0, 255, 255]);

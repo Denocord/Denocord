@@ -60,7 +60,7 @@ export enum CompressionOptions {
 
 export interface WSOptions {
   compress?: CompressionOptions;
-  intents?: APITypes.GatewayIntentBits;
+  intents: APITypes.GatewayIntentBits;
   shardID?: number;
   shardCount?: number;
 }
@@ -70,6 +70,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
   public token?: string;
   public options: WSOptions = {
     compress: CompressionOptions.NONE,
+    intents: 0,
     shardID: 0,
     shardCount: 1,
   };
@@ -124,7 +125,7 @@ class WebsocketShard extends (EventEmitter as StrictEECtor) {
       }`;
     }
   }
-  public configure(options: WSOptions) {
+  public configure(options: Partial<WSOptions>) {
     Object.assign(this.options, options);
     // TODO(TTtie): should this be obj.assign like in djs, eris and co or set props as they are?
     // this.options = options;

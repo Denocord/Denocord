@@ -9,6 +9,7 @@ import { stripColor } from "https://deno.land/std@0.71.0/fmt/colors.ts";
 config({ someOption: false });
 wsConfigure({
   compress: CompressionOptions.ZLIB_STREAM,
+  intents: APITypes.GatewayIntentBits.GUILD_MESSAGES | APITypes.GatewayIntentBits.GUILDS
 });
 
 onDebug((msg) => console.debug("[DEBUG]", msg));
