@@ -12,7 +12,7 @@ export let API_BASE = "https://discord.com";
 /**
  * The version of Discord's REST API
  */
-export const API_REST_VERSION = APITypes.APIVersion
+export const API_REST_VERSION = APITypes.APIVersion;
 /**
  * The version of Discord's gateway
  */

@@ -1,5 +1,5 @@
-import { config, login, onDebug, onError, state, APITypes } from "../mod.ts";
-import { on, configure as wsConfigure, CompressionOptions } from "../ws.ts";
+import { APITypes, config, login, onDebug, onError, state } from "../mod.ts";
+import { CompressionOptions, configure as wsConfigure, on } from "../ws.ts";
 import rest, { create, get, remove, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
 import diff, { DiffType } from "https://deno.land/std@0.71.0/testing/diff.ts";
@@ -9,7 +9,8 @@ import { stripColor } from "https://deno.land/std@0.71.0/fmt/colors.ts";
 config({ someOption: false });
 wsConfigure({
   compress: CompressionOptions.ZLIB_STREAM,
-  intents: APITypes.GatewayIntentBits.GUILD_MESSAGES | APITypes.GatewayIntentBits.GUILDS
+  intents: APITypes.GatewayIntentBits.GUILD_MESSAGES |
+    APITypes.GatewayIntentBits.GUILDS,
 });
 
 onDebug((msg) => console.debug("[DEBUG]", msg));

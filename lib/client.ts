@@ -1,5 +1,5 @@
 import type { StrictEE } from "./util/type_utils.ts";
-import { EventEmitter, APITypes } from "./deps.ts";
+import { APITypes, EventEmitter } from "./deps.ts";
 
 interface ClientEvents {
   debug: string;

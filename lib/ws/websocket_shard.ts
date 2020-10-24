@@ -1,15 +1,11 @@
-import { EventEmitter, StrictEventEmitter, APITypes } from "../deps.ts";
+import { APITypes, EventEmitter, StrictEventEmitter } from "../deps.ts";
 import { bus, setToken, state } from "../client.ts";
 import type { Gateway } from "../@types/denocord.ts";
-import { Z_SYNC_FLUSH, API_WS_VERSION } from "../util/constants.ts";
+import { API_WS_VERSION, Z_SYNC_FLUSH } from "../util/constants.ts";
 import Bucket from "../util/Bucket.ts";
 import RequestHandler from "../rest/request_handler.ts";
 import createObject from "../util/create_object.ts";
-import {
-  equal,
-  inflate,
-  decompressor,
-} from "../deps.ts";
+import { decompressor, equal, inflate } from "../deps.ts";
 type WebsocketEvents = {
   // TODO(TTtie): Is this used?
   raw: string;
