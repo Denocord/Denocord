@@ -2,9 +2,9 @@ import { APITypes, config, login, onDebug, onError, state } from "../mod.ts";
 import { CompressionOptions, configure as wsConfigure, on } from "../ws.ts";
 import rest, { create, get, remove, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
-import diff, { DiffType } from "https://deno.land/std@0.71.0/testing/diff.ts";
+import { diff, DiffType } from "https://deno.land/std@0.75.0/testing/_diff.ts";
 // Strip ANSI from eval
-import { stripColor } from "https://deno.land/std@0.71.0/fmt/colors.ts";
+import { stripColor } from "https://deno.land/std@0.75.0/fmt/colors.ts";
 
 config({ someOption: false });
 wsConfigure({
@@ -138,7 +138,7 @@ on("message", async (msg) => {
     } catch (err) {
       output = err;
     }
-    const insp = stripColor(Deno.inspect(output));
+    const insp = Deno.inspect(output);
     const codeBlock = `\`\`\`js\n${insp}\n\`\`\``;
 
     if (codeBlock.length > 2048) {
@@ -187,17 +187,22 @@ on("guildDelete", (g) => {
 
 on("guildUpdate", (newData, old) => {
   if (old) {
-    const inspectedNew = Deno.inspect(newData).split("\n");
-    const inspectedOld = Deno.inspect(old).split("\n");
+    console.log(newData.name || old.name, "has updated");
+    console.log("Old:");
+    console.log(old);
+    console.log("New:");
+    console.log(newData);
+    /*const inspectedNew = Deno.inspect(newData).split("\n");
+    const inspectedOld = Deno.inspect(old).split("\n");*/
 
-    const difference = diff(inspectedOld, inspectedNew);
+    /*const difference = diff(inspectedOld, inspectedNew);
 
     const differenceArray = difference.map((diffItem) => {
       if (diffItem.type === DiffType.common) return `  ${diffItem.value}`;
       if (diffItem.type === DiffType.added) return `+ ${diffItem.value}`;
       if (diffItem.type === DiffType.removed) return `- ${diffItem.value}`;
     });
-    console.log(differenceArray.join("\n"));
+    console.log(differenceArray.join("\n"));*/
   }
 });
 
