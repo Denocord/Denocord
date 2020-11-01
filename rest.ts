@@ -886,7 +886,7 @@ export async function remove(
 ): Promise<void> {
   if (parent === ROOT_SYMBOL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
-      if (!options) {
+      if (options) {
         await rest.request(
           "DELETE",
           `/guilds/${(<TypeByID<APITypes.DataTypes>> object).id}`,
