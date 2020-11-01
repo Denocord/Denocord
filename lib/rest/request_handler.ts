@@ -76,7 +76,6 @@ class RequestHandler {
         "X-Audit-Log-Reason": actionReason || "",
       };
 
-
       if (!(body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
       }
