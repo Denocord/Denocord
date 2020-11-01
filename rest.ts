@@ -2,7 +2,12 @@ import RequestHandler from "./lib/rest/request_handler.ts";
 import { APITypes } from "./lib/deps.ts";
 import createObject from "./lib/util/create_object.ts";
 import validateAllowedMentions from "./lib/util/allowed_mentions.ts";
+import type { Arrayable } from "./lib/util/type_utils.ts";
 const rest = RequestHandler.get();
+
+type WithReason<T> = T & {
+  reason?: string;
+};
 
 type TypeByID<T extends APITypes.DataTypes> = {
   id: string;
@@ -55,7 +60,7 @@ export function create(
 export function create(
   parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.INVITE,
-  payload?: APITypes.RESTPostAPIChannelInviteJSONBody,
+  payload?: WithReason<APITypes.RESTPostAPIChannelInviteJSONBody>,
 ): Promise<APITypes.Invite>;
 /**
  * Creates a webhook in the specified channel
@@ -65,7 +70,7 @@ export function create(
 export function create(
   parent: ObjectOrType<APITypes.Channel>,
   type: APITypes.DataTypes.WEBHOOK,
-  payload: APITypes.RESTPostAPIChannelWebhookJSONBody,
+  payload: WithReason<APITypes.RESTPostAPIChannelWebhookJSONBody>,
 ): Promise<APITypes.Webhook>;
 /**
  * Creates a private message channel with a user
@@ -101,13 +106,17 @@ export function create<T extends APITypes.WebhookExecutePayload>(
 export function create(
   parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.ROLE,
-  payload: APITypes.RESTPostAPIGuildRoleJSONBody,
+  payload: WithReason<APITypes.RESTPostAPIGuildRoleJSONBody>,
 ): Promise<APITypes.Role>;
 export async function create(
   parent: ParentObject,
   type: APITypes.DataTypes,
   payload: any,
-): Promise<any> {
+): Promise<
+  TypeByID<APITypes.DataTypes> | {
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
+  } | void
+> {
   if (parent === ROOT_SYMBOL) {
     // The thing to create must be determined by type
     if (type === APITypes.DataTypes.GUILD) {
@@ -249,7 +258,7 @@ export async function create(
 create.ban = async function (
   guild: ObjectOrType<APITypes.Guild>,
   user: ObjectOrType<APITypes.User>,
-  options?: APITypes.RESTPutAPIGuildBanJSONBody,
+  options?: WithReason<APITypes.RESTPutAPIGuildBanJSONBody>,
 ): Promise<void> {
   await rest.request(
     "PUT",
@@ -452,7 +461,13 @@ export async function get(
   type: APITypes.DataTypes,
   id?: string,
   options?: any,
-): Promise<any> {
+): Promise<
+  | Arrayable<TypeByID<APITypes.DataTypes>>
+  | Arrayable<{
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
+  }>
+  | void
+> {
   if (parent === ROOT_SYMBOL) {
     if (type === APITypes.DataTypes.CHANNEL) {
       return createObject(
@@ -1084,4 +1099,84 @@ remove.pin = async function (
   );
 };
 //#endregion remove(...)
+
+//#region modify(...)
+/**
+ * Modifies a channel
+ * @param object The channel to modify
+ * @param options The options for modifying the channel
+ */
+export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.Channel>,
+  options?: WithReason<APITypes.RESTPatchAPIChannelJSONBody>,
+): Promise<APITypes.Channel>;
+
+/**
+ * Modifies a guild
+ * @param object The guild to modify
+ * @param options The options for modifying the guild
+ */
+export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.Guild>,
+  options?: WithReason<APITypes.RESTPatchAPIGuildJSONBody>,
+): Promise<APITypes.Guild>;
+
+/**
+ * Modifies the current user
+ * @param object Included only for consistency. Has no effect.
+ * @param options The options for modifying the current user
+ */
+export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.User> & {
+    id: "@me";
+  },
+  options?: APITypes.RESTPatchAPICurrentUserJSONBody,
+): Promise<APITypes.User>;
+export async function modify(
+  parent: ParentObject,
+  object: TypeByID<APITypes.DataTypes>,
+  options?: any,
+): Promise<TypeByID<APITypes.DataTypes> | void> {
+  if (parent === ROOT_SYMBOL) {
+    if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/channels/${object.id}`,
+          true,
+          options,
+        ),
+        APITypes.DataTypes.CHANNEL,
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/guilds/${object.id}`,
+          true,
+          options,
+        ),
+        APITypes.DataTypes.GUILD,
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
+      if (object.id !== "@me") {
+        throw new Error("Only the current user (@me) can be modified");
+      }
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/users/@me`,
+          true,
+          options,
+        ),
+        APITypes.DataTypes.USER,
+      );
+    }
+  }
+}
+
+//#endregion modify(...)
 export { setAPIBase } from "./lib/util/constants.ts";
