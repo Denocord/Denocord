@@ -2,9 +2,6 @@ import { APITypes, config, login, onDebug, onError, state } from "../mod.ts";
 import { CompressionOptions, configure as wsConfigure, on } from "../ws.ts";
 import rest, { create, get, remove, ROOT_SYMBOL } from "../rest.ts";
 import cfg from "./testConfig.ts";
-import { diff, DiffType } from "https://deno.land/std@0.75.0/testing/_diff.ts";
-// Strip ANSI from eval
-import { stripColor } from "https://deno.land/std@0.75.0/fmt/colors.ts";
 
 config({ someOption: false });
 wsConfigure({

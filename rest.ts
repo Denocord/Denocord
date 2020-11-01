@@ -292,6 +292,27 @@ create.reaction = async function (
     true,
   );
 };
+
+/**
+ * Pins a message
+ * @param channel The channel the message is in
+ * @param message The message to pin
+ * @param reason The reason for pinning the message
+ */
+create.pin = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  reason?: string
+): Promise<void> {
+  await rest.request(
+    "PUT",
+    `/channels/${channel.id}/pins/${message.id}`,
+    true,
+    {
+      reason
+    }
+  )
+}
 //#endregion create(...)
 //#region get(...)
 /**
@@ -1041,5 +1062,26 @@ async function removeReaction(
 }
 
 remove.reaction = removeReaction;
+
+/**
+ * Unpins a message
+ * @param channel The channel the message is in
+ * @param message The message to unpin
+ * @param reason The reason for unpinning the message
+ */
+remove.pin = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+  reason?: string
+): Promise<void> {
+  await rest.request(
+    "DELETE",
+    `/channels/${channel.id}/pins/${message.id}`,
+    true,
+    {
+      reason
+    }
+  )
+}
 //#endregion remove(...)
 export { setAPIBase } from "./lib/util/constants.ts";
