@@ -37,6 +37,12 @@ class RequestHandler {
     auth: boolean = true,
     body?: any,
   ): Promise<any> {
+    let actionReason: string | undefined;
+    if (!(body instanceof FormData) && body && body.reason) {
+      actionReason = encodeURIComponent(body.reason);
+      if (method !== "POST" || !path.includes("/prune/")) delete body.reason;
+    }
+
     if (method === "GET" || method === "DELETE") {
       if (body) {
         const urlsp = new URLSearchParams();
@@ -67,12 +73,10 @@ class RequestHandler {
         "User-Agent": this.ua,
         Authorization: auth ? token : "",
         "X-RateLimit-Precision": "millisecond",
+        "X-Audit-Log-Reason": actionReason || "",
       };
 
-      if (!(body instanceof FormData) && body && body.reason) {
-        headers["X-Audit-Log-Reason"] = encodeURIComponent(body.reason);
-        if (method !== "POST" || !path.includes("/prune/")) delete body.reason;
-      }
+
       if (!(body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
       }
