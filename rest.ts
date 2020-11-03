@@ -810,6 +810,17 @@ get.voiceRegions = function (
     true,
   );
 };
+
+/**
+ * Gets information about the current OAuth2 application
+ */
+get.appInfo = async function (): Promise<APITypes.APIApplication> {
+  return rest.request(
+    "GET",
+    `/oauth2/applications/@me`,
+    true,
+  );
+}
 //#endregion get(...)
 
 //#region remove(...)
