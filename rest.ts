@@ -1135,6 +1135,31 @@ export async function modify(
   },
   options?: APITypes.RESTPatchAPICurrentUserJSONBody,
 ): Promise<APITypes.User>;
+
+// TODO(TTtie): Wrap ops that require tokens now or after all of REST is done?
+/* *
+ * Modifies a webhook
+ * @param object The webhook to modify
+ * @param options Options for modifying the webhook
+ */
+/*export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.Webhook>,
+  options: 
+): Promise<APITypes.Webhook>;*/
+
+/**
+ * Modifies (edits) a message
+ * @param parent The channel the message is in
+ * @param object The message to modify
+ * @param options The options for modifying the message
+ */
+export async function modify(
+  parent: ObjectOrType<APITypes.Channel>,
+  object: ObjectOrType<APITypes.Message>,
+  options?: APITypes.RESTPatchAPIChannelMessageJSONBody,
+): Promise<APITypes.Message>;
+
 export async function modify(
   parent: ParentObject,
   object: TypeByID<APITypes.DataTypes>,
@@ -1173,6 +1198,18 @@ export async function modify(
           options,
         ),
         APITypes.DataTypes.USER,
+      );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
+    if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.MESSAGE) {
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/channels/${parent.id}/messages/${object.id}`,
+          true,
+          options,
+        ),
+        APITypes.DataTypes.MESSAGE,
       );
     }
   }
