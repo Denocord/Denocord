@@ -820,7 +820,30 @@ get.appInfo = async function (): Promise<APITypes.APIApplication> {
     `/oauth2/applications/@me`,
     true,
   );
-}
+};
+
+/**
+ * Calculates the amount of members that would've been pruned according to the passed options
+ * @param guild The guild to calculate the pruned members for
+ * @param options The options for calculating the prune
+ */
+get.prune = function (
+  guild: ObjectOrType<APITypes.Guild>,
+  options: APITypes.PruneOptions,
+): Promise<APITypes.RESTGetAPIGuildPruneCountResult> {
+  const opts = {
+    ...options,
+    include_roles: options.include_roles && options.include_roles.join(","),
+  };
+
+  if (!options.include_roles) delete opts.include_roles;
+  return rest.request(
+    "GET",
+    `/guilds/${guild.id}/prune`,
+    true,
+    opts,
+  );
+};
 //#endregion get(...)
 
 //#region remove(...)
