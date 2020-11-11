@@ -1132,6 +1132,24 @@ remove.pin = async function (
     },
   );
 };
+
+/**
+ * Removes (prunes) inactive members in a guild
+ * Unstable: this function may probably get moved somewhere else
+ * @param guild The guild to prune the members in
+ * @param options Options for pruning the members. It is recommended to set `compute_prune_count` to false on large servers.
+ */
+remove.members = async function (
+  guild: ObjectOrType<APITypes.Guild>,
+  options: WithReason<APITypes.RESTPostAPIGuildPruneJSONBody>,
+): Promise<APITypes.RESTPostAPIGuildPruneResult> {
+  return rest.request(
+    "POST",
+    `/guilds/${guild.id}/prune`,
+    true,
+    options,
+  );
+};
 //#endregion remove(...)
 
 //#region modify(...)
