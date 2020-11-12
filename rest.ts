@@ -1272,6 +1272,37 @@ export async function modify(
     | TypeByID<APITypes.DataTypes.MEMBER>,
   options?: APITypes.RESTPatchAPIGuildMemberJSONBody,
 ): Promise<void>;
+
+/**
+ * Modifies a webhook using the current bot token
+ * Unstable - the API may be subject to change.
+ * @param object The webhook to modify
+ * @param options The options for modifying the webhook
+ */
+export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.Webhook>,
+  options?: APITypes.RESTPatchAPIWebhookJSONBody & {
+    withToken?: false;
+  },
+): Promise<APITypes.Webhook>;
+/**
+ * Modifies a webhook using the webhook's token
+ * Unstable - the API may be subject to change.
+ * @param object The webhook to modify
+ * @param options The options for modifying the webhook
+ */
+export async function modify(
+  parent: typeof ROOT_SYMBOL,
+  object: ObjectOrType<APITypes.Webhook>,
+  options?: APITypes.RESTPatchAPIWebhookWithTokenJSONBody & {
+    withToken: true;
+  },
+): Promise<
+  APITypes.RESTPatchAPIWebhookWithTokenResult & {
+    [APITypes.DATA_SYMBOL]: APITypes.DataTypes.WEBHOOK;
+  }
+>;
 export async function modify(
   parent: ParentObject,
   object: TypeByID<APITypes.DataTypes> | APITypes.GuildMember,
@@ -1310,6 +1341,20 @@ export async function modify(
           options,
         ),
         APITypes.DataTypes.USER,
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
+      const { withToken } = options;
+      delete options?.withToken;
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/webhooks/${(<TypeByID<APITypes.DataTypes>> object).id}${
+            withToken ? `/${(<APITypes.Webhook> object).token}` : ""
+          }`,
+          !withToken,
+          options,
+        ),
+        APITypes.DataTypes.WEBHOOK,
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
