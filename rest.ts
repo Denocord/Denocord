@@ -1370,5 +1370,17 @@ modify.nick = function (
   );
 };
 
+modify.widget = function (
+  guild: ObjectOrType<APITypes.Guild>,
+  options?: APITypes.RESTPatchAPIGuildWidgetSettingsJSONBody,
+) {
+  return rest.request(
+    "PATCH",
+    `/guilds/${guild.id}/widget`,
+    true,
+    options,
+  );
+};
+
 //#endregion modify(...)
 export { setAPIBase } from "./lib/util/constants.ts";
