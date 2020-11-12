@@ -1242,9 +1242,25 @@ export async function modify(
   object: ObjectOrType<APITypes.Role>,
   options?: APITypes.RESTPatchAPIGuildRoleJSONBody,
 ): Promise<APITypes.Role>;
+
+/**
+ * Modifies a guild member
+ * @param parent The guild the member is in
+ * @param object The guild member - the object must have either a `user` property with an ID or the `id` property directly on the object.
+ * @param options The options for modifying the guild member
+ */
+export async function modify(
+  parent: ObjectOrType<APITypes.Guild>,
+  object:
+    | (APITypes.GuildMember & {
+      id: string;
+    })
+    | TypeByID<APITypes.DataTypes.MEMBER>,
+  options?: APITypes.RESTPatchAPIGuildMemberJSONBody,
+): Promise<void>;
 export async function modify(
   parent: ParentObject,
-  object: TypeByID<APITypes.DataTypes>,
+  object: TypeByID<APITypes.DataTypes> | APITypes.GuildMember,
   options?: any,
 ): Promise<TypeByID<APITypes.DataTypes> | void> {
   if (parent === ROOT_SYMBOL) {
@@ -1252,7 +1268,7 @@ export async function modify(
       return createObject(
         await rest.request(
           "PATCH",
-          `/channels/${object.id}`,
+          `/channels/${(<TypeByID<APITypes.DataTypes>> object).id}`,
           true,
           options,
         ),
@@ -1262,14 +1278,14 @@ export async function modify(
       return createObject(
         await rest.request(
           "PATCH",
-          `/guilds/${object.id}`,
+          `/guilds/${(<TypeByID<APITypes.DataTypes>> object).id}`,
           true,
           options,
         ),
         APITypes.DataTypes.GUILD,
       );
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.USER) {
-      if (object.id !== "@me") {
+      if ((<TypeByID<APITypes.DataTypes>> object).id !== "@me") {
         throw new Error("Only the current user (@me) can be modified");
       }
       return createObject(
@@ -1287,7 +1303,9 @@ export async function modify(
       return createObject(
         await rest.request(
           "PATCH",
-          `/channels/${parent.id}/messages/${object.id}`,
+          `/channels/${parent.id}/messages/${
+            (<TypeByID<APITypes.DataTypes>> object).id
+          }`,
           true,
           options,
         ),
@@ -1299,11 +1317,21 @@ export async function modify(
       return createObject(
         await rest.request(
           "PATCH",
-          `/guilds/${parent.id}/roles/${object.id}`,
+          `/guilds/${parent.id}/roles/${
+            (<TypeByID<APITypes.DataTypes>> object).id
+          }`,
           true,
           options,
         ),
         APITypes.DataTypes.ROLE,
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.MEMBER) {
+      await rest.request(
+        "PATCH",
+        `/guilds/${parent.id}/members/${(<APITypes.GuildMember> object).user
+          ?.id || (<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+        options,
       );
     }
   }
