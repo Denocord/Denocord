@@ -322,6 +322,25 @@ create.pin = async function (
     },
   );
 };
+
+/**
+ * Publishes a message in an announcement channel to other guilds
+ * @param channel The announcement channel the message is in
+ * @param message The message to crosspost
+ */
+create.crosspost = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+  message: ObjectOrType<APITypes.Message>,
+): Promise<APITypes.Message> {
+  return createObject(
+    await rest.request(
+      "POST",
+      `/channels/${channel.id}/messages/${message.id}/crosspost`,
+      true,
+    ),
+    APITypes.DataTypes.MESSAGE,
+  );
+};
 //#endregion create(...)
 //#region get(...)
 /**
