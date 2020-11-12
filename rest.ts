@@ -1231,6 +1231,17 @@ export async function modify(
   options?: APITypes.RESTPatchAPIChannelMessageJSONBody,
 ): Promise<APITypes.Message>;
 
+/**
+ * Modifies a guild role
+ * @param parent The guild the role is in
+ * @param object The role to modify
+ * @param options The options for modifying the role
+ */
+export async function modify(
+  parent: ObjectOrType<APITypes.Guild>,
+  object: ObjectOrType<APITypes.Role>,
+  options?: APITypes.RESTPatchAPIGuildRoleJSONBody,
+): Promise<APITypes.Role>;
 export async function modify(
   parent: ParentObject,
   object: TypeByID<APITypes.DataTypes>,
@@ -1281,6 +1292,18 @@ export async function modify(
           options,
         ),
         APITypes.DataTypes.MESSAGE,
+      );
+    }
+  } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.GUILD) {
+    if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.ROLE) {
+      return createObject(
+        await rest.request(
+          "PATCH",
+          `/guilds/${parent.id}/roles/${object.id}`,
+          true,
+          options,
+        ),
+        APITypes.DataTypes.ROLE,
       );
     }
   }
