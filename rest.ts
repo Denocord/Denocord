@@ -1267,5 +1267,24 @@ export async function modify(
   }
 }
 
+/**
+ * Sets a nickname for the current user in a guild
+ * @param guild The guild to set a new nickname in
+ * @param nick The new nickname or undefined/null to remove
+ */
+modify.nick = function (
+  guild: ObjectOrType<APITypes.Guild>,
+  nick?: string | null,
+): Promise<APITypes.RESTPatchAPICurrentGuildMemberNicknameResult> {
+  return rest.request(
+    "PATCH",
+    `/guilds/${guild.id}/@me/nick`,
+    true,
+    {
+      nick: nick?.toString() ?? null,
+    },
+  );
+};
+
 //#endregion modify(...)
 export { setAPIBase } from "./lib/util/constants.ts";
