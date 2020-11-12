@@ -863,6 +863,20 @@ get.prune = function (
     opts,
   );
 };
+
+/**
+ * Gets the guild widget settings for a guild
+ * @param guild The guild to get the widget settings for
+ */
+get.widget = function (
+  guild: ObjectOrType<APITypes.Guild>,
+): Promise<APITypes.RESTGetAPIGuildWidgetSettingsResult> {
+  return rest.request(
+    "GET",
+    `/guilds/${guild.id}/widget`,
+    true,
+  );
+};
 //#endregion get(...)
 
 //#region remove(...)
