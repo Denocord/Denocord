@@ -457,6 +457,16 @@ export function get(
   id: string,
 ): Promise<APITypes.GuildMember>;
 /**
+ * Gets a specific emoji from a Discord guild
+ * @param parent The guild to get the emoji from
+ * @param id The ID of the emoji
+ */
+export function get(
+  parent: ObjectOrType<APITypes.Guild>,
+  type: APITypes.DataTypes.EMOJI,
+  id: string,
+): Promise<APITypes.Emoji>;
+/**
  * Get a specific message from a Discord channel
  * @param parent The channel to get the message from
  * @param id The ID of the message
@@ -583,6 +593,14 @@ export async function get(
         i.map((obj: APITypes.APIInvite) =>
           createObject(obj, APITypes.DataTypes.INVITE)
         )
+      );
+    } else if (type === APITypes.DataTypes.EMOJI) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/emojis/${id}`,
+        true,
+      ).then((obj: APITypes.APIEmoji) =>
+        createObject(obj, APITypes.DataTypes.EMOJI)
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
