@@ -491,6 +491,15 @@ export function get(
   id: string,
 ): Promise<APITypes.Emoji>;
 /**
+ * Gets a list of integrations for a Discord guild
+ * The objects are returned without a data type.
+ * @param parent The guild to get the integrations for
+ */
+export function get(
+  parent: ObjectOrType<APITypes.Guild>,
+  type: APITypes.DataTypes.INTEGRATION,
+): Promise<APITypes.APIGuildIntegration[]>;
+/**
  * Get a specific message from a Discord channel
  * @param parent The channel to get the message from
  * @param id The ID of the message
@@ -519,6 +528,7 @@ export async function get(
   | Arrayable<{
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes;
   }>
+  | APITypes.APIGuildIntegration[]
   | void
 > {
   if (parent === ROOT_SYMBOL) {
@@ -625,6 +635,12 @@ export async function get(
         true,
       ).then((obj: APITypes.APIEmoji) =>
         createObject(obj, APITypes.DataTypes.EMOJI)
+      );
+    } else if (type === APITypes.DataTypes.INTEGRATION) {
+      return rest.request(
+        "GET",
+        `/guilds/${parent.id}/integrations`,
+        true,
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
