@@ -969,6 +969,15 @@ export async function remove(
   obj: ObjectOrType<APITypes.GuildMember>,
   reason?: string,
 ): Promise<void>;
+export async function remove(
+  parent: ObjectOrType<APITypes.Guild>,
+  obj: ObjectOrType<
+    APITypes.Emoji & {
+      id: string;
+    }
+  >,
+  reason?: string,
+): Promise<void>;
 /**
  * Deletes a role
  * @param parent The guild to delete the role from
@@ -1060,6 +1069,17 @@ export async function remove(
         "DELETE",
         `/guilds/${parent.id}/roles/${(<APITypes.GuildMember> object).user
           ?.id || (<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+        {
+          reason: options.toString(),
+        },
+      );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.EMOJI) {
+      await rest.request(
+        "DELETE",
+        `/guilds/${parent.id}/emojis/${
+          (<TypeByID<APITypes.DataTypes>> object).id
+        }`,
         true,
         {
           reason: options.toString(),
