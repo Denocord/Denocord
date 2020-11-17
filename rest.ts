@@ -102,7 +102,11 @@ export function create<T extends APITypes.WebhookExecutePayload>(
   type: APITypes.DataTypes.MESSAGE,
   payload: T,
 ): Promise<T["wait"] extends true ? APITypes.Message : void>;
-
+/**
+ * Creates a role in a guild
+ * @param parent The guild to create the role in
+ * @param payload The options for creating the role
+ */
 export function create(
   parent: ObjectOrType<APITypes.Guild>,
   type: APITypes.DataTypes.ROLE,
@@ -1365,10 +1369,12 @@ export async function modify(
  */
 export async function modify(
   parent: ObjectOrType<APITypes.Guild>,
-  object: ObjectOrType<APITypes.Emoji & {
-    id: string
-  }>,
-  options: WithReason<APITypes.RESTPatchAPIGuildEmojiJSONBody>
+  object: ObjectOrType<
+    APITypes.Emoji & {
+      id: string;
+    }
+  >,
+  options: WithReason<APITypes.RESTPatchAPIGuildEmojiJSONBody>,
 ): Promise<APITypes.Emoji>;
 export async function modify(
   parent: ParentObject,
@@ -1462,10 +1468,14 @@ export async function modify(
     } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.EMOJI) {
       return rest.request(
         "PATCH",
-        `/guilds/${parent.id}/emojis/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        `/guilds/${parent.id}/emojis/${
+          (<TypeByID<APITypes.DataTypes>> object).id
+        }`,
         true,
-        options
-      ).then((emoji: APITypes.APIEmoji) => createObject(emoji, APITypes.DataTypes.EMOJI));
+        options,
+      ).then((emoji: APITypes.APIEmoji) =>
+        createObject(emoji, APITypes.DataTypes.EMOJI)
+      );
     }
   }
 }
