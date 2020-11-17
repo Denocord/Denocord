@@ -112,6 +112,16 @@ export function create(
   type: APITypes.DataTypes.ROLE,
   payload: WithReason<APITypes.RESTPostAPIGuildRoleJSONBody>,
 ): Promise<APITypes.Role>;
+/**
+ * Creates an emoji in a guild
+ * @param parent The guild to create the emoji in
+ * @param payload The options for creating the emoji
+ */
+export function create(
+  parent: ObjectOrType<APITypes.Guild>,
+  type: APITypes.DataTypes.EMOJI,
+  payload: WithReason<APITypes.RESTPostAPIGuildEmojiJSONBody>,
+): Promise<APITypes.Emoji>;
 export async function create(
   parent: ParentObject,
   type: APITypes.DataTypes,
@@ -214,6 +224,16 @@ export async function create(
           payload,
         ),
         APITypes.DataTypes.ROLE,
+      );
+    } else if (type === APITypes.DataTypes.EMOJI) {
+      return createObject(
+        await rest.request(
+          "POST",
+          `/guilds/${parent.id}/emojis`,
+          true,
+          payload,
+        ),
+        APITypes.DataTypes.EMOJI,
       );
     }
   } else if (parent[APITypes.DATA_SYMBOL] === APITypes.DataTypes.WEBHOOK) {
