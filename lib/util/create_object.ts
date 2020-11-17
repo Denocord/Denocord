@@ -32,8 +32,8 @@ export default function createObject(
   dataType: APITypes.DataTypes.INVITE,
 ): APITypes.Invite;
 export default function createObject(
-    objectWithoutDataType: APITypes.Emoji,
-    dataType: APITypes.DataTypes.EMOJI,
+  objectWithoutDataType: APITypes.Emoji,
+  dataType: APITypes.DataTypes.EMOJI,
 ): APITypes.Emoji;
 export default function createObject(
   objectWithoutDataType: any,
@@ -75,7 +75,9 @@ export default function createObject(
       );
     }
     if (g.emojis) {
-        g.emojis = g.emojis.map((e: APITypes.APIEmoji) => createObject(e, APITypes.DataTypes.EMOJI));
+      g.emojis = g.emojis.map((e: APITypes.APIEmoji) =>
+        createObject(e, APITypes.DataTypes.EMOJI)
+      );
     }
   } else if (dataType === APITypes.DataTypes.CHANNEL) {
     if (objectWithoutDataType.recipients) {
