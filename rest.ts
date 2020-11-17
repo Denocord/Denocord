@@ -1357,11 +1357,24 @@ export async function modify(
     [APITypes.DATA_SYMBOL]: APITypes.DataTypes.WEBHOOK;
   }
 >;
+/**
+ * Modifies a guild emoji
+ * @param parent The guild the emoji is in
+ * @param object The emoji to modify
+ * @param options The options for modifying the emoji
+ */
+export async function modify(
+  parent: ObjectOrType<APITypes.Guild>,
+  object: ObjectOrType<APITypes.Emoji & {
+    id: string
+  }>,
+  options: WithReason<APITypes.RESTPatchAPIGuildEmojiJSONBody>
+): Promise<APITypes.Emoji>;
 export async function modify(
   parent: ParentObject,
   object: TypeByID<APITypes.DataTypes> | APITypes.GuildMember,
   options?: any,
-): Promise<TypeByID<APITypes.DataTypes> | void> {
+): Promise<TypeByID<APITypes.DataTypes> | APITypes.Emoji | void> {
   if (parent === ROOT_SYMBOL) {
     if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.CHANNEL) {
       return createObject(
@@ -1446,6 +1459,13 @@ export async function modify(
         true,
         options,
       );
+    } else if (object[APITypes.DATA_SYMBOL] === APITypes.DataTypes.EMOJI) {
+      return rest.request(
+        "PATCH",
+        `/guilds/${parent.id}/emojis/${(<TypeByID<APITypes.DataTypes>> object).id}`,
+        true,
+        options
+      ).then((emoji: APITypes.APIEmoji) => createObject(emoji, APITypes.DataTypes.EMOJI));
     }
   }
 }
