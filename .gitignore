@@ -1,11 +1,8 @@
-yarn.lock
-node_modules/
 dist/
 .env
 .DS_Store
 bin/testConfig.ts
 bin/log.txt
 .vscode/
-deno_std/
 .deno_plugins/
 docs/
