@@ -32,7 +32,7 @@ export default function createObject(
   dataType: APITypes.DataTypes.INVITE,
 ): APITypes.Invite;
 export default function createObject(
-  objectWithoutDataType: APITypes.Emoji,
+  objectWithoutDataType: APITypes.APIEmoji,
   dataType: APITypes.DataTypes.EMOJI,
 ): APITypes.Emoji;
 export default function createObject(
