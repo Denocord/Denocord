@@ -877,6 +877,22 @@ get.widget = function (
     true,
   );
 };
+
+/**
+ * Get a list of the emoji in a guild
+ * @param guild The guild to get the emoji list for
+ */
+get.emojis = function (
+  guild: ObjectOrType<APITypes.Guild>,
+): Promise<APITypes.Emoji[]> {
+  return rest.request(
+    "GET",
+    `/guilds/${guild.id}/emojis`,
+    true,
+  ).then((emoji: APITypes.APIEmoji[]) =>
+    emoji.map((e) => createObject(e, APITypes.DataTypes.EMOJI))
+  );
+};
 //#endregion get(...)
 
 //#region remove(...)
