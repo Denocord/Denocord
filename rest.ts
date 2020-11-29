@@ -983,14 +983,27 @@ get.preview = function (
 /**
  * Get the list of guilds the current user is in
  * **Warning:** The output objects are untyped!
+ * 
+ * @param limit The maximum amount of the guilds to return
+ * @param before Gets guilds before this ID
+ * @param after Gets guilds after this ID
  */
-get.guilds = function (): Promise<APITypes.RESTAPIPartialCurrentUserGuild[]> {
+get.guilds = function (
+  limit?: number,
+  before?: string,
+  after?: string,
+): Promise<APITypes.RESTAPIPartialCurrentUserGuild[]> {
   return rest.request(
     "GET",
     `/users/@me/guilds`,
-    true
+    true,
+    {
+      limit,
+      before,
+      after,
+    },
   );
-}
+};
 //#endregion get(...)
 
 //#region remove(...)
