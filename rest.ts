@@ -1561,5 +1561,49 @@ modify.widget = function (
   );
 };
 
+/**
+ * Functions for dealing with member roles.
+ * API subject to change.
+ */
+modify.memberRoles = {
+  /**
+   * Adds a member to a role
+   * @param guild The guild the member is in
+   * @param member The member to add the role on
+   * @param role The role to add
+   */
+  async add(
+    guild: ObjectOrType<APITypes.Guild>,
+    member: ObjectOrType<APITypes.GuildMember> | APITypes.GuildMember,
+    role: ObjectOrType<APITypes.Role>,
+  ): Promise<void> {
+    await rest.request(
+      "PUT",
+      `/guilds/${guild.id}/members/${(<TypeByID<APITypes.DataTypes>> member)
+        .id || (<APITypes.GuildMember> member).user?.id}/roles/${role.id}`,
+      true,
+    );
+  },
+
+  /**
+   * Removes a role from a member
+   * @param guild The guild the member is in
+   * @param member The member to remove the role from
+   * @param role The role to remove
+   */
+  async remove(
+    guild: ObjectOrType<APITypes.Guild>,
+    member: ObjectOrType<APITypes.GuildMember> | APITypes.GuildMember,
+    role: ObjectOrType<APITypes.Role>,
+  ): Promise<void> {
+    await rest.request(
+      "DELETE",
+      `/guilds/${guild.id}/members/${(<TypeByID<APITypes.DataTypes>> member)
+        .id || (<APITypes.GuildMember> member).user?.id}/roles/${role.id}`,
+      true,
+    );
+  },
+};
+
 //#endregion modify(...)
 export { setAPIBase } from "./lib/util/constants.ts";
