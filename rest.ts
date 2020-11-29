@@ -365,6 +365,20 @@ create.crosspost = async function (
     APITypes.DataTypes.MESSAGE,
   );
 };
+
+/**
+ * Follows an announcement channel
+ * @param channel The channel to follow
+ * @param target The ID of the target channel
+ */
+create.follow = async function (
+  channel: ObjectOrType<APITypes.Channel>,
+  target: string,
+): Promise<APITypes.APIFollowedChannel> {
+  return rest.request("POST", `/channels/${channel.id}/followers`, true, {
+    webhook_channel_id: target,
+  });
+};
 //#endregion create(...)
 //#region get(...)
 /**
