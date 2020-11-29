@@ -951,6 +951,20 @@ get.emojis = function (
     emoji.map((e) => createObject(e, APITypes.DataTypes.EMOJI))
   );
 };
+
+/**
+ * Gets a guild preview
+ * @param guild The guild to fetch the preview for
+ */
+get.preview = function (
+  guild: ObjectOrType<APITypes.Guild>,
+): Promise<APITypes.APIGuildPreview> {
+  return rest.request(
+    "GET",
+    `/guilds/${guild.id}/preview`,
+    true,
+  );
+};
 //#endregion get(...)
 
 //#region remove(...)
