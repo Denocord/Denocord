@@ -979,6 +979,18 @@ get.preview = function (
     true,
   );
 };
+
+/**
+ * Get the list of guilds the current user is in
+ * **Warning:** The output objects are untyped!
+ */
+get.guilds = function (): Promise<APITypes.RESTAPIPartialCurrentUserGuild[]> {
+  return rest.request(
+    "GET",
+    `/users/@me/guilds`,
+    true
+  );
+}
 //#endregion get(...)
 
 //#region remove(...)
