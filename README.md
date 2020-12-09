@@ -22,13 +22,7 @@ Denocord is distributed under the MIT license. See the [`LICENSE`](./LICENSE) fi
 
 
 ## Contact
-
-- zorbyte#4500  
-Project Founder
-- TTtie#1381  
-Co-Founder
-
-Join the [official Discord server][discord-url].
+Join the [official Discord server][discord-url] or [GitHub discussions][gh-discussions] to contact the maintainers of Denocord.
 
 
 [contributors-shield]: https://img.shields.io/github/contributors/zorbyte/Denocord.svg?style=flat
@@ -43,3 +37,4 @@ Join the [official Discord server][discord-url].
 [license-url]: https://github.com/zorbyte/Denocord/blob/master/LICENSE
 [discord-url]: https://discord.gg/gS757SV
 [discord-shield]: https://discordapp.com/api/guilds/616556458946854922/embed.png
+[gh-discussions]: https://github.com/Denocord/Denocord/discussions
