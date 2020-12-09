@@ -25,16 +25,16 @@ Denocord is distributed under the MIT license. See the [`LICENSE`](./LICENSE) fi
 Join the [official Discord server][discord-url] or [GitHub discussions][gh-discussions] to contact the maintainers of Denocord.
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/zorbyte/Denocord.svg?style=flat
-[contributors-url]: https://github.com/zorbyte/Denocord/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/zorbyte/Denocord.svg?style=flat
-[forks-url]: https://github.com/zorbyte/Denocord/network/members
-[stars-shield]: https://img.shields.io/github/stars/zorbyte/Denocord.svg?style=flat
-[stars-url]: https://github.com/zorbyte/Denocord/stargazers
-[issues-shield]: https://img.shields.io/github/issues/zorbyte/Denocord.svg?style=flat
-[issues-url]: https://github.com/zorbyte/Denocord/issues
-[license-shield]: https://img.shields.io/github/license/zorbyte/Denocord.svg?style=flat
-[license-url]: https://github.com/zorbyte/Denocord/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/Denocord/Denocord.svg?style=flat
+[contributors-url]: https://github.com/Denocord/Denocord/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Denocord/Denocord.svg?style=flat
+[forks-url]: https://github.com/Denocord/Denocord/network/members
+[stars-shield]: https://img.shields.io/github/stars/Denocord/Denocord.svg?style=flat
+[stars-url]: https://github.com/Denocord/Denocord/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Denocord/Denocord.svg?style=flat
+[issues-url]: https://github.com/Denocord/Denocord/issues
+[license-shield]: https://img.shields.io/github/Denocord/zorbyte/Denocord.svg?style=flat
+[license-url]: https://github.com/Denocord/Denocord/blob/master/LICENSE
 [discord-url]: https://discord.gg/gS757SV
 [discord-shield]: https://discordapp.com/api/guilds/616556458946854922/embed.png
 [gh-discussions]: https://github.com/Denocord/Denocord/discussions
