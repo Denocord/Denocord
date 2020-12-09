@@ -379,6 +379,28 @@ create.follow = async function (
     webhook_channel_id: target,
   });
 };
+
+/**
+ * Adds a guild member to a server through OAuth2.
+ * Returned result may be undefined if the member is already on the server.
+ * @param guild The guild to add the member into
+ * @param user The user to add into the guild
+ * @param options Options for adding the user
+ */
+create.guildMember = async function (
+  guild: ObjectOrType<APITypes.Guild>,
+  user: ObjectOrType<APITypes.User>,
+  options: APITypes.RESTPutAPIGuildMemberJSONBody,
+): Promise<APITypes.GuildMember | undefined> {
+  const res = await rest.request(
+    "PUT",
+    `/guilds/${guild.id}/members/${user.id}`,
+    true,
+    options,
+  );
+  if (!res) return;
+  return createObject(res, APITypes.DataTypes.MEMBER);
+};
 //#endregion create(...)
 //#region get(...)
 /**
