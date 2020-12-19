@@ -33,7 +33,7 @@ Join the [official Discord server][discord-url] or [GitHub discussions][gh-discu
 [stars-url]: https://github.com/Denocord/Denocord/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Denocord/Denocord.svg?style=flat
 [issues-url]: https://github.com/Denocord/Denocord/issues
-[license-shield]: https://img.shields.io/github/Denocord/zorbyte/Denocord.svg?style=flat
+[license-shield]: https://img.shields.io/github/license/Denocord/Denocord.svg?style=flat
 [license-url]: https://github.com/Denocord/Denocord/blob/master/LICENSE
 [discord-url]: https://discord.gg/gS757SV
 [discord-shield]: https://discordapp.com/api/guilds/616556458946854922/embed.png
