@@ -121,7 +121,7 @@ class RequestHandler {
             }
           }
 
-          if (resp.status === 204) rs();
+          if (resp.status === 204) rs(undefined);
           const data = await resp.json();
 
           if (resp.ok) {
