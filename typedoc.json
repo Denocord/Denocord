@@ -1,0 +1,10 @@
+{
+    "excludeExternals": true,
+    "includeDeclarations": false,
+    "readme": "README.md",
+    "out": "docs/",
+    "inputFiles": ["mod.ts", "rest.ts", "util.ts", "ws.ts"],
+    "mode": "modules",
+    "entryPoint": "Globals",
+    "name": "Denocord"
+}

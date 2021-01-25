@@ -1,12 +1,10 @@
-export { default as StrictEventEmitter } from "https://raw.githubusercontent.com/bterlson/strict-event-emitter-types/master/src/index.ts";
-export { default as EventEmitter } from "https://deno.land/std@v0.62.0/node/events.ts";
-export {
-  connectWebSocket,
-  isWebSocketCloseEvent,
-  WebSocket,
-  WebSocketCloseEvent,
-} from "https://deno.land/std@v0.62.0/ws/mod.ts";
-export { equal } from "https://deno.land/std@v0.62.0/bytes/mod.ts";
-export { default as pako } from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
-export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/3cb89c23c4cbd6b2609113749d58248c8921537a/mod.ts";
-export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types/dc0007931f6be172500a4dd6665ec1239af93b56/src/high_level.ts";
+export type { default as StrictEventEmitter } from "https://raw.githubusercontent.com/bterlson/strict-event-emitter-types/master/src/index.ts";
+export { default as EventEmitter } from "https://deno.land/std@0.84.0/node/events.ts";
+export { equals as equal } from "https://deno.land/std@0.84.0/bytes/mod.ts";
+export { inflate } from "https://deno.land/x/zlib.es@v1.0.0/mod.ts";
+export { default as decompressor } from "https://raw.githubusercontent.com/Denocord/denoflate/d252d766d90ff4b9d5dde6831367a051b343aaea/mod.ts";
+//deno-fmt-ignore-line
+//export { default as decompressor } from "../../denoflate/mod.ts";
+
+// TODO: rewrite from discord-api-types-new to discord-api-types once main repo renamed
+export * as APITypes from "https://raw.githubusercontent.com/Denocord/discord-api-types-new/06c171515ef9d1b0a4ff8cb6b096606b947a42c6/high_level.ts";

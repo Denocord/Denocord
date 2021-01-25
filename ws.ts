@@ -10,4 +10,5 @@ export const prependOnceListener = ws.prependOnceListener.bind(ws);
 export const listenerCount = ws.listenerCount.bind(ws);
 export const setMaxListeners = ws.setMaxListeners.bind(ws);
 export const configure = ws.configure.bind(ws);
-export { CompressionOptions, WSOptions } from "./lib/ws/websocket_shard.ts";
+export { CompressionOptions } from "./lib/ws/websocket_shard.ts";
+export type { WSOptions } from "./lib/ws/websocket_shard.ts";

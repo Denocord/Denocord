@@ -14,3 +14,4 @@ const ws = WebsocketShard.get();
 export const login = ws.login.bind(ws);
 
 export { config, state } from "./lib/client.ts";
+export { APITypes } from "./lib/deps.ts";
