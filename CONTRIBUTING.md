@@ -18,7 +18,7 @@ is not private, please, document it using TSDoc.
 
 Before adding/modifying features, please check whether a
 [pull request](https://github.com/Denocord/Denocord/pulls) is already present
-for this feature.
-When adding a new feature, please check whether the feature you'd like to work
-on isn't already worked on. If it isn't worked on, it is recommended to consult
-the feature with us on [Discord](https://discord.gg/gS757SV).
+for this feature. When adding a new feature, please check whether the feature
+you'd like to work on isn't already worked on. If it isn't worked on, it is
+recommended to consult the feature with us on
+[Discord](https://discord.gg/gS757SV).
